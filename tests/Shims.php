@@ -81,8 +81,16 @@ namespace {
     /**
      * Bootstraps the Composer autoloader for vendor dependencies if present.
      */
-    if (file_exists('/var/www/glpi-dev_quinquies_nl/vendor/autoload.php')) {
-        require_once '/var/www/glpi-dev_quinquies_nl/vendor/autoload.php';
+    /** Keep tests independent of a developer's GLPI installation and autoloaders. */
+    if (!defined('ERROR')) {
+        define('ERROR', 1);
+    }
+    if (!function_exists('htmlescape')) {
+        /** Match the native HTML escaping contract used by the redirect template. */
+        function htmlescape(string $value): string
+        {
+            return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        }
     }
 
     /**
@@ -96,7 +104,7 @@ namespace {
         define('GLPI_VERSION', '10.0.12');
     }
     if (!defined('GLPI_ROOT')) {
-        define('GLPI_ROOT', '/var/www/glpi-dev_quinquies_nl');
+        define('GLPI_ROOT', dirname(__DIR__));
     }
     if (!defined('PLUGIN_SAMLSSO_LOGEVENTS')) {
         define('PLUGIN_SAMLSSO_LOGEVENTS', '_events.log');
@@ -114,7 +122,7 @@ namespace {
         define('NS_PLUG', 'GlpiPlugin\\');
     }
     if (!defined('GLPI_PLUGINS_DIRECTORIES')) {
-        define('GLPI_PLUGINS_DIRECTORIES', ['/var/www/glpi-dev_quinquies_nl/plugins']);
+        define('GLPI_PLUGINS_DIRECTORIES', [dirname(__DIR__)]);
     }
 
     if (!defined('PLUGIN_SAMLSSO_CLASSES')) {
@@ -875,6 +883,30 @@ namespace OneLogin\Saml2 {
             public const NAMEID_UNSPECIFIED = 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified';
             public const NAMEID_TRANSIENT = 'urn:oasis:names:tc:SAML:2.0:nameid-format:transient';
             public const NAMEID_PERSISTENT = 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent';
+        }
+    }
+}
+
+namespace Symfony\Component\HttpFoundation {
+    if (!class_exists(Request::class)) {
+        /** Minimal ACS input double; protocol cryptography is exercised separately. */
+        class Request
+        {
+            private array $parameters = [];
+
+            /** Retain the submitted parameters without requiring a GLPI installation. */
+            public static function create(string $uri, string $method = 'GET', array $parameters = []): self
+            {
+                $request = new self();
+                $request->parameters = $parameters;
+                return $request;
+            }
+
+            /** Return a submitted field or the caller's default. */
+            public function get(string $key, mixed $default = null): mixed
+            {
+                return $this->parameters[$key] ?? $default;
+            }
         }
     }
 }

@@ -76,6 +76,12 @@ Execute the entire automated test runner from the root of the plugin directory t
 php tests/RunAllTests.php
 ```
 
+Tests run standalone from this checkout; no developer-specific GLPI installation is required.
+The release-catalog suite accepts an explicitly declared development version newer than all published entries.
+For release packaging, run `SAMLSSO_RELEASE_VALIDATION=1 php tests/RunAllTests.php`;
+this additionally requires the packaged version's exact download entry. `tools/mkzip.sh` enables this gate automatically.
+
+
 ### 2. Creating a Release
 To package a new release zip using `tools/mkzip.sh`:
 1. Update the version constant `PLUGIN_SAMLSSO_VERSION` in `setup.php` (e.g. to `'1.2.7'`).

@@ -16,16 +16,15 @@ This fork branch is a review candidate, not a release. Base: upstream main `8d48
 
 The earlier prototype passed an isolated GLPI 12 / Authentik browser test: signed IdP request, callback redirect, IdP login screen, and denied access to the old application session. This is historical prototype evidence, not an end-to-end claim for this rebased branch.
 
-The rebased candidate passes IdpSloTest.php (valid request plus eight rejected variants) and PHP parsing. The complete upstream runner was executed on both the unmodified base and this candidate using the same isolated PHP runtime and HTTP Foundation dependency bootstrap. Candidate: 16/18 suites passed; base: 15/17. Both have the same two unresolved failures:
+The rebased candidate now passes all 18 suites using `php tests/RunAllTests.php` without an external GLPI bootstrap. The SLO suite uses the real bundled cryptographic library and local HTTP/GLPI boundary doubles. The missing HTML-escaping helper and developer-specific paths are resolved in test shims, without changing production escaping behavior.
 
-- AcsTest.php reaches a missing htmlescape() test-environment helper.
-- VersionAndCopyrightTest.php expects a 1.3.2 entry absent from the base samlsso.xml.
+Release-catalog checks now distinguish development from packaging. Every published entry is still checked for a valid version, duplicate entries and the expected upstream download path (including the historical plugin name). A newer development version must be explicitly listed in the changelog. Packaging sets `SAMLSSO_RELEASE_VALIDATION=1`, requiring the exact version entry; no fictitious download was added. Fixtures prove rejection of missing release entries, undeclared/older versions, empty catalogs, invalid URLs and duplicates.
 
-The harness environment supplies HTTP Foundation, the ERROR constant and a test-only plugin root because upstream tests refer to a developer-specific installation path. No production application was used or changed. Test logs and environment-specific paths are intentionally not published.
+The full rebased plugin is installed and active on an isolated GLPI 12 test instance. Fresh browser authentication is awaiting the owner's password/MFA; end-to-end acceptance is not yet complete. No production application or shared identity flow was changed.
 
 ## Before an upstream PR
 
-- Resolve the baseline test environment and release-manifest checks; do not report the full suite as green.
+- Completed: standalone unit/regression suite is green (18/18); release packaging remains intentionally strict.
 - Run Intelephense and SonarLint (not available in this preparation environment).
 - Review formatting, localization and the strict signed-request requirement with maintainers.
 - Re-run full browser integration on the rebased branch, including GLPI 11 and 12 where support is claimed.

@@ -203,7 +203,7 @@ namespace GlpiPlugin\Samlsso\Tests {
             $constants = $reflection->getConstants();
             $metaConstants = (new \ReflectionClass(ConfigItem::class))->getConstants();
             
-            $pluginDir = GLPI_ROOT . '/plugins/samlsso';
+            $pluginDir = dirname(__DIR__);
             $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($pluginDir));
             foreach ($constants as $name => $field) {
                 if ($name === 'class' || !is_string($field) || $field === 'id') {

@@ -1,5 +1,7 @@
 
 **V1.3.3**
+- Tests (fork candidate): Remove developer-specific GLPI bootstrap paths, provide standalone ACS request/HTML-escaping doubles, and resolve plugin source paths relative to the tests (yitsewu/samlsso#1).
+- Tests (fork candidate): Validate published release entries in development builds; require an exact version entry when packaging with SAMLSSO_RELEASE_VALIDATION=1. Add negative release-policy fixtures without publishing a fictitious download.
 - Bugfix (fork candidate): Validate signed IdP-initiated HTTP-Redirect logout callbacks against fresh login context before clearing the current session; includes protocol regression tests. Tracks https://github.com/yitsewu/samlsso/issues/1.
 - Feature: Added GLPI 12 compatibility while keeping GLPI 11 support unchanged - resolves https://github.com/DonutsNL/samlsso/issues/167.
 - Feature: Added `src/compat.php`, one abstract intermediate class per plugin class declaring the GLPI 12 core property types (`$rightname`, `$dohistory`, `$menu_option`) selected at load time from `GLPI_VERSION`, so `Config`, `Exclude`, `LoginFlow`, `RuleSaml` and `RuleSamlCollection` load on both GLPI 11 and GLPI 12.
