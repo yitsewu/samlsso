@@ -119,12 +119,12 @@ namespace GlpiPlugin\Samlsso\Tests {
         {
             $presets = ClaimMapEntity::getPresets();
             if (!isset($presets['entra_id']) || !isset($presets['okta']) || !isset($presets['keycloak'])) {
-                throw new \Exception("Presets loading failed.");
+                throw new \UnexpectedValueException("Presets loading failed.");
             }
 
             $entra = $presets['entra_id'];
             if (($entra[ClaimMapItem::FIELD_EMAIL] ?? '') !== 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress') {
-                throw new \Exception("Entra ID preset has incorrect email mapping.");
+                throw new \UnexpectedValueException("Entra ID preset has incorrect email mapping.");
             }
 
             echo "✅ Preset YAML mapping structures parsed successfully\n";
@@ -148,7 +148,7 @@ namespace GlpiPlugin\Samlsso\Tests {
                 ]
             ]);
             if ($success) {
-                throw new \Exception("Validation failed to reject invalid configs_id.");
+                throw new \UnexpectedValueException("Validation failed to reject invalid configs_id.");
             }
 
             $entity = new ClaimMapEntity(1);
@@ -162,10 +162,10 @@ namespace GlpiPlugin\Samlsso\Tests {
                 ]
             ]);
             if ($success) {
-                throw new \Exception("Validation failed to reject invalid GLPI field.");
+                throw new \UnexpectedValueException("Validation failed to reject invalid GLPI field.");
             }
             if (!isset($entity->getErrors()['mapping_0'])) {
-                throw new \Exception("Error messages were not correctly recorded for invalid field.");
+                throw new \UnexpectedValueException("Error messages were not correctly recorded for invalid field.");
             }
 
             // Test saving missing required fields (only username provided, email missing)
@@ -177,10 +177,10 @@ namespace GlpiPlugin\Samlsso\Tests {
                 ]
             ]);
             if ($success) {
-                throw new \Exception("Validation failed to reject missing email field.");
+                throw new \UnexpectedValueException("Validation failed to reject missing email field.");
             }
             if (!isset($entity->getErrors()['email_required'])) {
-                throw new \Exception("Error not recorded for missing email.");
+                throw new \UnexpectedValueException("Error not recorded for missing email.");
             }
 
             // Test saving with empty claim for required field
@@ -197,7 +197,7 @@ namespace GlpiPlugin\Samlsso\Tests {
                 ]
             ]);
             if ($success) {
-                throw new \Exception("Validation failed to reject empty claim for username.");
+                throw new \UnexpectedValueException("Validation failed to reject empty claim for username.");
             }
 
             // Test saving valid mappings (both username and email present)
@@ -214,7 +214,7 @@ namespace GlpiPlugin\Samlsso\Tests {
                 ]
             ]);
             if (!$success) {
-                throw new \Exception("Validation rejected valid mappings: " . implode('; ', $entity->getErrors()));
+                throw new \UnexpectedValueException("Validation rejected valid mappings: " . implode('; ', $entity->getErrors()));
             }
 
             // Verify that is_required is forced to 1 for required mappings
@@ -222,7 +222,7 @@ namespace GlpiPlugin\Samlsso\Tests {
             foreach ($mappings as $mapping) {
                 if ($mapping['glpi_field'] === ClaimMapItem::FIELD_USERNAME || $mapping['glpi_field'] === ClaimMapItem::FIELD_EMAIL) {
                     if ($mapping['is_required'] !== 1) {
-                        throw new \Exception("is_required was not forced to 1 for " . $mapping['glpi_field']);
+                        throw new \UnexpectedValueException("is_required was not forced to 1 for " . $mapping['glpi_field']);
                     }
                 }
             }
@@ -252,16 +252,16 @@ namespace GlpiPlugin\Samlsso\Tests {
             $userFields = SamlUser::getUserInputFieldsFromSamlClaim($response, 1);
 
             if ($userFields[SamlUser::NAME] !== 'john.doe') {
-                throw new \Exception("Default username fallback failed.");
+                throw new \UnexpectedValueException("Default username fallback failed.");
             }
             if ($userFields[SamlUser::EMAIL][0] !== 'john.doe@example.com') {
-                throw new \Exception("Default email fallback failed.");
+                throw new \UnexpectedValueException("Default email fallback failed.");
             }
             if ($userFields[SamlUser::REALNAME] !== 'Doe') {
-                throw new \Exception("Default realname fallback failed.");
+                throw new \UnexpectedValueException("Default realname fallback failed.");
             }
             if ($userFields[SamlUser::FIRSTNAME] !== 'John') {
-                throw new \Exception("Default firstname fallback failed.");
+                throw new \UnexpectedValueException("Default firstname fallback failed.");
             }
 
             echo "✅ Backward-compatible default schema fallback verified\n";
@@ -292,13 +292,13 @@ namespace GlpiPlugin\Samlsso\Tests {
             $userFields = SamlUser::getUserInputFieldsFromSamlClaim($response, 1);
 
             if ($userFields[SamlUser::NAME] !== 'custom_john') {
-                throw new \Exception("Custom username mapping failed.");
+                throw new \UnexpectedValueException("Custom username mapping failed.");
             }
             if ($userFields[SamlUser::EMAIL][0] !== 'custom_john@example.com') {
-                throw new \Exception("Custom email mapping failed.");
+                throw new \UnexpectedValueException("Custom email mapping failed.");
             }
             if ($userFields[SamlUser::REALNAME] !== 'CustomDoe') {
-                throw new \Exception("Custom realname mapping failed.");
+                throw new \UnexpectedValueException("Custom realname mapping failed.");
             }
 
             echo "✅ Dynamic custom claim mappings resolved correctly\n";
@@ -334,7 +334,7 @@ namespace GlpiPlugin\Samlsso\Tests {
             $observed = $entity->getObservedClaims();
 
             if (!in_array('claim-one', $observed, true) || !in_array('claim-two', $observed, true)) {
-                throw new \Exception("Observed claims tracking failed.");
+                throw new \UnexpectedValueException("Observed claims tracking failed.");
             }
 
             echo "✅ SAML response claim keys tracked and logged successfully\n";
@@ -367,13 +367,13 @@ XML;
             $anonymized = \GlpiPlugin\Samlsso\Config\ConfigEntity::anonymizeXml($xml);
 
             if (str_contains($anonymized, 'Base64SignatureValue') || str_contains($anonymized, 'Base64Certificate')) {
-                throw new \Exception("Signature/Certificate data was not stripped.");
+                throw new \UnexpectedValueException("Signature/Certificate data was not stripped.");
             }
             if (str_contains($anonymized, 'user@example.com')) {
-                throw new \Exception("PII leaf node text content was not replaced.");
+                throw new \UnexpectedValueException("PII leaf node text content was not replaced.");
             }
             if (!str_contains($anonymized, '[STRIPPED]')) {
-                throw new \Exception("Sanitized values should be replaced with '[STRIPPED]'.");
+                throw new \UnexpectedValueException("Sanitized values should be replaced with '[STRIPPED]'.");
             }
             echo "✅ XML response structure anonymized and sanitized successfully\n";
         }
@@ -402,7 +402,7 @@ XML;
 
             $userFields = SamlUser::getUserInputFieldsFromSamlClaim($response, 1);
             if ($userFields[SamlUser::FIRSTNAME] !== 'DefaultFirstname') {
-                throw new \Exception("Default value fallback failed for missing non-required field.");
+                throw new \UnexpectedValueException("Default value fallback failed for missing non-required field.");
             }
 
             // Scenario 2: overlength claim value (> 255 chars) falls back to default
@@ -422,7 +422,7 @@ XML;
             ];
             $userFields = SamlUser::getUserInputFieldsFromSamlClaim($response, 1);
             if ($userFields[SamlUser::FIRSTNAME] !== 'DefaultFirstname') {
-                throw new \Exception("Default value fallback failed for overlength field value.");
+                throw new \UnexpectedValueException("Default value fallback failed for overlength field value.");
             }
 
             // Scenario 3: missing required field without default raises a fatal error
@@ -461,7 +461,7 @@ XML;
             }
 
             if (!$hasRaisedError) {
-                throw new \Exception("Required field missing did not raise a fatal error.");
+                throw new \UnexpectedValueException("Required field missing did not raise a fatal error.");
             }
 
             echo "✅ Fallback defaults and required validations evaluated successfully\n";
@@ -483,10 +483,10 @@ XML;
             $criterias = $rule->getCriterias();
 
             if (!isset($criterias[ClaimMapItem::FIELD_GROUPS]) || !isset($criterias[ClaimMapItem::FIELD_JOBTITLE])) {
-                throw new \Exception("Dynamic rule_field criteria registration failed.");
+                throw new \UnexpectedValueException("Dynamic rule_field criteria registration failed.");
             }
             if (($criterias[ClaimMapItem::FIELD_GROUPS]['name'] ?? '') !== 'SAML Claim: Groups') {
-                throw new \Exception("Incorrect dynamic criteria name mapping.");
+                throw new \UnexpectedValueException("Incorrect dynamic criteria name mapping.");
             }
             echo "✅ Dynamic rule_field criteria registration verified\n";
         }
@@ -655,42 +655,42 @@ XML;
             // --- Verify JSON structure ---
             $decoded = json_decode($json, true);
             if (!is_array($decoded)) {
-                throw new \Exception("Export JSON is not valid JSON.");
+                throw new \UnexpectedValueException("Export JSON is not valid JSON.");
             }
             if (($decoded['schema_version'] ?? '') !== '1') {
-                throw new \Exception("Export JSON missing or wrong schema_version.");
+                throw new \UnexpectedValueException("Export JSON missing or wrong schema_version.");
             }
             if (($decoded['plugin_version'] ?? '') !== PLUGIN_SAMLSSO_VERSION) {
-                throw new \Exception("Export JSON missing or wrong plugin_version.");
+                throw new \UnexpectedValueException("Export JSON missing or wrong plugin_version.");
             }
             if (!isset($decoded['configurations']) || count($decoded['configurations']) !== 2) {
-                throw new \Exception("Export JSON configurations count mismatch: expected 2.");
+                throw new \UnexpectedValueException("Export JSON configurations count mismatch: expected 2.");
             }
 
             $firstEntry = $decoded['configurations'][0];
             if (!isset($firstEntry['config']) || !isset($firstEntry['claim_maps'])) {
-                throw new \Exception("Export JSON configuration entry missing config or claim_maps block.");
+                throw new \UnexpectedValueException("Export JSON configuration entry missing config or claim_maps block.");
             }
             if (($firstEntry['config']['id'] ?? 0) !== 1) {
-                throw new \Exception("Export JSON config id does not match original (expected 1).");
+                throw new \UnexpectedValueException("Export JSON config id does not match original (expected 1).");
             }
             if (($firstEntry['config']['name'] ?? '') !== 'Test IDP Alpha') {
-                throw new \Exception("Export JSON config name does not match original.");
+                throw new \UnexpectedValueException("Export JSON config name does not match original.");
             }
             if (count($firstEntry['claim_maps']) !== 3) {
-                throw new \Exception("Export JSON claim_maps count mismatch for first config.");
+                throw new \UnexpectedValueException("Export JSON claim_maps count mismatch for first config.");
             }
             if (($firstEntry['claim_maps'][0]['glpi_field'] ?? '') !== ClaimMapItem::FIELD_USERNAME) {
-                throw new \Exception("Export JSON first claim_map glpi_field is incorrect.");
+                throw new \UnexpectedValueException("Export JSON first claim_map glpi_field is incorrect.");
             }
             if (($firstEntry['claim_maps'][0]['is_required'] ?? -1) !== 1) {
-                throw new \Exception("Export JSON first claim_map is_required flag not preserved.");
+                throw new \UnexpectedValueException("Export JSON first claim_map is_required flag not preserved.");
             }
 
             // Second config should have empty claim_maps
             $secondEntry = $decoded['configurations'][1];
             if (($secondEntry['config']['id'] ?? 0) !== 2) {
-                throw new \Exception("Export JSON second config id does not match original (expected 2).");
+                throw new \UnexpectedValueException("Export JSON second config id does not match original (expected 2).");
             }
 
             // --- RESTORE ROUND-TRIP VERIFICATION ---
@@ -745,24 +745,24 @@ XML;
 
             // Verify deletes were called (2 tables purged)
             if (count($this->db->deletedRows) < 2) {
-                throw new \Exception("Restore did not call delete on both tables as expected.");
+                throw new \UnexpectedValueException("Restore did not call delete on both tables as expected.");
             }
 
             // Verify inserts were called for 2 configs
             $configInserts = array_filter($this->db->insertedRows, fn($r) => ($r['table'] ?? '') === 'glpi_plugin_samlsso_configs');
             if (count($configInserts) !== 2) {
-                throw new \Exception("Restore inserted wrong number of config rows: expected 2, got " . count($configInserts) . ".");
+                throw new \UnexpectedValueException("Restore inserted wrong number of config rows: expected 2, got " . count($configInserts) . ".");
             }
 
             // Verify original IDs are preserved
             $insertedIds = array_map(fn($r) => $r['data']['id'] ?? null, array_values($configInserts));
             if (!in_array(1, $insertedIds, true) || !in_array(2, $insertedIds, true)) {
-                throw new \Exception("Restore did not preserve original IDP configuration IDs.");
+                throw new \UnexpectedValueException("Restore did not preserve original IDP configuration IDs.");
             }
 
             // Verify restored count
             if ($restoredCount !== 2) {
-                throw new \Exception("Restore round-trip count mismatch: expected 2, got {$restoredCount}.");
+                throw new \UnexpectedValueException("Restore round-trip count mismatch: expected 2, got {$restoredCount}.");
             }
 
             echo "✅ Bulk JSON export/import round-trip verified successfully\n";
@@ -793,7 +793,7 @@ XML;
             $userFields = SamlUser::getUserInputFieldsFromSamlClaim($response, 1);
 
             if (!isset($userFields['_saml_rule_fields'][ClaimMapItem::FIELD_EMAIL]) || $userFields['_saml_rule_fields'][ClaimMapItem::FIELD_EMAIL] !== 'rule-email@quinquies.nl') {
-                throw new \Exception("Dynamic rule field mapping for email failed.");
+                throw new \UnexpectedValueException("Dynamic rule field mapping for email failed.");
             }
 
             echo "✅ Dynamic custom rule field mappings resolved correctly\n";

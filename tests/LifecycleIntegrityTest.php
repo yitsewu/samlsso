@@ -74,13 +74,13 @@ namespace GlpiPlugin\Samlsso\Tests {
             $setupFile = $basePath . '/setup.php';
 
             if (!file_exists($setupFile)) {
-                throw new \Exception("setup.php not found at $setupFile");
+                throw new \UnexpectedValueException("setup.php not found at $setupFile");
             }
 
             // Extract PLUGIN_SAMLSSO_CLASSES from setup.php
             $setupContent = file_get_contents($setupFile);
             if (!preg_match('/define\(\'PLUGIN_SAMLSSO_CLASSES\'\s*,\s*\[(.*?)\]\)/s', $setupContent, $matches)) {
-                throw new \Exception("PLUGIN_SAMLSSO_CLASSES constant not found in setup.php");
+                throw new \UnexpectedValueException("PLUGIN_SAMLSSO_CLASSES constant not found in setup.php");
             }
 
             // Support both formats:
@@ -161,19 +161,19 @@ namespace GlpiPlugin\Samlsso\Tests {
             }
 
             if (!empty($mismatchedClasses)) {
-                throw new \Exception("Lifecycle Method Mismatch Failure:\n" . implode("\n", $mismatchedClasses));
+                throw new \UnexpectedValueException("Lifecycle Method Mismatch Failure:\n" . implode("\n", $mismatchedClasses));
             }
 
             // Verify all classes containing install/uninstall are in PLUGIN_SAMLSSO_CLASSES
             $missingFromSetup = array_diff($classesWithLifecycle, $classesInSetup);
             if (!empty($missingFromSetup)) {
-                throw new \Exception("The following classes have install/uninstall methods but are missing from PLUGIN_SAMLSSO_CLASSES in setup.php:\n" . implode("\n", $missingFromSetup));
+                throw new \UnexpectedValueException("The following classes have install/uninstall methods but are missing from PLUGIN_SAMLSSO_CLASSES in setup.php:\n" . implode("\n", $missingFromSetup));
             }
 
             // Verify that all classes listed in PLUGIN_SAMLSSO_CLASSES actually exist and have install/uninstall methods
             foreach ($classesInSetup as $class) {
                 if (!in_array($class, $classesWithLifecycle)) {
-                    throw new \Exception("Class '$class' is listed in PLUGIN_SAMLSSO_CLASSES in setup.php but does not implement both install and uninstall methods in the codebase.");
+                    throw new \UnexpectedValueException("Class '$class' is listed in PLUGIN_SAMLSSO_CLASSES in setup.php but does not implement both install and uninstall methods in the codebase.");
                 }
             }
 
@@ -200,14 +200,14 @@ namespace GlpiPlugin\Samlsso\Tests {
             foreach ($files as $relPath) {
                 $filePath = $basePath . '/' . $relPath;
                 if (!file_exists($filePath)) {
-                    throw new \Exception("File not found: $filePath");
+                    throw new \UnexpectedValueException("File not found: $filePath");
                 }
 
                 $content = file_get_contents($filePath);
 
                 // Find the CREATE TABLE query in the file
                 if (!preg_match('/CREATE\s+TABLE\s+.*?\((.*?)\)\s*ENGINE/is', $content, $matches)) {
-                    throw new \Exception("Could not find CREATE TABLE statement in $relPath");
+                    throw new \UnexpectedValueException("Could not find CREATE TABLE statement in $relPath");
                 }
 
                 $fieldsBlock = $matches[1];
@@ -229,14 +229,14 @@ namespace GlpiPlugin\Samlsso\Tests {
                             // Primary key 'id'
                             if ($fieldName === 'id') {
                                 if (!str_contains($fieldModifiers, '{$default_key_sign}') && !str_contains($fieldModifiers, '{$default_primary_key_sign}')) {
-                                    throw new \Exception("Primary key 'id' in $relPath does not use the default_key_sign placeholder: $line");
+                                    throw new \UnexpectedValueException("Primary key 'id' in $relPath does not use the default_key_sign placeholder: $line");
                                 }
                             }
 
                             // Foreign keys (configs_id, idpId, userId)
                             if ($fieldName === 'configs_id' || $fieldName === 'idpId' || $fieldName === 'userId') {
                                 if (!str_contains($fieldModifiers, '{$default_key_sign}') && !str_contains($fieldModifiers, '{$default_primary_key_sign}')) {
-                                    throw new \Exception("Foreign key '$fieldName' in $relPath does not use the default_key_sign placeholder: $line");
+                                    throw new \UnexpectedValueException("Foreign key '$fieldName' in $relPath does not use the default_key_sign placeholder: $line");
                                 }
                             }
                         }
@@ -256,7 +256,7 @@ namespace GlpiPlugin\Samlsso\Tests {
             require_once $basePath . '/hook.php';
 
             if (!function_exists('plugin_samlsso_install')) {
-                throw new \Exception("plugin_samlsso_install function not defined in hook.php");
+                throw new \UnexpectedValueException("plugin_samlsso_install function not defined in hook.php");
             }
 
             /**
@@ -272,7 +272,7 @@ namespace GlpiPlugin\Samlsso\Tests {
             $result = plugin_samlsso_install();
 
             if (!$result) {
-                throw new \Exception("plugin_samlsso_install returned false");
+                throw new \UnexpectedValueException("plugin_samlsso_install returned false");
             }
 
             /**
@@ -280,10 +280,10 @@ namespace GlpiPlugin\Samlsso\Tests {
              */
             if (class_exists(\Glpi\Cache\CacheManager::class) && property_exists(\Glpi\Cache\CacheManager::class, 'wasResetCalled')) {
                 if (!\Glpi\Cache\CacheManager::$wasResetCalled) {
-                    throw new \Exception("CacheManager::resetAllCaches() was not called during plugin_samlsso_install()");
+                    throw new \UnexpectedValueException("CacheManager::resetAllCaches() was not called during plugin_samlsso_install()");
                 }
             } else {
-                throw new \Exception("Glpi\\Cache\\CacheManager shim not loaded correctly in test environment");
+                throw new \UnexpectedValueException("Glpi\\Cache\\CacheManager shim not loaded correctly in test environment");
             }
 
             echo "✅ Validated cache reset: CacheManager::resetAllCaches() is called during installation.\n";

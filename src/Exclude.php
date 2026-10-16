@@ -86,7 +86,7 @@ class Exclude extends ExcludeCompat
      * it to the RegEx Matching then decides what to do.
      *
      * @param  int      $nb     number of items.
-     * @return void
+     * @return string
      */
     public static function getTypeName($nb = 0): string
     {
@@ -261,16 +261,8 @@ class Exclude extends ExcludeCompat
         }
         foreach ($excludes as $exclude) {
             if (strpos($requestPath, $exclude[Exclude::EXCLUDEPATH]) !== false) {
-                // Do we need to validate client agent?
-                if (
-                    !empty($exclude[Exclude::CLIENTAGENT])                                        &&         //NOSONAR - Maybe fix verbosity in future.
-                    strpos($_SERVER['HTTP_USER_AGENT'], $exclude[Exclude::CLIENTAGENT]) !== false
-                ) {
-                    return ($exclude[Exclude::ACTION]) ? true : false;
-                } else {
-                    // return configured action true for bypass, false for auth.
-                    return ($exclude[Exclude::ACTION]) ? true : false;
-                }
+                // Preserve the configured path action regardless of the optional agent field.
+                return (bool) $exclude[Exclude::ACTION];
             } // Else Continue
         }
         return false;
@@ -346,7 +338,7 @@ class Exclude extends ExcludeCompat
      * @return void
      * @see             hook.php:plugin_GLPISaml_install()
      */
-    public static function install(Migration $migration): void
+    public static function install(Migration $_migration): void
     {
         global $DB;
         $default_charset = DBConnection::getDefaultCharset();
@@ -446,7 +438,7 @@ class Exclude extends ExcludeCompat
     /**
      * uninstall(Migration migration) : void -
      * Uninstall tables uncomment the line to make plugin clean table.
-     * 
+     *
      * @return void
      * @see             hook.php:plugin_GLPISaml_uninstall()
      */

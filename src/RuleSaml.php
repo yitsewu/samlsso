@@ -108,7 +108,6 @@ class RuleSaml extends RuleSamlCompat
     public function invoke(): void
     {
         Session::checkRight(self::$rightname, READ);
-        $rulecollection = new RuleSamlCollection();
         include_once  GLPI_ROOT . "/front/rule.common.php";                                      // NOSONAR - Cant be included with USE.
     }
 
@@ -121,7 +120,6 @@ class RuleSaml extends RuleSamlCompat
     public function invokeForm(): void
     {
         Session::checkRight(self::$rightname, READ);
-        $rulecollection = new RuleSamlCollection();
         include_once  GLPI_ROOT . "/front/rule.common.form.php";                                 // NOSONAR - Cant be included with USE.
     }
 
@@ -185,7 +183,7 @@ class RuleSaml extends RuleSamlCompat
             $criterias['samlClaimedJobTitle']['table']    = '';
             $criterias['samlClaimedJobTitle']['field']    = '';
             $criterias['samlClaimedJobTitle']['name']     = __('SAML Job Title', PLUGIN_NAME);
-            $criterias['samlClaimedJobTitle']['linkfield']= '';
+            $criterias['samlClaimedJobTitle']['linkfield'] = '';
             $criterias['samlClaimedJobTitle']['virtual']  = true;
             $criterias['samlClaimedJobTitle']['id']       = 'samlClaimedJobTitle';
 

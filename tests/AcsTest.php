@@ -46,7 +46,7 @@ declare(strict_types=1);
 
 /**
  * AcsTest.php
- * 
+ *
  * Unit tests validating the ACS (Assertion Consumer Service) login state transitions,
  * replay protection checks, and malformed SAML response handling.
  */
@@ -127,7 +127,7 @@ namespace GlpiPlugin\Samlsso\LoginFlow {
             } catch (\Throwable $t) {
                 // ignore
             }
-            throw new \Exception($errorMsg);
+            throw new \UnexpectedValueException($errorMsg);
         }
     }
 }
@@ -174,10 +174,10 @@ namespace GlpiPlugin\Samlsso\Tests {
 
             try {
                 $acs->init($request);
-                throw new \Exception("Acs should have blocked replayed SAML response ID.");
+                throw new \UnexpectedValueException("Acs should have blocked replayed SAML response ID.");
             } catch (\Exception $e) {
                 if (!str_contains($e->getMessage(), 'already been used') && !str_contains($e->getMessage(), 'replayed')) {
-                    throw new \Exception("Unexpected failure message on replay check: " . $e->getMessage());
+                    throw new \UnexpectedValueException("Unexpected failure message on replay check: " . $e->getMessage());
                 }
             }
 
@@ -210,7 +210,7 @@ namespace GlpiPlugin\Samlsso\Tests {
 
             try {
                 $acs->init($request);
-                throw new \Exception("Acs should have blocked request with invalid state phase.");
+                throw new \UnexpectedValueException("Acs should have blocked request with invalid state phase.");
             } catch (\Exception $e) {
                 /**
                  * Expected to fail because the state phase is PHASE_INITIAL (1) instead of PHASE_SAML_ACS (2).
@@ -247,10 +247,10 @@ namespace GlpiPlugin\Samlsso\Tests {
 
             try {
                 $acs->init($request);
-                throw new \Exception("Acs should have failed validation for malformed/invalid SAMLResponse.");
+                throw new \UnexpectedValueException("Acs should have failed validation for malformed/invalid SAMLResponse.");
             } catch (\Exception $e) {
                 if (!str_contains($e->getMessage(), 'Validation of the samlResponse document failed')) {
-                    throw new \Exception("Unexpected failure message on malformed xml check: " . $e->getMessage());
+                    throw new \UnexpectedValueException("Unexpected failure message on malformed xml check: " . $e->getMessage());
                 }
             }
 
@@ -271,10 +271,10 @@ namespace GlpiPlugin\Samlsso\Tests {
             TestableAcs::$lastError = [];
             try {
                 $acs->init($request);
-                throw new \Exception("Acs should have failed due to missing SAMLResponse.");
+                throw new \UnexpectedValueException("Acs should have failed due to missing SAMLResponse.");
             } catch (\Exception $e) {
                 if (!str_contains($e->getMessage(), 'did not contain the required samlResponse')) {
-                    throw new \Exception("Unexpected failure message on missing response check: " . $e->getMessage());
+                    throw new \UnexpectedValueException("Unexpected failure message on missing response check: " . $e->getMessage());
                 }
             }
             echo "✅ ACS: missing response or idpId exception handling\n";
@@ -293,10 +293,10 @@ namespace GlpiPlugin\Samlsso\Tests {
             TestableAcs::$lastError = [];
             try {
                 $acs->init($request);
-                throw new \Exception("Acs should have failed because ConfigEntity threw exception.");
+                throw new \UnexpectedValueException("Acs should have failed because ConfigEntity threw exception.");
             } catch (\Exception $e) {
                 if (!str_contains($e->getMessage(), 'Unable to fetch idp configuration')) {
-                    throw new \Exception("Unexpected failure message on ConfigEntity error: " . $e->getMessage());
+                    throw new \UnexpectedValueException("Unexpected failure message on ConfigEntity error: " . $e->getMessage());
                 }
             } finally {
                 \GlpiPlugin\Samlsso\Config\MockConfigEntity::$mockThrow = null;
@@ -318,10 +318,10 @@ namespace GlpiPlugin\Samlsso\Tests {
             TestableAcs::$lastError = [];
             try {
                 $acs->init($request);
-                throw new \Exception("Acs should have failed because setProxyVars threw exception.");
+                throw new \UnexpectedValueException("Acs should have failed because setProxyVars threw exception.");
             } catch (\Exception $e) {
                 if (!str_contains($e->getMessage(), 'Proxy failure exception')) {
-                    throw new \Exception("Unexpected failure message on proxy error: " . $e->getMessage());
+                    throw new \UnexpectedValueException("Unexpected failure message on proxy error: " . $e->getMessage());
                 }
             } finally {
                 \GlpiPlugin\Samlsso\Config\MockConfigEntity::$mockFields = [];
@@ -343,10 +343,10 @@ namespace GlpiPlugin\Samlsso\Tests {
             TestableAcs::$lastError = [];
             try {
                 $acs->init($request);
-                throw new \Exception("Acs should have failed because Settings initialization threw exception.");
+                throw new \UnexpectedValueException("Acs should have failed because Settings initialization threw exception.");
             } catch (\Exception $e) {
                 if (!str_contains($e->getMessage(), 'PHP-SAML could not initialize')) {
-                    throw new \Exception("Unexpected failure message on Settings error: " . $e->getMessage());
+                    throw new \UnexpectedValueException("Unexpected failure message on Settings error: " . $e->getMessage());
                 }
             } finally {
                 \OneLogin\Saml2\Settings::$mockThrow = null;
@@ -367,10 +367,10 @@ namespace GlpiPlugin\Samlsso\Tests {
             TestableAcs::$lastError = [];
             try {
                 $acs->init($request);
-                throw new \Exception("Acs should have failed because Response processing threw exception.");
+                throw new \UnexpectedValueException("Acs should have failed because Response processing threw exception.");
             } catch (\Exception $e) {
                 if (!str_contains($e->getMessage(), 'PHP-SAML library could not process samlResponse')) {
-                    throw new \Exception("Unexpected failure message on Response error: " . $e->getMessage());
+                    throw new \UnexpectedValueException("Unexpected failure message on Response error: " . $e->getMessage());
                 }
             } finally {
                 \OneLogin\Saml2\Response::$mockThrow = null;
@@ -392,10 +392,10 @@ namespace GlpiPlugin\Samlsso\Tests {
             TestableAcs::$lastError = [];
             try {
                 $acs->init($request);
-                throw new \Exception("Acs should have failed because Loginstate lookup threw exception.");
+                throw new \UnexpectedValueException("Acs should have failed because Loginstate lookup threw exception.");
             } catch (\Exception $e) {
                 if (!str_contains($e->getMessage(), 'Could not fetch loginState from database')) {
-                    throw new \Exception("Unexpected failure message on Loginstate error: " . $e->getMessage());
+                    throw new \UnexpectedValueException("Unexpected failure message on Loginstate error: " . $e->getMessage());
                 }
             } finally {
                 \GlpiPlugin\Samlsso\Loginstate::$mockConstructorThrow = null;
@@ -426,10 +426,10 @@ namespace GlpiPlugin\Samlsso\Tests {
             TestableAcs::$lastError = [];
             try {
                 $acs->init($request);
-                throw new \Exception("Acs should have failed validation due to critical error throwing in isValid.");
+                throw new \UnexpectedValueException("Acs should have failed validation due to critical error throwing in isValid.");
             } catch (\Exception $e) {
                 if (!str_contains($e->getMessage(), 'Validation of the samlResponse document failed with a critical error')) {
-                    throw new \Exception("Unexpected failure message on validation critical error: " . $e->getMessage());
+                    throw new \UnexpectedValueException("Unexpected failure message on validation critical error: " . $e->getMessage());
                 }
             } finally {
                 \OneLogin\Saml2\Response::$mockIsValidThrow = null;
@@ -460,10 +460,10 @@ namespace GlpiPlugin\Samlsso\Tests {
             TestableAcs::$lastError = [];
             try {
                 $acs->init($request);
-                throw new \Exception("Acs should have failed because setSamlResponseId threw exception.");
+                throw new \UnexpectedValueException("Acs should have failed because setSamlResponseId threw exception.");
             } catch (\Exception $e) {
                 if (!str_contains($e->getMessage(), 'update the samlResponseId into the LoginState database')) {
-                    throw new \Exception("Unexpected failure message on setSamlResponseId error: " . $e->getMessage());
+                    throw new \UnexpectedValueException("Unexpected failure message on setSamlResponseId error: " . $e->getMessage());
                 }
             } finally {
                 \GlpiPlugin\Samlsso\Loginstate::$mockSetSamlResponseIdThrow = null;
@@ -494,10 +494,10 @@ namespace GlpiPlugin\Samlsso\Tests {
             TestableAcs::$lastError = [];
             try {
                 $acs->init($request);
-                throw new \Exception("Acs should have failed because phase was altered after registration.");
+                throw new \UnexpectedValueException("Acs should have failed because phase was altered after registration.");
             } catch (\Exception $e) {
                 if (!str_contains($e->getMessage(), 'GLPI did not expect an assertion from this Idp')) {
-                    throw new \Exception("Unexpected failure message on phase mismatched after registration: " . $e->getMessage());
+                    throw new \UnexpectedValueException("Unexpected failure message on phase mismatched after registration: " . $e->getMessage());
                 }
             } finally {
                 \GlpiPlugin\Samlsso\Loginstate::$mockPhases = null;
@@ -528,10 +528,10 @@ namespace GlpiPlugin\Samlsso\Tests {
             TestableAcs::$lastError = [];
             try {
                 $acs->init($request);
-                throw new \Exception("Acs should have failed because setPhase threw exception.");
+                throw new \UnexpectedValueException("Acs should have failed because setPhase threw exception.");
             } catch (\Exception $e) {
                 if (!str_contains($e->getMessage(), 'update the login phase to LoginState::PHASE_SAML_AUTH')) {
-                    throw new \Exception("Unexpected failure message on setPhase error: " . $e->getMessage());
+                    throw new \UnexpectedValueException("Unexpected failure message on setPhase error: " . $e->getMessage());
                 }
             } finally {
                 \GlpiPlugin\Samlsso\Loginstate::$mockSetPhaseThrow = null;
@@ -561,10 +561,10 @@ namespace GlpiPlugin\Samlsso\Tests {
             TestableAcs::$lastError = [];
             try {
                 $acs->init($request);
-                throw new \Exception("Acs should have redirected the user upon successful login.");
+                throw new \UnexpectedValueException("Acs should have redirected the user upon successful login.");
             } catch (\Exception $e) {
                 if (!str_contains($e->getMessage(), 'Redirect to:')) {
-                    throw new \Exception("Successful login did not initiate redirect. Instead failed with: " . $e->getMessage());
+                    throw new \UnexpectedValueException("Successful login did not initiate redirect. Instead failed with: " . $e->getMessage());
                 }
             }
             echo "✅ ACS: Successful auth data path with redirection\n";
@@ -593,19 +593,19 @@ namespace GlpiPlugin\Samlsso\Tests {
             TestableAcs::$lastError = [];
             try {
                 $acs->init($request);
-                throw new \Exception("Acs should have thrown on invalid signature.");
+                throw new \UnexpectedValueException("Acs should have thrown on invalid signature.");
             } catch (\Exception $e) {
                 // Assert that the phase transitioned to PHASE_ERROR (9)
                 $activeState = \GlpiPlugin\Samlsso\LoginFlow::$activeState;
                 if ($activeState->getPhase() !== Loginstate::PHASE_ERROR) {
-                    throw new \Exception("State phase did not transition to PHASE_ERROR (9). Got: " . $activeState->getPhase());
+                    throw new \UnexpectedValueException("State phase did not transition to PHASE_ERROR (9). Got: " . $activeState->getPhase());
                 }
-                
+
                 // Assert that the error trace log is populated
                 $safeState = $activeState->getSafeStateForLogging(true);
                 $trace = $safeState[Loginstate::LOGIN_FLOW_TRACE] ?? '';
                 if (empty($trace) || !str_contains($trace, 'Validation of the samlResponse document failed')) {
-                    throw new \Exception("Error log trace not populated correctly in LoginState. Got: " . var_export($trace, true));
+                    throw new \UnexpectedValueException("Error log trace not populated correctly in LoginState. Got: " . var_export($trace, true));
                 }
             }
             echo "✅ ACS: phase transitions to PHASE_ERROR (9) and logs trace on failure\n";

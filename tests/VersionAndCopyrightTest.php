@@ -66,21 +66,21 @@ namespace GlpiPlugin\Samlsso\Tests {
         public function testPhpFilesCopyrightAndVersion(): void {
             $basePath = realpath(__DIR__ . '/..');
             if ($basePath === false) {
-                throw new \Exception("Could not resolve base path.");
+                throw new \UnexpectedValueException("Could not resolve base path.");
             }
 
             $setupPath = $basePath . '/setup.php';
             if (!file_exists($setupPath)) {
-                throw new \Exception("setup.php not found at $setupPath");
+                throw new \UnexpectedValueException("setup.php not found at $setupPath");
             }
 
             $setupContent = file_get_contents($setupPath);
             if ($setupContent === false) {
-                throw new \Exception("Failed to read setup.php");
+                throw new \UnexpectedValueException("Failed to read setup.php");
             }
 
             if (!preg_match("/define\('PLUGIN_SAMLSSO_VERSION',\s*'([^']+)'\)/", $setupContent, $matches)) {
-                throw new \Exception("PLUGIN_SAMLSSO_VERSION definition not found in setup.php");
+                throw new \UnexpectedValueException("PLUGIN_SAMLSSO_VERSION definition not found in setup.php");
             }
 
             $targetVersion = $matches[1];
@@ -124,7 +124,7 @@ namespace GlpiPlugin\Samlsso\Tests {
             }
 
             if (!empty($errors)) {
-                throw new \Exception("Version/Copyright validation failed:\n" . implode("\n", $errors));
+                throw new \UnexpectedValueException("Version/Copyright validation failed:\n" . implode("\n", $errors));
             }
 
             echo "✅ Validated all PHP files: Copyright headers present and versions aligned.\n";
@@ -213,28 +213,28 @@ namespace GlpiPlugin\Samlsso\Tests {
         public function testSamlSsoXmlValidityAndDownload(): void {
             $basePath = realpath(__DIR__ . '/..');
             if ($basePath === false) {
-                throw new \Exception("Could not resolve base path.");
+                throw new \UnexpectedValueException("Could not resolve base path.");
             }
 
             $setupPath = $basePath . '/setup.php';
             if (!file_exists($setupPath)) {
-                throw new \Exception("setup.php not found at $setupPath");
+                throw new \UnexpectedValueException("setup.php not found at $setupPath");
             }
 
             $setupContent = file_get_contents($setupPath);
             if ($setupContent === false) {
-                throw new \Exception("Failed to read setup.php");
+                throw new \UnexpectedValueException("Failed to read setup.php");
             }
 
             if (!preg_match("/define\('PLUGIN_SAMLSSO_VERSION',\s*'([^']+)'\)/", $setupContent, $matches)) {
-                throw new \Exception("PLUGIN_SAMLSSO_VERSION definition not found in setup.php");
+                throw new \UnexpectedValueException("PLUGIN_SAMLSSO_VERSION definition not found in setup.php");
             }
 
             $targetVersion = $matches[1];
 
             $xmlPath = $basePath . '/samlsso.xml';
             if (!file_exists($xmlPath)) {
-                throw new \Exception("samlsso.xml not found at $xmlPath");
+                throw new \UnexpectedValueException("samlsso.xml not found at $xmlPath");
             }
 
             libxml_use_internal_errors(true);
@@ -246,7 +246,7 @@ namespace GlpiPlugin\Samlsso\Tests {
                     $errMsgs[] = trim($err->message) . " on line " . $err->line;
                 }
                 libxml_clear_errors();
-                throw new \Exception("samlsso.xml is not valid XML:\n" . implode("\n", $errMsgs));
+                throw new \UnexpectedValueException("samlsso.xml is not valid XML:\n" . implode("\n", $errMsgs));
             }
 
             $changelog = file_get_contents($basePath . '/changelog.md');

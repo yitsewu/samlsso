@@ -25,13 +25,20 @@ On 2026-10-16, the full rebased plugin passed a fresh GLPI 12.0.0 / Authentik br
 
 This integration test caught a missing provider ID in the generated SLO endpoint that the controller-only doubles did not cover. ConfigIntegrityTest now exercises the real configuration builder with two provider IDs. The correction retains exact destination validation; it does not relax signature or identity/session checks.
 
+## Expanded cleanup branch
+
+The SLO-only candidate also passed a fresh GLPI 11.0.11 browser test on 2026-10-16: malformed signed-query rejection preserved the login, a real IdP-initiated logout removed the dedicated IdP session, and the GLPI session expired. The unrelated production session and provider remained unchanged.
+
+The owner subsequently requested a separate whole-project warning cleanup. That work is on `chore/project-static-analysis`, based on `fix/idp-initiated-slo`. See [the analysis and regression report](STATIC-ANALYSIS-CLEANUP.md). Its 19 suites and both isolated GLPI installation/activation checks pass. **The broader candidate still needs fresh GLPI 11 and 12 browser acceptance after its additional compatibility changes.** Earlier SLO-only browser results must not be used as proof for the expanded candidate.
+
 ## Before an upstream PR
 
-- Completed: standalone unit/regression suite is green (18/18); release packaging remains intentionally strict.
-- Run Intelephense and SonarLint (not available in this preparation environment).
-- Review formatting, localization and the strict signed-request requirement with maintainers.
-- Completed: full rebased GLPI 12 browser integration. GLPI 11 browser integration is not verified by this task and must not be claimed.
-- Extend protocol coverage and agree on unsupported cases listed in ADR 0025.
+- Completed: standalone unit/regression suite is green (19/19); runtime PHP warnings now fail a suite.
+- Completed: Intelephense and SonarLint checks, with explicit framework-contract exceptions documented in the analysis report.
+- Completed: SLO-only GLPI 11 and GLPI 12 browser integration.
+- Pending: fresh browser acceptance for the expanded cleanup branch, including canonical callback URLs and configuration rendering.
+- Review localization and the strict signed-request requirement with maintainers.
+- Extend protocol coverage and agree on unsupported cases listed in ADR 0025; SP-initiated LogoutResponse and cross-browser iframe behavior are not claimed.
 - The contribution guide references SECURITY.md, but that file is absent in this checkout. ADR 0017 and the architectural Wiki were reviewed; obtain the intended security policy before submission.
 
-No upstream issue, PR, maintainer message or production deployment has been made by this preparation task.
+No upstream issue, PR, maintainer message or production deployment has been made by this preparation task. This is a review candidate, not a release or an unconditional production-upgrade recommendation.

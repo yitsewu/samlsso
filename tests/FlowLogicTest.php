@@ -46,7 +46,7 @@ declare(strict_types=1);
 
 /**
  * FlowLogicTest.php
- * 
+ *
  * Unit tests validating LoginFlow execution paths, such as enforced redirects,
  * domain-based IDP selection, bypass parameter handling, login screen template rendering,
  * and ACS entrypoint processing logic.
@@ -78,10 +78,10 @@ namespace GlpiPlugin\Samlsso\Tests {
             $flow = new LoginFlow();
             try {
                 $flow->doAuth();
-                throw new \Exception("Flow should have exited with a redirect.");
+                throw new \UnexpectedValueException("Flow should have exited with a redirect.");
             } catch (\Exception $e) {
                 if (!str_contains($e->getMessage(), 'Redirect to: /plugins/samlsso/front/sso.php?idp=5')) {
-                    throw new \Exception("Unexpected redirect.\nResult: " . $e->getMessage());
+                    throw new \UnexpectedValueException("Unexpected redirect.\nResult: " . $e->getMessage());
                 }
             }
             echo "✅ Enforced IDP redirect logic\n";
@@ -99,10 +99,10 @@ namespace GlpiPlugin\Samlsso\Tests {
             $flow = new LoginFlow();
             try {
                 $flow->doAuth();
-                throw new \Exception("Flow should have redirected based on domain.");
+                throw new \UnexpectedValueException("Flow should have redirected based on domain.");
             } catch (\Exception $e) {
                 if (!str_contains($e->getMessage(), 'Redirect to: /plugins/samlsso/front/sso.php?idp=3')) {
-                    throw new \Exception("Domain redirect failed.\nResult: " . $e->getMessage());
+                    throw new \UnexpectedValueException("Domain redirect failed.\nResult: " . $e->getMessage());
                 }
             }
             echo "✅ Domain-based IDP selection\n";
@@ -118,10 +118,10 @@ namespace GlpiPlugin\Samlsso\Tests {
             $flow = new LoginFlow();
             try {
                 $flow->doAuth();
-                throw new \Exception("Flow should have redirected for bypass.");
+                throw new \UnexpectedValueException("Flow should have redirected for bypass.");
             } catch (\Exception $e) {
                 if (!str_contains($e->getMessage(), 'Redirect to: http://glpi.local/?bypass=1&noAUTO=1')) {
-                    throw new \Exception("Bypass redirect failed.\nResult: " . $e->getMessage());
+                    throw new \UnexpectedValueException("Bypass redirect failed.\nResult: " . $e->getMessage());
                 }
             }
             $state = Loginstate::$lastInstance;
@@ -144,7 +144,7 @@ namespace GlpiPlugin\Samlsso\Tests {
             $flow->showLoginScreen();
             $output = ob_get_clean();
             if (!str_contains($output, 'Displayed: @samlsso/loginScreen.html.twig')) {
-                throw new \Exception("Login page template not rendered.\nOutput: " . $output);
+                throw new \UnexpectedValueException("Login page template not rendered.\nOutput: " . $output);
             }
             echo "✅ Login page rendering\n";
         }
@@ -160,7 +160,7 @@ namespace GlpiPlugin\Samlsso\Tests {
             $flow = new LoginFlow();
             $flow->doAuth();
             if (Loginstate::$lastInstance !== null) {
-                throw new \Exception("ACS endpoint entry should bypass initial auth flow.");
+                throw new \UnexpectedValueException("ACS endpoint entry should bypass initial auth flow.");
             }
             echo "✅ ACS endpoint entry detection\n";
         }
@@ -179,10 +179,10 @@ namespace GlpiPlugin\Samlsso\Tests {
             $flow = new LoginFlow();
             try {
                 $flow->doAuth();
-                throw new \Exception("Flow should have redirected to the IDP SLO URL.");
+                throw new \UnexpectedValueException("Flow should have redirected to the IDP SLO URL.");
             } catch (\Exception $e) {
                 if (!str_contains($e->getMessage(), 'Redirect to: /plugins/samlsso/front/slo.php')) {
-                    throw new \Exception("SLO redirect failed.\nResult: " . $e->getMessage());
+                    throw new \UnexpectedValueException("SLO redirect failed.\nResult: " . $e->getMessage());
                 }
             } finally {
                 unset($_GET[LoginFlow::SLOLOGOUT]);
@@ -203,10 +203,10 @@ namespace GlpiPlugin\Samlsso\Tests {
             $flow = new LoginFlow();
             try {
                 $flow->doAuth();
-                throw new \Exception("Flow should have redirected to the homepage on invalid IDP ID.");
+                throw new \UnexpectedValueException("Flow should have redirected to the homepage on invalid IDP ID.");
             } catch (\Exception $e) {
                 if (!str_contains($e->getMessage(), 'Redirect to: http://glpi.local/')) {
-                    throw new \Exception("SLO fallback redirect failed.\nResult: " . $e->getMessage());
+                    throw new \UnexpectedValueException("SLO fallback redirect failed.\nResult: " . $e->getMessage());
                 }
             } finally {
                 unset($_GET[LoginFlow::SLOLOGOUT]);
@@ -228,15 +228,15 @@ namespace GlpiPlugin\Samlsso\Tests {
             $state->samlAuthed = true;
             $state->phase = Loginstate::PHASE_GLPI_AUTH;
             $flow = new LoginFlow();
-            
+
             // Should complete normally without throwing redirect exceptions
             $flow->doAuth();
-            
+
             $lastState = Loginstate::$lastInstance;
             if ($lastState->phase !== Loginstate::PHASE_LOGOFF) {
-                throw new \Exception("Database session phase should have been updated to PHASE_LOGOFF. Got: " . $lastState->phase);
+                throw new \UnexpectedValueException("Database session phase should have been updated to PHASE_LOGOFF. Got: " . $lastState->phase);
             }
-            
+
             unset($_GET[LoginFlow::LOCALLOGOUT]);
             echo "✅ Local logout pass-through and DB state transition logic\n";
         }
@@ -259,31 +259,31 @@ namespace GlpiPlugin\Samlsso\Tests {
                 \GlpiPlugin\Samlsso\Config\MockConfigEntity::$mockFields[\GlpiPlugin\Samlsso\Config\MockConfigEntity::IDP_SLO_URL] = "http://idp.local/slo";
                 \GlpiPlugin\Samlsso\Config\MockConfigEntity::$mockFields[\GlpiPlugin\Samlsso\Config\MockConfigEntity::ENFORCE_SSO] = false;
                 \GlpiPlugin\Samlsso\Config\MockConfigEntity::$mockFields[\GlpiPlugin\Samlsso\Config\MockConfigEntity::NAME] = "Normal IDP";
-                
+
                 $state = new \GlpiPlugin\Samlsso\Loginstate();
                 $state->idpId = 5;
                 $state->samlAuthed = true;
-                
+
                 $flow = new \GlpiPlugin\Samlsso\LoginFlow();
                 $flow->doAuth();
             ';
             file_put_contents($tempFile, $code);
-            
+
             $output = [];
             $status = 0;
             exec("php " . escapeshellarg($tempFile) . " 2>&1", $output, $status);
             $outputStr = implode("\n", $output);
             unlink($tempFile);
-            
+
             if ($status !== 0) {
-                throw new \Exception("Subprocess failed with status: $status. Output: $outputStr");
+                throw new \UnexpectedValueException("Subprocess failed with status: $status. Output: $outputStr");
             }
-            
+
             if (!str_contains($outputStr, 'Continue with local logout')) {
-                throw new \Exception("Normal logout page should contain 'Continue with local logout'. Got: " . $outputStr);
+                throw new \UnexpectedValueException("Normal logout page should contain 'Continue with local logout'. Got: " . $outputStr);
             }
             if (str_contains($outputStr, 'Go back to GLPI')) {
-                throw new \Exception("Normal logout page should NOT contain 'Go back to GLPI'. Got: " . $outputStr);
+                throw new \UnexpectedValueException("Normal logout page should NOT contain 'Go back to GLPI'. Got: " . $outputStr);
             }
             echo "✅ Normal logout screen rendering logic\n";
         }
@@ -306,34 +306,34 @@ namespace GlpiPlugin\Samlsso\Tests {
                 \GlpiPlugin\Samlsso\Config\MockConfigEntity::$mockFields[\GlpiPlugin\Samlsso\Config\MockConfigEntity::IDP_SLO_URL] = "http://idp.local/slo";
                 \GlpiPlugin\Samlsso\Config\MockConfigEntity::$mockFields[\GlpiPlugin\Samlsso\Config\MockConfigEntity::ENFORCE_SSO] = true;
                 \GlpiPlugin\Samlsso\Config\MockConfigEntity::$mockFields[\GlpiPlugin\Samlsso\Config\MockConfigEntity::NAME] = "Enforced IDP";
-                
+
                 $state = new \GlpiPlugin\Samlsso\Loginstate();
                 $state->idpId = 5;
                 $state->samlAuthed = true;
-                
+
                 $flow = new \GlpiPlugin\Samlsso\LoginFlow();
                 $flow->doAuth();
             ';
             file_put_contents($tempFile, $code);
-            
+
             $output = [];
             $status = 0;
             exec("php " . escapeshellarg($tempFile) . " 2>&1", $output, $status);
             $outputStr = implode("\n", $output);
             unlink($tempFile);
-            
+
             if ($status !== 0) {
-                throw new \Exception("Subprocess failed with status: $status. Output: $outputStr");
+                throw new \UnexpectedValueException("Subprocess failed with status: $status. Output: $outputStr");
             }
-            
+
             if (!str_contains($outputStr, 'Go back to GLPI')) {
-                throw new \Exception("Enforced logout page should contain 'Go back to GLPI'. Got: " . $outputStr);
+                throw new \UnexpectedValueException("Enforced logout page should contain 'Go back to GLPI'. Got: " . $outputStr);
             }
             if (!str_contains($outputStr, 'Close tab')) {
-                throw new \Exception("Enforced logout page should contain 'Close tab'. Got: " . $outputStr);
+                throw new \UnexpectedValueException("Enforced logout page should contain 'Close tab'. Got: " . $outputStr);
             }
             if (str_contains($outputStr, 'Continue with local logout')) {
-                throw new \Exception("Enforced logout page should NOT contain 'Continue with local logout'. Got: " . $outputStr);
+                throw new \UnexpectedValueException("Enforced logout page should NOT contain 'Continue with local logout'. Got: " . $outputStr);
             }
             echo "✅ Enforced logout screen rendering logic\n";
         }
@@ -353,15 +353,15 @@ namespace GlpiPlugin\Samlsso\Tests {
             $flow = new LoginFlow();
             try {
                 $flow->doAuth();
-                throw new \Exception("Flow should have redirected for forced logoff.");
+                throw new \UnexpectedValueException("Flow should have redirected for forced logoff.");
             } catch (\Exception $e) {
                 if (!str_contains($e->getMessage(), 'Redirect to: http://glpi.local/index.php?noAuto=1')) {
-                    throw new \Exception("Force logoff redirect failed.\nResult: " . $e->getMessage());
+                    throw new \UnexpectedValueException("Force logoff redirect failed.\nResult: " . $e->getMessage());
                 }
             }
             $lastState = Loginstate::$lastInstance;
             if ($lastState->phase !== Loginstate::PHASE_LOGOFF) {
-                throw new \Exception("Database session phase should have been updated to PHASE_LOGOFF. Got: " . $lastState->phase);
+                throw new \UnexpectedValueException("Database session phase should have been updated to PHASE_LOGOFF. Got: " . $lastState->phase);
             }
             echo "✅ Force logoff and redirect logic\n";
         }

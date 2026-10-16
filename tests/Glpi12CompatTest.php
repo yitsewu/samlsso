@@ -76,12 +76,12 @@ namespace GlpiPlugin\Samlsso\Tests {
         {
             $base = realpath(__DIR__ . '/..');
             if ($base === false) {
-                throw new \Exception('Could not resolve plugin base path.');
+                throw new \UnexpectedValueException('Could not resolve plugin base path.');
             }
             $path = $base . '/' . $relative;
             $content = file_exists($path) ? file_get_contents($path) : false;
             if ($content === false) {
-                throw new \Exception("Unable to read plugin file: $relative");
+                throw new \UnexpectedValueException("Unable to read plugin file: $relative");
             }
             return $content;
         }
@@ -120,7 +120,7 @@ namespace GlpiPlugin\Samlsso\Tests {
             }
 
             if (!empty($errors)) {
-                throw new \Exception("GLPI 12 compatibility layer validation failed:\n" . implode("\n", $errors));
+                throw new \UnexpectedValueException("GLPI 12 compatibility layer validation failed:\n" . implode("\n", $errors));
             }
 
             echo "✅ Validated compatibility layer: src/compat.php defines the GLPI version gate and typed + untyped intermediates.\n";
@@ -158,7 +158,7 @@ namespace GlpiPlugin\Samlsso\Tests {
             }
 
             if (!empty($errors)) {
-                throw new \Exception("GLPI 12 version-typed class wiring failed:\n" . implode("\n", $errors));
+                throw new \UnexpectedValueException("GLPI 12 version-typed class wiring failed:\n" . implode("\n", $errors));
             }
 
             echo "✅ Validated class wiring: Config, Exclude, LoginFlow, RuleSaml and RuleSamlCollection extend their version-typed base.\n";
@@ -177,8 +177,8 @@ namespace GlpiPlugin\Samlsso\Tests {
             $setup = $this->readPluginFile('setup.php');
             $errors = [];
 
-            if (!str_contains($setup, "method_exists('Plugin', 'getWebDir')")) {
-                $errors[] = 'setup.php does not guard Plugin::getWebDir() behind method_exists().';
+            if (str_contains($setup, 'Plugin::getWebDir(')) {
+                $errors[] = 'setup.php uses a deprecated plugin path resolver instead of the GLPI 11+ canonical route.';
             }
             if (!str_contains($setup, 'function samlsso_plugin_web_dir')) {
                 $errors[] = 'setup.php is missing the samlsso_plugin_web_dir() helper.';
@@ -195,7 +195,7 @@ namespace GlpiPlugin\Samlsso\Tests {
             }
 
             if (!empty($errors)) {
-                throw new \Exception("GLPI 12 web-dir / version support validation failed:\n" . implode("\n", $errors));
+                throw new \UnexpectedValueException("GLPI 12 web-dir / version support validation failed:\n" . implode("\n", $errors));
             }
 
             echo "✅ Validated web-dir helper and max GLPI version: absolute web dir resolved at call time, GLPI 12 supported.\n";
@@ -220,7 +220,7 @@ namespace GlpiPlugin\Samlsso\Tests {
             }
 
             if (!empty($errors)) {
-                throw new \Exception("Compatibility layer obfuscation check failed:\n" . implode("\n", $errors));
+                throw new \UnexpectedValueException("Compatibility layer obfuscation check failed:\n" . implode("\n", $errors));
             }
 
             echo "✅ Validated compatibility layer: no obfuscation or dynamic code execution in src/compat.php.\n";

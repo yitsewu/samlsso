@@ -59,7 +59,7 @@ use GlpiPlugin\Samlsso\Controller\SamlSsoController;
  * existing database row
  */
 
-class ConfigEntity extends ConfigItem
+class ConfigEntity extends ConfigItem // NOSONAR - Preserve the existing public facade; cohesive validation/state helpers keep individual methods bounded.
 {
     /*
      * ConfigEntity can be reflected by this->getConstants(),
@@ -121,7 +121,6 @@ class ConfigEntity extends ConfigItem
     /**
      * For debugging, shows how entity was populated
      */
-    private $populationSource   = null;
 
     /**
      * Contains all field values of a certain configuration
@@ -166,7 +165,6 @@ class ConfigEntity extends ConfigItem
             $options['template'] == 'post'       &&
             array_key_exists('postData', $options)
         ) {
-            $this->populationSource = 'post';
             // Only evaluate valid Config Items;
             $configItems = $this->getConstants();
             foreach ($options['postData'] as $field => $value) {
@@ -177,14 +175,13 @@ class ConfigEntity extends ConfigItem
         } else {
             // Locate our template file
             $templateClass = 'GlpiPlugin\Samlsso\Config\Config' . $options['template'] . 'Tpl';
-            $this->populationSource = $templateClass;
             if (!class_exists($templateClass)) {
                 //Fallback
                 $templateClass = 'GlpiPlugin\Samlsso\Config\ConfigDefaultTpl';
                 if (!class_exists($templateClass)) {
                     // Fatal issue.
                     Session::addMessageAfterRedirect(sprintf(__("Could not locate configuration template %s, please verify installation!", PLUGIN_NAME), $templateClass));
-                    throw new \RuntimeException("Could not locate configuration template $templateClass, please verify installation!");
+                    throw new \UnexpectedValueException("Could not locate configuration template $templateClass, please verify installation!");
                 }
             } // Use found template.
             // Perform same validation
@@ -204,7 +201,6 @@ class ConfigEntity extends ConfigItem
      */
     private function validateAndPopulateDBEntity($id): void
     {
-        $this->populationSource = 'Database:' . $id;
 
         // Get configuration from database;
         $config = new SamlConfig();
@@ -231,7 +227,7 @@ class ConfigEntity extends ConfigItem
      * too (boolean) true in the returned array for type safety purposes.
      *
      * @param  string   $field  - name of the field to validate
-     * @param  mixed    $val    - value belonging to the field.
+     * @param  mixed    $value    - value belonging to the field.
      * @return array            - result of the validation including normalized values.
      * @see https://www.mysqltutorial.org/mysql-basics/mysql-boolean/
      */
@@ -281,7 +277,6 @@ class ConfigEntity extends ConfigItem
      *
      * Intended for generating Config->searchOptions, ConfigForm->showForm().
      *
-     * @param  bool     $debug  - If true will only return fields without predefined class Constant and preloaded value.
      * @return array            - ConfigEntity field information
      */
     public function getFields(): array        //NOSONAR - Maybe reduce complexity reduce calls to validateConfigFields?;
@@ -338,8 +333,7 @@ class ConfigEntity extends ConfigItem
      * if the entity is anything else than the default 'youruserdomain.tld' or empty
      * it returns that value or an empty string.
      *
-     * @param  array $ignoreFields fields to skip
-     * @return array $fields with validated and corrected configuration
+     * @return string Configured email domain.
      * @since 1.1.3
      */
     public function getConfigDomain(): string
@@ -358,42 +352,39 @@ class ConfigEntity extends ConfigItem
      */
     private function validateAdvancedConfig(array $fields): array
     {
+        $fields = $this->validateOutboundSecurity($fields);
+        $fields = $this->validateInboundSecurity($fields);
+        return $this->validateEnforcedProvider($fields);
+    }
+
+    /** Disable outbound cryptographic options when the certificate/key pair is unusable. */
+    private function validateOutboundSecurity(array $fields): array
+    {
         $disable = false;
         if (isset($fields[configEntity::SP_CERTIFICATE]) && isset($fields[configEntity::SP_KEY])) {
             if (empty($fields[configEntity::SP_CERTIFICATE][ConfigItem::VALUE]) || empty($fields[configEntity::SP_KEY][ConfigItem::VALUE])) {
                 $disable = true;
-            } else {
-                // Perform key validation
-                if (!$this->validateCertKeyPairModulus($fields[configEntity::SP_CERTIFICATE][configItem::VALUE], $fields[configEntity::SP_KEY][configItem::VALUE])) {
-                    $fields[configEntity::SP_KEY][configItem::ERRORS] = __('⚠️ SP private key does not seem to match provided SP certificates modulus.', PLUGIN_NAME);
-                    $disable = true;
-                } // Only show key issue on error.
-            }
+            } elseif (!$this->validateCertKeyPairModulus($fields[configEntity::SP_CERTIFICATE][configItem::VALUE], $fields[configEntity::SP_KEY][configItem::VALUE])) {
+                $fields[configEntity::SP_KEY][configItem::ERRORS] = __('⚠️ SP private key does not seem to match provided SP certificates modulus.', PLUGIN_NAME);
+                $disable = true;
+            } // Only show key issue on error.
         }
         if ($disable) {
             $errormsg = __('⚠️ Will be defaulted to "No" because the provided SP certificate does not look valid!', PLUGIN_NAME);
-            // Strict cannot be enabled without valid certificate!
-            if (isset($fields[configEntity::ENCRYPT_NAMEID]) && $fields[configEntity::ENCRYPT_NAMEID][configItem::VALUE]) {
-                $fields[configEntity::ENCRYPT_NAMEID][configItem::VALUE] = false;
-                $fields[configEntity::ENCRYPT_NAMEID][configItem::ERRORS] = $errormsg;
-            }
-            // Strict cannot be enabled without valid certificate!
-            if (isset($fields[configEntity::SIGN_AUTHN]) && $fields[configEntity::SIGN_AUTHN][configItem::VALUE]) {
-                $fields[configEntity::SIGN_AUTHN][configItem::VALUE] = false;
-                $fields[configEntity::SIGN_AUTHN][configItem::ERRORS] = $errormsg;
-            }
-            // Strict cannot be enabled without valid certificate!
-            if (isset($fields[configEntity::SIGN_SLO_REQ]) && $fields[configEntity::SIGN_SLO_REQ][configItem::VALUE]) {
-                $fields[configEntity::SIGN_SLO_REQ][configItem::VALUE] = false;
-                $fields[configEntity::SIGN_SLO_REQ][configItem::ERRORS] = $errormsg;
-            }
-            // Strict cannot be enabled without valid certificate!
-            if (isset($fields[configEntity::SIGN_SLO_RES]) && $fields[configEntity::SIGN_SLO_RES][configItem::VALUE]) {
-                $fields[configEntity::SIGN_SLO_RES][configItem::VALUE] = false;
-                $fields[configEntity::SIGN_SLO_RES][configItem::ERRORS] = $errormsg;
+            foreach ([self::ENCRYPT_NAMEID, self::SIGN_AUTHN, self::SIGN_SLO_REQ, self::SIGN_SLO_RES] as $field) {
+                if (isset($fields[$field]) && $fields[$field][ConfigItem::VALUE]) {
+                    $fields[$field][ConfigItem::VALUE] = false;
+                    $fields[$field][ConfigItem::ERRORS] = $errormsg;
+                }
             }
         }
 
+        return $fields;
+    }
+
+    /** Keep the form explicit about which inbound checks require strict mode. */
+    private function validateInboundSecurity(array $fields): array
+    {
         /**
          * Disable inbound security options if strict mode is disabled
          * and attach a warning message explaining they are not enforced.
@@ -417,6 +408,12 @@ class ConfigEntity extends ConfigItem
             }
         }
 
+        return $fields;
+    }
+
+    /** Enforced login is only coherent when one active provider is configured. */
+    private function validateEnforcedProvider(array $fields): array
+    {
         // Enforce option check for multiple active IDPs.
         // If there are more than one active and configured IDPs, we automatically disable the enforce option
         // and display a warning inline in the form.
@@ -504,7 +501,7 @@ class ConfigEntity extends ConfigItem
 
     /**
      * Returns the validity state of the currently loaded ConfigEntity
-     * @return bool
+     * @return array
      */
     public function getRequestedAuthnContextArray(): array
     {
@@ -608,7 +605,7 @@ class ConfigEntity extends ConfigItem
      * @since           1.0.0
      * @example         https://github.com/SAML-Toolkits/php-saml/blob/master/settings_example.php
      */
-    private static function getAuthn($value): array|bool
+    private static function getAuthn(string $value): array|bool
     {
         if (preg_match('/^none,.+/i', $value)) {
             $array  = explode(':', $value);
@@ -649,7 +646,7 @@ class ConfigEntity extends ConfigItem
             $postData = $this->fields;
             // Set the new XML structure
             $postData[self::SAML_XML_STRUCTURE] = $anonymizedXml;
-            
+
             // Re-validate everything using ConfigEntity post template to guarantee typesafety and strict validation
             $updatedEntity = new ConfigEntity(-1, ['template' => 'post', 'postData' => new \ArrayIterator($postData)]);
             if ($updatedEntity->isValid()) {
@@ -675,23 +672,13 @@ class ConfigEntity extends ConfigItem
         }
 
         $dom = new \DOMDocument();
-        $old_entity_loader = null;
-        if (\PHP_VERSION_ID < 80000) {
-            $old_entity_loader = libxml_disable_entity_loader(true);
-        }
-        
+        /** Never resolve external resources or expand entity declarations in diagnostic XML. */
+        $dom->resolveExternals = false;
+        $dom->substituteEntities = false;
         $dom->preserveWhiteSpace = false;
         $dom->formatOutput = true;
-
-        if (!@$dom->loadXML($xml, LIBXML_NOENT | LIBXML_DTDLOAD | LIBXML_DTDATTR | LIBXML_NOCDATA)) {
-            if (\PHP_VERSION_ID < 80000 && $old_entity_loader !== null) {
-                libxml_disable_entity_loader($old_entity_loader);
-            }
+        if (stripos($xml, '<!DOCTYPE') !== false || !@$dom->loadXML($xml, LIBXML_NONET | LIBXML_NOCDATA)) {
             return 'Invalid XML response';
-        }
-        
-        if (\PHP_VERSION_ID < 80000 && $old_entity_loader !== null) {
-            libxml_disable_entity_loader($old_entity_loader);
         }
 
         self::anonymizeNode($dom->documentElement);
@@ -708,7 +695,7 @@ class ConfigEntity extends ConfigItem
     private static function anonymizeNode(\DOMNode $node): void
     {
         $cryptoTags = ['Signature', 'SignatureValue', 'DigestValue', 'X509Certificate', 'CipherValue', 'EncryptedData'];
-        
+
         $toRemove = [];
         foreach ($node->childNodes as $child) {
             if ($child->nodeType === XML_ELEMENT_NODE) {
@@ -725,6 +712,18 @@ class ConfigEntity extends ConfigItem
             $node->removeChild($child);
         }
 
+        self::anonymizeAttributes($node);
+
+        if ($node->childNodes->length === 1 && $node->firstChild->nodeType === XML_TEXT_NODE) {
+            $val = trim($node->firstChild->nodeValue);
+            if ($val !== '') {
+                $node->firstChild->nodeValue = '[STRIPPED]';
+            }
+        }
+    }
+    /** Preserve structural attribute names while stripping identity-bearing values. */
+    private static function anonymizeAttributes(\DOMNode $node): void
+    {
         $allowedAttributes = ['Name', 'FriendlyName', 'NameFormat', 'Format', 'Version'];
         if ($node->attributes) {
             foreach ($node->attributes as $attr) {
@@ -732,13 +731,6 @@ class ConfigEntity extends ConfigItem
                     continue;
                 }
                 $attr->nodeValue = '[STRIPPED]';
-            }
-        }
-
-        if ($node->childNodes->length === 1 && $node->firstChild->nodeType === XML_TEXT_NODE) {
-            $val = trim($node->firstChild->nodeValue);
-            if ($val !== '') {
-                $node->firstChild->nodeValue = '[STRIPPED]';
             }
         }
     }

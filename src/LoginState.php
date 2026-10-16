@@ -68,7 +68,7 @@ use GlpiPlugin\Samlsso\Exception\LoginStateException;
  * we can also extend this session logging for (future) SIEM purposes.
  */
 
-class LoginState extends CommonDBTM
+class LoginState extends CommonDBTM // NOSONAR - Preserve the existing public facade; cohesive validation/state helpers keep individual methods bounded.
 {
     // CLASS CONSTANTS
     public const SESSION_GLPI_NAME_ACCESSOR = 'glpiname';       // NULL -> Populated with user->name in Session::class:128 after GLPI login->init;
@@ -142,156 +142,18 @@ class LoginState extends CommonDBTM
         // Get the globals we need
         global $DB;
 
-        // Use either the sessionId or the requestId (after redirect)
-        // to find the correct session. As long as there isnt an redirect
-        // performed to an external host the PHP session ID can be used to
-        // reference the session.
-        if (!$samlInResponseTo) {
-            // Either we are handling an initial request and end up with 0 rows
-            // or we are fetching a GLPI authed session 1 row.
-            // Here we use the PHP sessionId to perform the fetch.
-            $where = [
-                LoginState::SESSION_ID => session_id(),
-                'NOT' => [
-                    LoginState::PHASE => [LoginState::PHASE_LOGOFF, LoginState::PHASE_ERROR]
-                ]
-            ];
-            $sessionIterator = $DB->request(['FROM' => LoginState::getTable(), 'WHERE' => $where]);
-            if (!$sessionIterator) {
-                throw new LoginStateException('Failed to fetch state using current sessionId');
-            }
-        } else {
-            // If we got an samlInResponseTo header, then we are dealing with an
-            // samlResponse received by the ACS. In this scenario the sessionId was
-            // reset by the GLPI session handler and we need to use the inResponseTo
-            // header to find the correct database session. The sessionId will be
-            // updated by the calling this->getStateInResponseTo method.
-            $where = [
-                LoginState::SAML_REQUEST_ID => $samlInResponseTo,
-                'NOT' => [
-                    LoginState::PHASE => [LoginState::PHASE_LOGOFF, LoginState::PHASE_ERROR]
-                ]
-            ];
-            $sessionIterator = $DB->request(['FROM' => LoginState::getTable(), 'WHERE' => $where]);
-            if (!$sessionIterator) {
-                throw new LoginStateException('Failed to fetch state using InResponseTo value');
-            }
+        // InResponseTo survives the GLPI session rotation at the ACS endpoint.
+        $key = $samlInResponseTo ? self::SAML_REQUEST_ID : self::SESSION_ID;
+        $where = [
+            $key => $samlInResponseTo ?: session_id(),
+            'NOT' => [self::PHASE => [self::PHASE_LOGOFF, self::PHASE_ERROR]],
+        ];
+        $sessionIterator = $DB->request(['FROM' => self::getTable(), 'WHERE' => $where]);
+        if (!$sessionIterator) {
+            throw new LoginStateException('Failed to fetch authentication state');
         }
 
-        if ($sessionIterator->numrows() > 0) {
-
-            // We should never get more then one row
-            if (!$sessionIterator->numrows() == 1) {
-                throw new LoginStateException('Found duplicated states in samlsso state table!');
-            }
-
-            // Populate the stored database state into the object.
-            foreach ($sessionIterator as $sessionState) {
-                $this->state = array_merge($this->state, [
-                    LoginState::STATE_ID          => $sessionState[LoginState::STATE_ID],
-                    LoginState::USER_ID           => $sessionState[LoginState::USER_ID],
-                    LoginState::SESSION_ID        => $sessionState[LoginState::SESSION_ID],
-                    LoginState::SESSION_NAME      => $sessionState[LoginState::SESSION_NAME],
-                    LoginState::LOCATION          => $sessionState[LoginState::LOCATION],
-                    LoginState::GLPI_AUTHED       => (bool) $sessionState[LoginState::GLPI_AUTHED],
-                    LoginState::SAML_AUTHED       => (bool) $sessionState[LoginState::SAML_AUTHED],
-                    LoginState::LOGIN_DATETIME    => $sessionState[LoginState::LOGIN_DATETIME],
-                    LoginState::LAST_ACTIVITY     => $sessionState[LoginState::LAST_ACTIVITY],
-                    LoginState::ENFORCE_LOGOFF    => $sessionState[LoginState::ENFORCE_LOGOFF],
-                    LoginState::IDP_ID            => $sessionState[LoginState::IDP_ID],
-                    LoginState::SAML_RESPONSE_ID  => $sessionState[LoginState::SAML_RESPONSE_ID],
-                    LoginState::SAML_REQUEST_ID   => $sessionState[LoginState::SAML_REQUEST_ID],
-                    LoginState::SAML_UNSOLICITED  => $sessionState[LoginState::SAML_UNSOLICITED],
-                    LoginState::LOGIN_FLOW_TRACE  => $sessionState[LoginState::LOGIN_FLOW_TRACE],
-                    LoginState::PHASE             => $sessionState[LoginState::PHASE],
-                    LoginState::REDIRECT          => $sessionState[LoginState::REDIRECT],
-                    LoginState::CLIENT_IP         => $sessionState[LoginState::CLIENT_IP] ?? null,
-                    LoginState::CLIENT_COUNTRY    => $sessionState[LoginState::CLIENT_COUNTRY] ?? null,
-                    LoginState::DATABASE          => true,
-                ]);
-            }
-            $this->setClientIpAndCountry();
-
-            // Enforce a server-side timeout fallback for SAML requests awaiting response
-            if ($this->state[LoginState::PHASE] == LoginState::PHASE_SAML_ACS) {
-                $idpId = $this->state[LoginState::IDP_ID];
-                $timeoutMinutes = 15; // default fallback if config is missing
-                if ($idpId && (int)$idpId > 0) {
-                    try {
-                        $configEntity = new \GlpiPlugin\Samlsso\Config\ConfigEntity((int)$idpId);
-                        if ($configEntity->isValid()) {
-                            $configTimeout = $configEntity->getField(\GlpiPlugin\Samlsso\Config\ConfigEntity::REQUEST_TIMEOUT);
-                            if ($configTimeout !== false && is_numeric($configTimeout)) {
-                                $timeoutMinutes = (int)$configTimeout;
-                            }
-                        }
-                    } catch (\Throwable $e) {
-                        // Keep default fallback
-                    }
-                }
-                $loginTime = strtotime($this->state[LoginState::LOGIN_DATETIME]);
-                if (time() - $loginTime > ($timeoutMinutes * 60)) {
-                    $this->state[LoginState::PHASE] = LoginState::PHASE_TIMED_OUT;
-                }
-            }
-
-
-
-            // We have a valid session, we have a samlInresponseTo but was a
-            // samlResponseId registered previously? If not the call is unsolicited.
-            if (($this->state[LoginState::SAML_REQUEST_ID] === null) &&
-                $samlInResponseTo
-            ) {
-                $this->state = array_merge($this->state, [LoginState::SAML_UNSOLICITED  => '1']);
-            } else {
-                // Set SAML unsolicited to 0
-                $this->state = array_merge($this->state, [LoginState::SAML_UNSOLICITED  => '0']);
-            }
-
-            // Check inactivity timeout for authenticated sessions
-            if ($this->state[LoginState::PHASE] == LoginState::PHASE_GLPI_AUTH) {
-                $idpId = $this->state[LoginState::IDP_ID];
-                $inactivityTimeout = 0; // default (disabled)
-                if ($idpId && (int)$idpId > 0) {
-                    try {
-                        $configEntity = new \GlpiPlugin\Samlsso\Config\ConfigEntity((int)$idpId);
-                        if ($configEntity->isValid()) {
-                            $configInactivity = $configEntity->getField(\GlpiPlugin\Samlsso\Config\ConfigEntity::INACTIVITY_TIMEOUT);
-                            if ($configInactivity !== false && is_numeric($configInactivity)) {
-                                $inactivityTimeout = (int)$configInactivity;
-                            }
-                        }
-                    } catch (\Throwable $e) {
-                        // Keep default fallback
-                    }
-                }
-                if ($inactivityTimeout > 0) {
-                    $lastActivityTime = strtotime($this->state[LoginState::LAST_ACTIVITY]);
-                    if (time() - $lastActivityTime > ($inactivityTimeout * 60)) {
-                        $this->state[LoginState::PHASE] = LoginState::PHASE_TIMED_OUT;
-                    }
-                }
-            }
-
-            // Update latest activity
-            $this->setLastActivity();
-
-            // Update the userfields if needed
-            $this->setGlpiUserName();
-
-            // Evaluate GLPI auth state
-            $this->evalGlpiAuth();
-
-            // Update the state in the database.
-            if ($this->state[LoginState::STATE_ID]) {
-                // Perform  update of existing state
-                if (!$this->update($this->state)) {
-                    throw new LoginStateException('Failed to update state in database with session:' . session_id());
-                }
-            } else {
-                throw new LoginStateException('Tried to update non-existing state with session:' . session_id());
-            }
-        } else {
+        if ($sessionIterator->numrows() <= 0) {
             // No previous state found in DB, create initial one.
             $this->createInitialState();
 
@@ -303,6 +165,114 @@ class LoginState extends CommonDBTM
                     LoginState::PHASE  => LoginState::PHASE_SAML_ACS
                 ]);
             }
+            return;
+        }
+
+        // We should never get more then one row
+        if ((int) $sessionIterator->numrows() !== 1) {
+            throw new LoginStateException('Found duplicated states in samlsso state table!');
+        }
+
+        $this->hydrateStoredState($sessionIterator);
+        $this->setClientIpAndCountry();
+
+        $this->enforceRequestTimeout();
+
+        // We have a valid session, we have a samlInresponseTo but was a
+        // samlResponseId registered previously? If not the call is unsolicited.
+        if (($this->state[LoginState::SAML_REQUEST_ID] === null) &&
+            $samlInResponseTo
+        ) {
+            $this->state = array_merge($this->state, [LoginState::SAML_UNSOLICITED  => '1']);
+        } else {
+            // Set SAML unsolicited to 0
+            $this->state = array_merge($this->state, [LoginState::SAML_UNSOLICITED  => '0']);
+        }
+
+        $this->enforceInactivityTimeout();
+
+        // Update latest activity
+        $this->setLastActivity();
+
+        // Update the userfields if needed
+        $this->setGlpiUserName();
+
+        // Evaluate GLPI auth state
+        $this->evalGlpiAuth();
+
+        if (!$this->state[self::STATE_ID]) {
+            throw new LoginStateException('Tried to update non-existing authentication state');
+        }
+        if (!$this->update($this->state)) {
+            throw new LoginStateException('Failed to update authentication state');
+        }
+    }
+
+    /** Apply the persisted row without importing undeclared database columns. */
+    private function hydrateStoredState(iterable $sessionIterator): void
+    {
+        foreach ($sessionIterator as $sessionState) {
+            $this->state = array_merge($this->state, [
+                LoginState::STATE_ID          => $sessionState[LoginState::STATE_ID],
+                LoginState::USER_ID           => $sessionState[LoginState::USER_ID],
+                LoginState::SESSION_ID        => $sessionState[LoginState::SESSION_ID],
+                LoginState::SESSION_NAME      => $sessionState[LoginState::SESSION_NAME],
+                LoginState::LOCATION          => $sessionState[LoginState::LOCATION],
+                LoginState::GLPI_AUTHED       => (bool) $sessionState[LoginState::GLPI_AUTHED],
+                LoginState::SAML_AUTHED       => (bool) $sessionState[LoginState::SAML_AUTHED],
+                LoginState::LOGIN_DATETIME    => $sessionState[LoginState::LOGIN_DATETIME],
+                LoginState::LAST_ACTIVITY     => $sessionState[LoginState::LAST_ACTIVITY],
+                LoginState::ENFORCE_LOGOFF    => $sessionState[LoginState::ENFORCE_LOGOFF],
+                LoginState::IDP_ID            => $sessionState[LoginState::IDP_ID],
+                LoginState::SAML_RESPONSE_ID  => $sessionState[LoginState::SAML_RESPONSE_ID],
+                LoginState::SAML_REQUEST_ID   => $sessionState[LoginState::SAML_REQUEST_ID],
+                LoginState::SAML_UNSOLICITED  => $sessionState[LoginState::SAML_UNSOLICITED],
+                LoginState::LOGIN_FLOW_TRACE  => $sessionState[LoginState::LOGIN_FLOW_TRACE],
+                LoginState::PHASE             => $sessionState[LoginState::PHASE],
+                LoginState::REDIRECT          => $sessionState[LoginState::REDIRECT],
+                LoginState::CLIENT_IP         => $sessionState[LoginState::CLIENT_IP] ?? null,
+                LoginState::CLIENT_COUNTRY    => $sessionState[LoginState::CLIENT_COUNTRY] ?? null,
+                LoginState::DATABASE          => true,
+            ]);
+        }
+    }
+
+    /** Read a timeout with the same fallback used when a provider is unavailable. */
+    private static function getProviderTimeout(int $idpId, string $field, int $fallback): int
+    {
+        if ($idpId <= 0) {
+            return $fallback;
+        }
+        try {
+            $config = new \GlpiPlugin\Samlsso\Config\ConfigEntity($idpId);
+            $value = $config->isValid() ? $config->getField($field) : false;
+            return $value !== false && is_numeric($value) ? (int) $value : $fallback;
+        } catch (\Throwable) {
+            return $fallback;
+        }
+    }
+
+    /** Expire outstanding authentication requests before evaluating GLPI authentication. */
+    private function enforceRequestTimeout(): void
+    {
+        if ((int) $this->state[self::PHASE] !== self::PHASE_SAML_ACS) {
+            return;
+        }
+        $minutes = self::getProviderTimeout((int) $this->state[self::IDP_ID], \GlpiPlugin\Samlsso\Config\ConfigEntity::REQUEST_TIMEOUT, 15);
+        if (time() - strtotime($this->state[self::LOGIN_DATETIME]) > $minutes * 60) {
+            $this->state[self::PHASE] = self::PHASE_TIMED_OUT;
+        }
+    }
+
+    /** A zero inactivity limit deliberately disables expiration. */
+    private function enforceInactivityTimeout(): void
+    {
+        if ((int) $this->state[self::PHASE] !== self::PHASE_GLPI_AUTH) {
+            return;
+        }
+        $minutes = self::getProviderTimeout((int) $this->state[self::IDP_ID], \GlpiPlugin\Samlsso\Config\ConfigEntity::INACTIVITY_TIMEOUT, 0);
+        if ($minutes > 0 && time() - strtotime($this->state[self::LAST_ACTIVITY]) > $minutes * 60) {
+            $this->state[self::PHASE] = self::PHASE_TIMED_OUT;
         }
     }
 
@@ -318,7 +288,7 @@ class LoginState extends CommonDBTM
     private function createInitialState(): bool
     {
         // Populate session using actual
-        $this->state = $this->state = array_merge($this->state, [
+        $this->state = array_merge($this->state, [
             LoginState::USER_ID           => 0,
             LoginState::SESSION_ID        => session_id(),
             LoginState::SESSION_NAME      => session_name(),
@@ -507,8 +477,10 @@ class LoginState extends CommonDBTM
             isset($_SESSION[LoginState::SESSION_VALID_ID_ACCESSOR])
         ) {
             $this->state[LoginState::GLPI_AUTHED] = true;
-            if ($this->state[LoginState::PHASE] !== LoginState::PHASE_TIMED_OUT &&
-                $this->state[LoginState::PHASE] !== LoginState::PHASE_FORCE_LOG) {
+            if (
+                $this->state[LoginState::PHASE] !== LoginState::PHASE_TIMED_OUT &&
+                $this->state[LoginState::PHASE] !== LoginState::PHASE_FORCE_LOG
+            ) {
                 $this->state[LoginState::PHASE] = LoginState::PHASE_GLPI_AUTH;
             }
         } else {
@@ -571,9 +543,8 @@ class LoginState extends CommonDBTM
 
     /**
      * Update the redirect from the get if any in the state database.
-     * @param int   $phase ID
-     * @since       1.0.0
-     * @see         LoginState::PHASE_## constants for valid values
+     * @return bool Whether the redirect was saved.
+     * @since 1.0.0
      */
     public function setRedirect(): bool
     {
@@ -591,9 +562,8 @@ class LoginState extends CommonDBTM
 
     /**
      * Update the loginPhase in the state database.
-     * @param int   $phase ID
-     * @since       1.0.0
-     * @see         LoginState::PHASE_## constants for valid values
+     * @param array $condition Trace fields to record.
+     * @since 1.0.0
      */
     public function addLoginFlowTrace(array $condition): bool
     {
@@ -678,7 +648,7 @@ class LoginState extends CommonDBTM
 
     /**
      * Adds SamlRequestId to the state table
-     * @param  string   samlRequestId "ONELOGIN_[0-9a-z]{40}"
+     * @param  string $requestId "ONELOGIN_[0-9a-z]{40}"
      * @return bool     true on success.
      * @since           1.0.0
      */
@@ -756,9 +726,8 @@ class LoginState extends CommonDBTM
      * Get the glpi Username and set it in the state.
      * If no user was identified, use remote IP as user.
      *
-     * @param   int      $idpId - identity of the IDP for which we are fetching the logging
-     * @return  array    Array with logging entries (if any) else empty array;
-     * @since   1.1.0
+     * @return void
+     * @since 1.1.0
      */
     private function setGlpiUserName(): void
     {
@@ -828,121 +797,40 @@ class LoginState extends CommonDBTM
             }
 
             foreach ($DB->request($query) as $id => $row) {
-                /* Unserialize the loginTrace, format it and export it; */
-                if (!empty($row[LoginState::LOGIN_FLOW_TRACE])) {
-                    $i = 1;
-                    $trace = '';
-                    $decodedTrace = unserialize($row[LoginState::LOGIN_FLOW_TRACE]);
-                    if (is_array($decodedTrace)) {
-                        foreach ($decodedTrace as $key => $value) {
-                            // Translate main trace step keys
-                            $mainKeyTranslations = [
-                                'rulesEngineInput'            => 'Rules Engine Input',
-                                'rulesEngineOutput'           => 'Rules Engine Output',
-                                'syncNoChanges'               => 'Synchronization Check',
-                                'syncUpdatedFields'           => 'Updated Fields',
-                                'finalIdp'                    => 'Identity Provider Selected',
-                                'OnlyOneIdpEnforced'          => 'Only One IDP Enforced',
-                                'bypassUsed'                  => 'SSO Bypass Utilized',
-                                'loginViaUserfield'           => 'Login Via User Field',
-                                'loginViaGetter'              => 'Login Via Query Parameter',
-                                'logoutPressed'               => 'Logout Action Initiated',
-                                'JIT group assigned'          => 'JIT Group Assigned',
-                                'JIT group assignment failed' => 'JIT Group Assignment Failed',
-                                'JIT profile assigned'        => 'JIT Profile Assigned',
-                                'JIT profile assignment failed'=> 'JIT Profile Assignment Failed',
-                                'staleTimeout'                => __('ACS Timeout', PLUGIN_NAME),
-                            ];
-                            $displayKey = $mainKeyTranslations[$key] ?? $key;
-
-                            // Decode and format JSON values nicely
-                            if (is_string($value) && (str_starts_with($value, '{') || str_starts_with($value, '['))) {
-                                $decodedJson = json_decode($value, true);
-                                if (json_last_error() === JSON_ERROR_NONE && is_array($decodedJson)) {
-                                    $formattedParts = [];
-                                    $keyTranslations = [
-                                        'name'                 => 'user_field: username',
-                                        '_useremails'          => 'user_field: email',
-                                        'realname'             => 'user_field: realname',
-                                        'firstname'            => 'user_field: firstname',
-                                        'phone'                => 'user_field: phone',
-                                        'mobile'               => 'user_field: mobile',
-                                        'samlClaimedJobTitle'  => 'user_field: jobtitle',
-                                        'samlClaimedCountry'   => 'user_field: country',
-                                        'samlClaimedCity'      => 'user_field: city',
-                                        'samlClaimedStreet'    => 'user_field: street',
-                                        'samlClaimedGroups'    => 'rule_field: groups',
-                                        'groups'               => 'rule_field: groups',
-                                        'email'                => 'rule_field: email',
-                                        'jobtitle'             => 'rule_field: jobtitle',
-                                        'country'              => 'rule_field: country',
-                                        'city'                 => 'rule_field: city',
-                                        'street'               => 'rule_field: street',
-                                        'users_id'             => 'User ID',
-                                        '_rule_process'        => 'Rule Processed',
-                                        'specific_groups_id'   => 'Assigned Group ID',
-                                        'profiles_id'          => 'Assigned Profile ID',
-                                        'entities_id'          => 'Assigned Entity ID',
-                                        'is_recursive'         => 'Recursive Profile Assignment',
-                                        '_profiles_id_default' => 'Default Profile ID',
-                                        '_entities_id_default' => 'Default Entity ID',
-                                    ];
-                                    $ruleFieldsList = ['department', 'company', 'employee_type', 'location', 'locale', 'manager'];
-                                    foreach ($decodedJson as $jsonKey => $jsonVal) {
-                                        if (isset($keyTranslations[$jsonKey])) {
-                                            $label = $keyTranslations[$jsonKey];
-                                        } elseif (in_array($jsonKey, $ruleFieldsList, true)) {
-                                            $label = 'rule_field: ' . $jsonKey;
-                                        } else {
-                                            $label = ucwords(str_replace('_', ' ', $jsonKey));
-                                        }
-                                        if (is_array($jsonVal)) {
-                                            $valStr = implode(', ', $jsonVal);
-                                        } elseif (is_bool($jsonVal)) {
-                                            $valStr = $jsonVal ? 'Yes' : 'No';
-                                        } else {
-                                            $valStr = (string)$jsonVal;
-                                        }
-                                        $formattedParts[] = "<strong>$label:</strong> $valStr";
-                                    }
-                                    $value = implode("<br/>&nbsp;&nbsp;↳ ", $formattedParts);
-                                }
-                            }
-
-                            $trace .= "<strong>$i. $displayKey</strong><br/>&nbsp;&nbsp;↳ $value<br/>";
-                            $i++;
-                        }
-                    }
-                } else {
-                    $trace = '';
-                }
-
-                $row[LoginState::LOGIN_FLOW_TRACE] = $trace;
-                $row[LoginState::LOGIN_DATETIME]   = \Html::convDateTime($row[LoginState::LOGIN_DATETIME]);
-                $row[LoginState::LAST_ACTIVITY]    = \Html::convDateTime($row[LoginState::LAST_ACTIVITY]);
-                
-                $countryCode = $row[LoginState::CLIENT_COUNTRY] ?? '';
-                $row['clientCountryFlag'] = \GlpiPlugin\Samlsso\Utility\GeoIPResolver::countryCodeToFlag($countryCode);
-                $row['clientCountryName'] = \GlpiPlugin\Samlsso\Utility\GeoIPResolver::countryCodeToName($countryCode);
-                $row['clientIp'] = $row[LoginState::CLIENT_IP] ?? '';
-
-                $userId = $row[LoginState::USER_ID] ?? 0;
-                $row['isUserActive'] = 0;
-                if ($userId > 0) {
-                    $user = new \User();
-                    if ($user->getFromDB($userId)) {
-                        $row['isUserActive'] = (int)($user->fields['is_active'] ?? 0);
-                    }
-                }
-
-                $row['avatarUrl'] = '';
-                if (!empty($row['userPicture']) && class_exists('\User') && method_exists('\User', 'getURLForPicture')) {
-                    $row['avatarUrl'] = \User::getURLForPicture($row['userPicture']);
-                }
-                $logging[$id] = $row;
+                $logging[$id] = self::formatLoggingEntry($row);
             }
         }
         return $logging;
+    }
+
+    /** Enrich a log row for the existing table template. */
+    private static function formatLoggingEntry(array $row): array
+    {
+        $row[LoginState::LOGIN_FLOW_TRACE] = \GlpiPlugin\Samlsso\Utility\LoginTraceRenderer::render(
+            (string) ($row[LoginState::LOGIN_FLOW_TRACE] ?? '')
+        );
+        $row[LoginState::LOGIN_DATETIME]   = \Html::convDateTime($row[LoginState::LOGIN_DATETIME]);
+        $row[LoginState::LAST_ACTIVITY]    = \Html::convDateTime($row[LoginState::LAST_ACTIVITY]);
+
+        $countryCode = $row[LoginState::CLIENT_COUNTRY] ?? '';
+        $row['clientCountryFlag'] = \GlpiPlugin\Samlsso\Utility\GeoIPResolver::countryCodeToFlag($countryCode);
+        $row['clientCountryName'] = \GlpiPlugin\Samlsso\Utility\GeoIPResolver::countryCodeToName($countryCode);
+        $row['clientIp'] = $row[LoginState::CLIENT_IP] ?? '';
+
+        $userId = $row[LoginState::USER_ID] ?? 0;
+        $row['isUserActive'] = 0;
+        if ($userId > 0) {
+            $user = new \User();
+            if ($user->getFromDB($userId)) {
+                $row['isUserActive'] = (int)($user->fields['is_active'] ?? 0);
+            }
+        }
+
+        $row['avatarUrl'] = '';
+        if (!empty($row['userPicture']) && class_exists('\User') && method_exists('\User', 'getURLForPicture')) {
+            $row['avatarUrl'] = \User::getURLForPicture($row['userPicture']);
+        }
+        return $row;
     }
 
     /**
@@ -997,16 +885,16 @@ class LoginState extends CommonDBTM
 
     /**
      * Returns a validated redirect path.
-     * 
-     * An 'Open Redirect' vulnerability occurs when an application takes a user-provided 
-     * URL and redirects the user to it without sufficient validation. This can be used 
-     * by attackers to trick victims into visiting malicious sites while appearing to 
+     *
+     * An 'Open Redirect' vulnerability occurs when an application takes a user-provided
+     * URL and redirects the user to it without sufficient validation. This can be used
+     * by attackers to trick victims into visiting malicious sites while appearing to
      * stay on a trusted domain.
-     * 
-     * To mitigate this, we only allow 'relative' paths. A relative path (e.g., '/front/ticket.php') 
-     * stays within the same domain, whereas an 'absolute' URL (e.g., 'http://evil.com') 
+     *
+     * To mitigate this, we only allow 'relative' paths. A relative path (e.g., '/front/ticket.php')
+     * stays within the same domain, whereas an 'absolute' URL (e.g., 'http://evil.com')
      * can lead anywhere.
-     * 
+     *
      * @return string
      * @since 1.3.2
      */
@@ -1027,9 +915,9 @@ class LoginState extends CommonDBTM
 
     /**
      * Returns a sanitized array of the state for logging.
-     * If debug is disabled, sensitive SAML fields are redacted to prevent 
+     * If debug is disabled, sensitive SAML fields are redacted to prevent
      * accidental exposure in logs.
-     * 
+     *
      * @param bool $debug If true, preserves full context.
      * @return array
      * @since 1.3.2
@@ -1056,7 +944,7 @@ class LoginState extends CommonDBTM
 
     /**
      * Install the LoginState DB table
-     * @param   Migration $obj
+     * @param   Migration $migration
      * @return  void
      * @since   1.0.0
      */
@@ -1111,6 +999,156 @@ class LoginState extends CommonDBTM
             $migration->migrationOneTable($table);
         }
 
+        self::migrateRequestFields($migration, $table);
+
+        if ($DB->tableExists($table)) {
+            if (!$DB->fieldExists($table, LoginState::LOGIN_FLOW_TRACE, false)) {
+                $migration->addField($table, LoginState::LOGIN_FLOW_TRACE, 'text', ['null' => true, 'update' => true]);
+                Session::addMessageAfterRedirect("🆗 Added field LoginState::LOGIN_FLOW_TRACE for v1.1.2");
+            } else {
+                $migration->changeField($table, LoginState::LOGIN_FLOW_TRACE, LoginState::LOGIN_FLOW_TRACE, 'text');
+            }
+        }
+
+        // @see https://github.com/DonutsNL/glpisaml/issues/22
+        if (
+            $DB->tableExists($table)                                                                                                                       &&   // Table should exist
+            !$DB->fieldExists($table, LoginState::REDIRECT, false)                                                                                          &&   // Field should not exist
+            $migration->addField($table, LoginState::REDIRECT, 'str', ['null' => true, 'update' => true])
+        ) {   // @see Migration::fieldFormat()
+            Session::addMessageAfterRedirect("🆗 Added field LoginState::REDIRECT for v1.1.12");
+        } // We silently ignore errors. Most common cause for an error is if the field already exists.
+
+        // Drop excluded path field if still present in table.
+        if (
+            $DB->tableExists($table)                    &&   // Table should exist
+            $DB->fieldExists($table, 'excludedPath')
+        ) {   // If the excluded Path field exists (older versions) drop it.
+            // Drop the field;
+            $migration->dropField($table, 'excludedPath');
+        }
+
+        if (
+            $DB->tableExists($table)                                                                                                                       &&
+            !$DB->fieldExists($table, LoginState::CLIENT_IP, false)                                                                                        &&
+            $migration->addField($table, LoginState::CLIENT_IP, 'str', ['null' => true, 'update' => true])
+        ) {
+            Session::addMessageAfterRedirect("🆗 Added field LoginState::CLIENT_IP");
+        }
+
+        if (
+            $DB->tableExists($table)                                                                                                                       &&
+            !$DB->fieldExists($table, LoginState::CLIENT_COUNTRY, false)                                                                                   &&
+            $migration->addField($table, LoginState::CLIENT_COUNTRY, 'str', ['null' => true, 'update' => true])
+        ) {
+            Session::addMessageAfterRedirect("🆗 Added field LoginState::CLIENT_COUNTRY");
+        }
+
+        self::ensureSessionIndex($table);
+
+        self::clearLegacyEnforcementCookie();
+
+        // Clean table
+        if ($DB->tableExists($table)) {
+            $query = <<<SQL
+                    UPDATE $table SET location = '' where id > 0;
+                SQL;
+            $DB->doQuery($query) or die($DB->error());
+            Session::addMessageAfterRedirect("🆗 Cleaned: $table.");
+        } // We silently ignore errors. Most common cause for an error is if the field already exists.
+    }
+
+    /** Update timeout state without triggering full object-save side effects. */
+    private static function persistTimeout(array $state, string $reason, string $message): void
+    {
+        global $DB;
+        $trace = empty($state[self::LOGIN_FLOW_TRACE]) ? [] : unserialize($state[self::LOGIN_FLOW_TRACE], ['allowed_classes' => false]);
+        $trace = is_array($trace) ? $trace : [];
+        $trace[$reason] = $message;
+        $DB->update(self::getTable(), [
+            self::STATE_ID => $state[self::STATE_ID],
+            self::PHASE => self::PHASE_TIMED_OUT,
+            self::LOGIN_FLOW_TRACE => serialize($trace),
+        ], [self::STATE_ID => $state[self::STATE_ID]]);
+    }
+
+    /**
+     * Finds and expires stale ACS requests in the database.
+     * Evaluates all records in PHASE_SAML_ACS and transitions them to PHASE_TIMED_OUT if expired.
+     */
+    public static function expireStaleAcsRequests(): void
+    {
+        global $DB;
+
+        // Query all records currently in SAML_ACS phase (2)
+        $where = [
+            LoginState::PHASE => LoginState::PHASE_SAML_ACS
+        ];
+
+        $iterator = $DB->request(['FROM' => LoginState::getTable(), 'WHERE' => $where]);
+        if ($iterator) {
+            foreach ($iterator as $sessionState) {
+                $timeoutMinutes = self::getProviderTimeout(
+                    (int) $sessionState[self::IDP_ID],
+                    \GlpiPlugin\Samlsso\Config\ConfigEntity::REQUEST_TIMEOUT,
+                    15
+                );
+
+                $loginTime = strtotime($sessionState[LoginState::LOGIN_DATETIME]);
+                if (time() - $loginTime > ($timeoutMinutes * 60)) {
+                    self::persistTimeout($sessionState, 'staleTimeout', __('Session was forcefully timed out by ACS evaluation.', PLUGIN_NAME));
+                }
+            }
+        }
+    }
+
+    /**
+     * Evaluates all records in PHASE_GLPI_AUTH and transitions them to PHASE_TIMED_OUT if idle beyond inactivity_timeout.
+     */
+    public static function expireStaleGlpiSessions(): void
+    {
+        global $DB;
+
+        // Query all records currently in GLPI_AUTH phase (4)
+        $where = [
+            LoginState::PHASE => LoginState::PHASE_GLPI_AUTH
+        ];
+
+        $iterator = $DB->request(['FROM' => LoginState::getTable(), 'WHERE' => $where]);
+        if ($iterator) {
+            foreach ($iterator as $sessionState) {
+                $inactivityTimeout = self::getProviderTimeout(
+                    (int) $sessionState[self::IDP_ID],
+                    \GlpiPlugin\Samlsso\Config\ConfigEntity::INACTIVITY_TIMEOUT,
+                    0
+                );
+
+                if ($inactivityTimeout > 0) {
+                    $lastActivityTime = strtotime($sessionState[LoginState::LAST_ACTIVITY]);
+                    if (time() - $lastActivityTime > ($inactivityTimeout * 60)) {
+                        self::persistTimeout($sessionState, 'inactivityTimeout', __('Session was timed out due to inactivity.', PLUGIN_NAME));
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Uninstall the LoginState DB table
+     * @param   Migration $migration
+     * @return  void
+     * @since   1.0.0
+     */
+    public static function uninstall(Migration $migration): void
+    {
+        $table = getTableForItemType(static::class);
+        $migration->dropTable($table);
+        Session::addMessageAfterRedirect("🆗 Removed: $table.");
+    }
+    /** Maintain the existing state-table migration step. */
+    private static function migrateRequestFields(Migration $migration, string $table): void
+    {
+        global $DB;
         // Add new requestId field for version 1.1.2.
         // https://codeberg.org/QuinQuies/glpisaml/issues/45
         if (
@@ -1137,49 +1175,12 @@ class LoginState extends CommonDBTM
             Session::addMessageAfterRedirect("🆗 Added field LoginState::SAML_RESPONSE_ID for v1.1.2");
         } // We silently ignore errors. Most common cause for an error is if the field already exists.
 
-        if ($DB->tableExists($table)) {
-            if (!$DB->fieldExists($table, LoginState::LOGIN_FLOW_TRACE, false)) {
-                $migration->addField($table, LoginState::LOGIN_FLOW_TRACE, 'text', ['null' => true, 'update' => true]);
-                Session::addMessageAfterRedirect("🆗 Added field LoginState::LOGIN_FLOW_TRACE for v1.1.2");
-            } else {
-                $migration->changeField($table, LoginState::LOGIN_FLOW_TRACE, LoginState::LOGIN_FLOW_TRACE, 'text');
-            }
-        }
+    }
 
-        // @see https://github.com/DonutsNL/glpisaml/issues/22
-        if (
-            $DB->tableExists($table)                                                                                                                       &&   // Table should exist
-            !$DB->fieldExists($table, LoginState::REDIRECT, false)                                                                                          &&   // Field should not exist
-            $migration->addField($table, LoginState::REDIRECT, 'str', ['null' => true, 'update' => true])
-        ) {   // @see Migration::fieldFormat()
-            Session::addMessageAfterRedirect("🆗 Added field LoginState::REDIRECT for v1.1.12");
-        } // We silently ignore errors. Most common cause for an error is if the field already exists.
-
-        // Drop excluded path field if still present in table.
-        if (
-            $DB->tableExists($table)                    &&   // Table should exist
-            $DB->fieldExists($table, 'excludedPath')
-        ) {   // If the excluded Path field exists (older versions) drop it. 
-            // Drop the field;
-            $migration->dropField($table, 'excludedPath');
-        }
-
-        if (
-            $DB->tableExists($table)                                                                                                                       &&
-            !$DB->fieldExists($table, LoginState::CLIENT_IP, false)                                                                                        &&
-            $migration->addField($table, LoginState::CLIENT_IP, 'str', ['null' => true, 'update' => true])
-        ) {
-            Session::addMessageAfterRedirect("🆗 Added field LoginState::CLIENT_IP");
-        }
-
-        if (
-            $DB->tableExists($table)                                                                                                                       &&
-            !$DB->fieldExists($table, LoginState::CLIENT_COUNTRY, false)                                                                                   &&
-            $migration->addField($table, LoginState::CLIENT_COUNTRY, 'str', ['null' => true, 'update' => true])
-        ) {
-            Session::addMessageAfterRedirect("🆗 Added field LoginState::CLIENT_COUNTRY");
-        }
-
+    /** Maintain the existing state-table migration step. */
+    private static function ensureSessionIndex(string $table): void
+    {
+        global $DB;
         // https://github.com/DonutsNL/samlsso/issues/58
         // Add missing indexes to the state table for performance.
         // ALTER TABLE glpi_plugin_samlsso_loginstates ADD INDEX sessionId_idx (sessionId);
@@ -1212,7 +1213,11 @@ class LoginState extends CommonDBTM
                 Session::addMessageAfterRedirect("🆗 Index already exists, skipping.");
             }
         }
+    }
 
+    /** Expire the pre-session-namespace enforcement cookie during migration. */
+    private static function clearLegacyEnforcementCookie(): void
+    {
         // Clean old cookies
         if (isset($_COOKIE['enforce_sso'])) {
             // Unset by setting expire in the past.
@@ -1228,149 +1233,5 @@ class LoginState extends CommonDBTM
                 ]
             );
         }
-
-        // Clean table
-        if ($DB->tableExists($table)) {
-            $query = <<<SQL
-                    UPDATE $table SET location = '' where id > 0;
-                SQL;
-            $DB->doQuery($query) or die($DB->error());
-            Session::addMessageAfterRedirect("🆗 Cleaned: $table.");
-        } // We silently ignore errors. Most common cause for an error is if the field already exists.
-    }
-
-    /**
-     * Finds and expires stale ACS requests in the database.
-     * Evaluates all records in PHASE_SAML_ACS and transitions them to PHASE_TIMED_OUT if expired.
-     */
-    public static function expireStaleAcsRequests(): void
-    {
-        global $DB;
-
-        // Query all records currently in SAML_ACS phase (2)
-        $where = [
-            LoginState::PHASE => LoginState::PHASE_SAML_ACS
-        ];
-
-        $iterator = $DB->request(['FROM' => LoginState::getTable(), 'WHERE' => $where]);
-        if ($iterator) {
-            foreach ($iterator as $sessionState) {
-                $idpId = $sessionState[LoginState::IDP_ID];
-                $timeoutMinutes = 15; // default fallback if config is missing
-                if ($idpId && (int)$idpId > 0) {
-                    try {
-                        $configEntity = new \GlpiPlugin\Samlsso\Config\ConfigEntity((int)$idpId);
-                        if ($configEntity->isValid()) {
-                            $configTimeout = $configEntity->getField(\GlpiPlugin\Samlsso\Config\ConfigEntity::REQUEST_TIMEOUT);
-                            if ($configTimeout !== false && is_numeric($configTimeout)) {
-                                $timeoutMinutes = (int)$configTimeout;
-                            }
-                        }
-                    } catch (\Throwable $e) {
-                        // Keep default fallback
-                    }
-                }
-
-                $loginTime = strtotime($sessionState[LoginState::LOGIN_DATETIME]);
-                if (time() - $loginTime > ($timeoutMinutes * 60)) {
-                    // Update trace
-                    $trace = [];
-                    if (!empty($sessionState[LoginState::LOGIN_FLOW_TRACE])) {
-                        $unserialized = unserialize($sessionState[LoginState::LOGIN_FLOW_TRACE]);
-                        if (is_array($unserialized)) {
-                            $trace = $unserialized;
-                        }
-                    }
-                    $trace['staleTimeout'] = __('Session was forcefully timed out by ACS evaluation.', PLUGIN_NAME);
-
-                    $updateData = [
-                        LoginState::STATE_ID          => $sessionState[LoginState::STATE_ID],
-                        LoginState::PHASE             => LoginState::PHASE_TIMED_OUT,
-                        LoginState::LOGIN_FLOW_TRACE  => serialize($trace)
-                    ];
-
-                    // Use DB update method to update without side effects of full object save
-                    $DB->update(
-                        LoginState::getTable(),
-                        $updateData,
-                        [LoginState::STATE_ID => $sessionState[LoginState::STATE_ID]]
-                    );
-                }
-            }
-        }
-    }
-
-    /**
-     * Evaluates all records in PHASE_GLPI_AUTH and transitions them to PHASE_TIMED_OUT if idle beyond inactivity_timeout.
-     */
-    public static function expireStaleGlpiSessions(): void
-    {
-        global $DB;
-
-        // Query all records currently in GLPI_AUTH phase (4)
-        $where = [
-            LoginState::PHASE => LoginState::PHASE_GLPI_AUTH
-        ];
-
-        $iterator = $DB->request(['FROM' => LoginState::getTable(), 'WHERE' => $where]);
-        if ($iterator) {
-            foreach ($iterator as $sessionState) {
-                $idpId = $sessionState[LoginState::IDP_ID];
-                $inactivityTimeout = 0; // default (disabled)
-                if ($idpId && (int)$idpId > 0) {
-                    try {
-                        $configEntity = new \GlpiPlugin\Samlsso\Config\ConfigEntity((int)$idpId);
-                        if ($configEntity->isValid()) {
-                            $configInactivity = $configEntity->getField(\GlpiPlugin\Samlsso\Config\ConfigEntity::INACTIVITY_TIMEOUT);
-                            if ($configInactivity !== false && is_numeric($configInactivity)) {
-                                $inactivityTimeout = (int)$configInactivity;
-                            }
-                        }
-                    } catch (\Throwable $e) {
-                        // Keep default fallback
-                    }
-                }
-
-                if ($inactivityTimeout > 0) {
-                    $lastActivityTime = strtotime($sessionState[LoginState::LAST_ACTIVITY]);
-                    if (time() - $lastActivityTime > ($inactivityTimeout * 60)) {
-                        // Update trace
-                        $trace = [];
-                        if (!empty($sessionState[LoginState::LOGIN_FLOW_TRACE])) {
-                            $unserialized = unserialize($sessionState[LoginState::LOGIN_FLOW_TRACE]);
-                            if (is_array($unserialized)) {
-                                $trace = $unserialized;
-                            }
-                        }
-                        $trace['inactivityTimeout'] = __('Session was timed out due to inactivity.', PLUGIN_NAME);
-
-                        $updateData = [
-                            LoginState::STATE_ID          => $sessionState[LoginState::STATE_ID],
-                            LoginState::PHASE             => LoginState::PHASE_TIMED_OUT,
-                            LoginState::LOGIN_FLOW_TRACE  => serialize($trace)
-                        ];
-
-                        $DB->update(
-                            LoginState::getTable(),
-                            $updateData,
-                            [LoginState::STATE_ID => $sessionState[LoginState::STATE_ID]]
-                        );
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Uninstall the LoginState DB table
-     * @param   Migration $obj
-     * @return  void
-     * @since   1.0.0
-     */
-    public static function uninstall(Migration $migration): void
-    {
-        $table = getTableForItemType(static::class);
-        $migration->dropTable($table);
-        Session::addMessageAfterRedirect("🆗 Removed: $table.");
     }
 }

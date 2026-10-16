@@ -73,7 +73,7 @@ namespace Glpi\Cache {
 namespace {
     /**
      * Shims.php
-     * 
+     *
      * Provides basic GLPI global shims required by both production code and tests.
      * This file declares functions, classes, and constants in the global namespace
      * to satisfy GLPI framework dependencies when running unit tests outside of GLPI.
@@ -173,7 +173,7 @@ namespace {
      */
     if (!function_exists('isCommandLine')) {
         function isCommandLine(): bool {
-            return false; 
+            return false;
         }
     }
 
@@ -261,8 +261,8 @@ namespace {
              * @param int $level Severity level of the message.
              * @return bool Always returns true.
              */
-            public static function addMessageAfterRedirect(string $msg, bool $show = true, int $level = 0): bool { 
-                return true; 
+            public static function addMessageAfterRedirect(string $msg, bool $show = true, int $level = 0): bool {
+                return true;
             }
 
             /**
@@ -270,8 +270,8 @@ namespace {
              *
              * @return string Mocks 'central' interface.
              */
-            public static function getCurrentInterface(): string { 
-                return 'central'; 
+            public static function getCurrentInterface(): string {
+                return 'central';
             }
 
             /**
@@ -279,8 +279,8 @@ namespace {
              *
              * @return int Always returns 2.
              */
-            public static function getPluralNumber(): int { 
-                return 2; 
+            public static function getPluralNumber(): int {
+                return 2;
             }
 
             /**
@@ -329,8 +329,8 @@ namespace {
              * @param int $http_response_code HTTP response code.
              * @throws \Exception to simulate page termination and test redirect flow.
              */
-            public static function redirect(string $dest, int $http_response_code = 302): never { 
-                throw new \Exception("Redirect to: $dest");
+            public static function redirect(string $dest, int $http_response_code = 302): never {
+                throw new \UnexpectedValueException("Redirect to: $dest");
             }
 
             /**
@@ -339,15 +339,15 @@ namespace {
              * @param string $title Header title.
              * @param string $url Header URL.
              */
-            public static function nullHeader(string $title = '', string $url = ''): void { 
-                echo "HTML_NULL_HEADER: $title\n"; 
+            public static function nullHeader(string $title = '', string $url = ''): void {
+                echo "HTML_NULL_HEADER: $title\n";
             }
 
             /**
              * Mock rendering of null footer.
              */
-            public static function nullFooter(): void { 
-                echo "HTML_NULL_FOOTER\n"; 
+            public static function nullFooter(): void {
+                echo "HTML_NULL_FOOTER\n";
             }
 
             /**
@@ -356,15 +356,15 @@ namespace {
              * @param string $title Header title.
              * @param string $url Header URL.
              */
-            public static function helpHeader(string $title = '', string $url = ''): void { 
-                echo "HTML_HELP_HEADER: $title\n"; 
+            public static function helpHeader(string $title = '', string $url = ''): void {
+                echo "HTML_HELP_HEADER: $title\n";
             }
 
             /**
              * Mock rendering of help footer.
              */
-            public static function helpFooter(): void { 
-                echo "HTML_HELP_FOOTER\n"; 
+            public static function helpFooter(): void {
+                echo "HTML_HELP_FOOTER\n";
             }
 
             /**
@@ -373,15 +373,15 @@ namespace {
              * @param string $title Header title.
              * @param string $url Header URL.
              */
-            public static function header(string $title = '', string $url = ''): void { 
-                echo "HTML_HEADER: $title\n"; 
+            public static function header(string $title = '', string $url = ''): void {
+                echo "HTML_HEADER: $title\n";
             }
 
             /**
              * Mock rendering of standard footer.
              */
-            public static function footer(): void { 
-                echo "HTML_FOOTER\n"; 
+            public static function footer(): void {
+                echo "HTML_FOOTER\n";
             }
 
             /**
@@ -408,8 +408,8 @@ namespace {
              * @param bool $force Force write even if logging disabled.
              * @return bool Always returns true.
              */
-            public static function logInFile(string $name, string $text, bool $force = false): bool { 
-                return true; 
+            public static function logInFile(string $name, string $text, bool $force = false): bool {
+                return true;
             }
 
             /**
@@ -418,8 +418,8 @@ namespace {
              * @param string $msg Warning message content.
              * @return bool Always returns true.
              */
-            public static function logWarning(string $msg): bool { 
-                return true; 
+            public static function logWarning(string $msg): bool {
+                return true;
             }
 
             /**
@@ -475,8 +475,8 @@ namespace {
              * @param int $id Object ID.
              * @return bool Always returns true.
              */
-            public function getFromDB(int $id): bool { 
-                return true; 
+            public function getFromDB(int $id): bool {
+                return true;
             }
 
             /**
@@ -487,8 +487,8 @@ namespace {
              * @param array $options Additional options.
              * @return bool Always returns true.
              */
-            public function update(array $input, bool $history = true, array $options = []): bool { 
-                return true; 
+            public function update(array $input, bool $history = true, array $options = []): bool {
+                return true;
             }
 
             /**
@@ -499,8 +499,8 @@ namespace {
              * @param bool $history Keep history logs.
              * @return int Mocks returning inserted row ID.
              */
-            public function add(array $input, array $options = [], bool $history = true): int { 
-                return 1; 
+            public function add(array $input, array $options = [], bool $history = true): int {
+                return 1;
             }
 
             /**
@@ -510,8 +510,8 @@ namespace {
              * @param bool $force Force delete.
              * @return bool Always returns true.
              */
-            public function delete(array $input, bool $force = false): bool { 
-                return true; 
+            public function delete(array $input, bool $force = false): bool {
+                return true;
             }
         }
     }
@@ -543,7 +543,7 @@ namespace {
                 if (self::$mockObject) {
                     return self::$mockObject->getFromDBbyName($name, $this);
                 }
-                return false; 
+                return false;
             }
 
             /**
@@ -552,11 +552,11 @@ namespace {
              * @param string $email User email.
              * @return bool True if user was found.
              */
-            public function getFromDBbyEmail(string $email): bool { 
+            public function getFromDBbyEmail(string $email): bool {
                 if (self::$mockObject) {
                     return self::$mockObject->getFromDBbyEmail($email, $this);
                 }
-                return false; 
+                return false;
             }
 
             /**
@@ -615,8 +615,8 @@ namespace {
              * @param int|float|string $nb Pluralization count.
              * @return string Type name.
              */
-            public static function getTypeName($nb = 0): string { 
-                return 'Group'; 
+            public static function getTypeName($nb = 0): string {
+                return 'Group';
             }
         }
     }
@@ -632,8 +632,8 @@ namespace {
              * @param int|float|string $nb Pluralization count.
              * @return string Type name.
              */
-            public static function getTypeName($nb = 0): string { 
-                return 'Entity'; 
+            public static function getTypeName($nb = 0): string {
+                return 'Entity';
             }
         }
     }
@@ -649,8 +649,8 @@ namespace {
              * @param int|float|string $nb Pluralization count.
              * @return string Type name.
              */
-            public static function getTypeName($nb = 0): string { 
-                return 'Profile'; 
+            public static function getTypeName($nb = 0): string {
+                return 'Profile';
             }
 
             /**
@@ -658,8 +658,8 @@ namespace {
              *
              * @return string CSS class name.
              */
-            public static function getIcon(): string { 
-                return 'fa-profile'; 
+            public static function getIcon(): string {
+                return 'fa-profile';
             }
         }
     }
@@ -689,8 +689,8 @@ namespace {
              * @param int $id User ID.
              * @return array Mock profile list.
              */
-            public static function getForUser(int $id): array { 
-                return [1 => ['profiles_id' => 1]]; 
+            public static function getForUser(int $id): array {
+                return [1 => ['profiles_id' => 1]];
             }
             public function add(array $input, array $options = [], bool $history = true): int {
                 self::$added[] = $input;
@@ -726,8 +726,8 @@ namespace {
              *
              * @return array Empty array for mock.
              */
-            public function getActions(): array { 
-                return []; 
+            public function getActions(): array {
+                return [];
             }
         }
     }
@@ -750,8 +750,8 @@ namespace {
              *
              * @return string Character set.
              */
-            public static function getDefaultCharset(): string { 
-                return self::$defaultCharset; 
+            public static function getDefaultCharset(): string {
+                return self::$defaultCharset;
             }
 
             /**
@@ -759,8 +759,8 @@ namespace {
              *
              * @return string Collation.
              */
-            public static function getDefaultCollation(): string { 
-                return self::$defaultCollation; 
+            public static function getDefaultCollation(): string {
+                return self::$defaultCollation;
             }
 
             /**
@@ -768,8 +768,8 @@ namespace {
              *
              * @return string Primary key sign option.
              */
-            public static function getDefaultPrimaryKeySignOption(): string { 
-                return self::$defaultPrimaryKeySignOption; 
+            public static function getDefaultPrimaryKeySignOption(): string {
+                return self::$defaultPrimaryKeySignOption;
             }
         }
     }
@@ -796,8 +796,8 @@ namespace {
              * @param array $options Options.
              * @return bool Always returns true.
              */
-            public function addField(string $table, string $field, string $type, array $options = []): bool { 
-                return true; 
+            public function addField(string $table, string $field, string $type, array $options = []): bool {
+                return true;
             }
 
             /**
@@ -806,8 +806,8 @@ namespace {
              * @param string $table Table name.
              * @return bool Always returns true.
              */
-            public function dropTable(string $table): bool { 
-                return true; 
+            public function dropTable(string $table): bool {
+                return true;
             }
 
             /**
@@ -869,8 +869,8 @@ namespace Glpi\Toolbox {
              * @param array $input Input parameters.
              * @return array Sanitized input parameters.
              */
-            public static function sanitize(array $input): array { 
-                return $input; 
+            public static function sanitize(array $input): array {
+                return array_map(static fn($value) => is_string($value) ? htmlspecialchars($value, ENT_QUOTES, 'UTF-8') : $value, $input);
             }
         }
     }
@@ -919,4 +919,8 @@ namespace Symfony\Component\HttpFoundation {
             }
         }
     }
+    if (!class_exists('Glpi\\DBAL\\QueryExpression', false)) {
+        class_alias(\QueryExpression::class, 'Glpi\\DBAL\\QueryExpression');
+    }
+
 }

@@ -46,7 +46,7 @@ declare(strict_types=1);
 
 /**
  * TestHarness.php
- * 
+ *
  * Provides a base environment for all tests.
  * Includes shims for GLPI core and local mocks for samlsso components.
  */
@@ -625,23 +625,12 @@ namespace GlpiPlugin\Samlsso\Config {
                 }
 
                 $dom = new \DOMDocument();
-                $old_entity_loader = null;
-                if (\PHP_VERSION_ID < 80000) {
-                    $old_entity_loader = libxml_disable_entity_loader(true);
-                }
-                
+                $dom->resolveExternals = false;
+                $dom->substituteEntities = false;
                 $dom->preserveWhiteSpace = false;
                 $dom->formatOutput = true;
-
-                if (!@$dom->loadXML($xml, LIBXML_NOENT | LIBXML_DTDLOAD | LIBXML_DTDATTR | LIBXML_NOCDATA)) {
-                    if (\PHP_VERSION_ID < 80000 && $old_entity_loader !== null) {
-                        libxml_disable_entity_loader($old_entity_loader);
-                    }
+                if (stripos($xml, '<!DOCTYPE') !== false || !@$dom->loadXML($xml, LIBXML_NONET | LIBXML_NOCDATA)) {
                     return 'Invalid XML response';
-                }
-                
-                if (\PHP_VERSION_ID < 80000 && $old_entity_loader !== null) {
-                    libxml_disable_entity_loader($old_entity_loader);
                 }
 
                 self::anonymizeNode($dom->documentElement);
@@ -652,7 +641,7 @@ namespace GlpiPlugin\Samlsso\Config {
             private static function anonymizeNode(\DOMNode $node): void
             {
                 $cryptoTags = ['Signature', 'SignatureValue', 'DigestValue', 'X509Certificate', 'CipherValue', 'EncryptedData'];
-                
+
                 $toRemove = [];
                 foreach ($node->childNodes as $child) {
                     if ($child->nodeType === XML_ELEMENT_NODE) {
@@ -1180,7 +1169,7 @@ namespace GlpiPlugin\Samlsso {
          */
         function header(string $header, bool $replace = true, int $response_code = 0): void {
             if (preg_match('/^[Ll]ocation:\s*(.*)$/', $header, $matches)) {
-                throw new \Exception("Redirect to: " . trim($matches[1]));
+                throw new \UnexpectedValueException("Redirect to: " . trim($matches[1]));
             }
         }
     }
@@ -1604,14 +1593,14 @@ namespace GlpiPlugin\Samlsso\Tests {
         public function assertTraceContains(?Loginstate $state, string $key, string $valueSnippet): bool
         {
             if ($state === null) {
-                throw new \Exception("Trace validation failed: State object is null.");
+                throw new \UnexpectedValueException("Trace validation failed: State object is null.");
             }
             foreach ($state->getTrace() as $entry) {
                 if (isset($entry[$key]) && str_contains((string)$entry[$key], $valueSnippet)) {
                     return true;
                 }
             }
-            throw new \Exception("Trace key '$key' with value '$valueSnippet' not found in login flow trace.");
+            throw new \UnexpectedValueException("Trace key '$key' with value '$valueSnippet' not found in login flow trace.");
         }
     }
 }

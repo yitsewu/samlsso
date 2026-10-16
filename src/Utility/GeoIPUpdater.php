@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /**
  *  ------------------------------------------------------------------------
@@ -142,14 +143,10 @@ class GeoIPUpdater
      */
     private static function compileDbIpLite(?glpiCronTask $task, string $tempGz, string $destFile): int
     {
-        if (!function_exists('gzopen')) {
-            self::log("Error: zlib PHP extension is required to decompress the database.", $task);
-            return -1;
-        }
-
-        $gz = gzopen($tempGz, 'rb');
+        $hasZlib = function_exists('gzopen');
+        $gz = $hasZlib ? gzopen($tempGz, 'rb') : false;
         if (!$gz) {
-            self::log("Error opening downloaded gzip file.", $task);
+            self::log($hasZlib ? "Error opening downloaded gzip file." : "Error: zlib PHP extension is required to decompress the database.", $task);
             return -1;
         }
 
@@ -172,22 +169,10 @@ class GeoIPUpdater
                 continue;
             }
 
-            $startIp = $row[0];
-            $endIp = $row[1];
-            $country = $row[2];
-
-            // Only support IPv4 ranges for this compact binary format
-            if (filter_var($startIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) &&
-                filter_var($endIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-
-                $startLong = ip2long($startIp);
-                $endLong = ip2long($endIp);
-
-                if ($startLong !== false && $endLong !== false) {
-                    $packed = pack('NNA2', $startLong, $endLong, $country);
-                    fwrite($out, $packed);
-                    $count++;
-                }
+            $packed = self::packIpv4Range($row);
+            if ($packed !== null) {
+                fwrite($out, $packed);
+                $count++;
             }
         }
 
@@ -210,5 +195,27 @@ class GeoIPUpdater
         } else {
             echo $msg . "\n";
         }
+    }
+    /** Ignore IPv6 and invalid ranges; the binary database stores IPv4 only. */
+    private static function packIpv4Range(array $row): ?string
+    {
+        $startIp = $row[0];
+        $endIp = $row[1];
+        $country = $row[2];
+
+        // Only support IPv4 ranges for this compact binary format
+        if (
+            filter_var($startIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) &&
+            filter_var($endIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)
+        ) {
+
+            $startLong = ip2long($startIp);
+            $endLong = ip2long($endIp);
+
+            if ($startLong !== false && $endLong !== false) {
+                return pack('NNA2', $startLong, $endLong, $country);
+            }
+        }
+        return null;
     }
 }

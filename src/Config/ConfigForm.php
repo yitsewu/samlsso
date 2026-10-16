@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /**
  *  ------------------------------------------------------------------------
@@ -163,22 +164,43 @@ HTML;
         $configsTable   = Config::getTable();
         $claimMapTable  = ClaimMap::getTable();
         $exportFields   = [
-            ConfigEntity::ID, ConfigEntity::NAME, ConfigEntity::CONF_DOMAIN,
-            ConfigEntity::CONF_ICON, ConfigEntity::ENFORCE_SSO, ConfigEntity::PROXIED,
-            ConfigEntity::STRICT, ConfigEntity::DEBUG, ConfigEntity::USER_JIT,
-            ConfigEntity::SYNC_ON_LOGIN, ConfigEntity::REQUEST_TIMEOUT, ConfigEntity::INACTIVITY_TIMEOUT,
+            ConfigEntity::ID,
+            ConfigEntity::NAME,
+            ConfigEntity::CONF_DOMAIN,
+            ConfigEntity::CONF_ICON,
+            ConfigEntity::ENFORCE_SSO,
+            ConfigEntity::PROXIED,
+            ConfigEntity::STRICT,
+            ConfigEntity::DEBUG,
+            ConfigEntity::USER_JIT,
+            ConfigEntity::SYNC_ON_LOGIN,
+            ConfigEntity::REQUEST_TIMEOUT,
+            ConfigEntity::INACTIVITY_TIMEOUT,
             ConfigEntity::SECURITY_WANTMESSAGESSIGNED,
             ConfigEntity::SECURITY_WANTASSERTIONSSIGNED,
             ConfigEntity::SECURITY_WANTASSERTIONSENCRYPTED,
             ConfigEntity::SECURITY_SIGNMETADATA,
             ConfigEntity::SECURITY_WANTNAMEID,
-            ConfigEntity::SP_CERTIFICATE, ConfigEntity::SP_KEY, ConfigEntity::SP_NAME_FORMAT,
-            ConfigEntity::IDP_ENTITY_ID, ConfigEntity::IDP_SSO_URL, ConfigEntity::IDP_SLO_URL,
-            ConfigEntity::IDP_CERTIFICATE, ConfigEntity::AUTHN_CONTEXT, ConfigEntity::AUTHN_COMPARE,
-            ConfigEntity::ENCRYPT_NAMEID, ConfigEntity::SIGN_AUTHN, ConfigEntity::SIGN_SLO_REQ,
-            ConfigEntity::SIGN_SLO_RES, ConfigEntity::COMPRESS_REQ, ConfigEntity::COMPRESS_RES,
-            ConfigEntity::XML_VALIDATION, ConfigEntity::DEST_VALIDATION, ConfigEntity::LOWERCASE_URL,
-            ConfigEntity::COMMENT, ConfigEntity::IS_ACTIVE,
+            ConfigEntity::SP_CERTIFICATE,
+            ConfigEntity::SP_KEY,
+            ConfigEntity::SP_NAME_FORMAT,
+            ConfigEntity::IDP_ENTITY_ID,
+            ConfigEntity::IDP_SSO_URL,
+            ConfigEntity::IDP_SLO_URL,
+            ConfigEntity::IDP_CERTIFICATE,
+            ConfigEntity::AUTHN_CONTEXT,
+            ConfigEntity::AUTHN_COMPARE,
+            ConfigEntity::ENCRYPT_NAMEID,
+            ConfigEntity::SIGN_AUTHN,
+            ConfigEntity::SIGN_SLO_REQ,
+            ConfigEntity::SIGN_SLO_RES,
+            ConfigEntity::COMPRESS_REQ,
+            ConfigEntity::COMPRESS_RES,
+            ConfigEntity::XML_VALIDATION,
+            ConfigEntity::DEST_VALIDATION,
+            ConfigEntity::LOWERCASE_URL,
+            ConfigEntity::COMMENT,
+            ConfigEntity::IS_ACTIVE,
         ];
 
         // Fetch all non-deleted configurations
@@ -251,14 +273,13 @@ HTML;
 
         // --- 1. Read and parse the uploaded JSON file ---
         $uploadedFile = $request->files->get('restore_file');
-        if ($uploadedFile === null || !$uploadedFile->isValid()) {
-            Session::addMessageAfterRedirect(__('Restore failed: no valid backup file was uploaded.', PLUGIN_NAME), false, ERROR);
-            return new RedirectResponse(samlsso_webdir() . SamlSsoController::CONFIG_ROUTE);
-        }
-
-        $json = file_get_contents($uploadedFile->getPathname());
+        $isValidUpload = $uploadedFile !== null && $uploadedFile->isValid();
+        $json = $isValidUpload ? file_get_contents($uploadedFile->getPathname()) : false;
         if ($json === false || trim($json) === '') {
-            Session::addMessageAfterRedirect(__('Restore failed: unable to read the uploaded file.', PLUGIN_NAME), false, ERROR);
+            $message = $isValidUpload
+                ? __('Restore failed: unable to read the uploaded file.', PLUGIN_NAME)
+                : __('Restore failed: no valid backup file was uploaded.', PLUGIN_NAME);
+            Session::addMessageAfterRedirect($message, false, ERROR);
             return new RedirectResponse(samlsso_webdir() . SamlSsoController::CONFIG_ROUTE);
         }
 
@@ -285,22 +306,43 @@ HTML;
 
         // --- 3. Restore each configuration with original IDs ---
         $exportFields = [
-            ConfigEntity::ID, ConfigEntity::NAME, ConfigEntity::CONF_DOMAIN,
-            ConfigEntity::CONF_ICON, ConfigEntity::ENFORCE_SSO, ConfigEntity::PROXIED,
-            ConfigEntity::STRICT, ConfigEntity::DEBUG, ConfigEntity::USER_JIT,
-            ConfigEntity::SYNC_ON_LOGIN, ConfigEntity::REQUEST_TIMEOUT, ConfigEntity::INACTIVITY_TIMEOUT,
+            ConfigEntity::ID,
+            ConfigEntity::NAME,
+            ConfigEntity::CONF_DOMAIN,
+            ConfigEntity::CONF_ICON,
+            ConfigEntity::ENFORCE_SSO,
+            ConfigEntity::PROXIED,
+            ConfigEntity::STRICT,
+            ConfigEntity::DEBUG,
+            ConfigEntity::USER_JIT,
+            ConfigEntity::SYNC_ON_LOGIN,
+            ConfigEntity::REQUEST_TIMEOUT,
+            ConfigEntity::INACTIVITY_TIMEOUT,
             ConfigEntity::SECURITY_WANTMESSAGESSIGNED,
             ConfigEntity::SECURITY_WANTASSERTIONSSIGNED,
             ConfigEntity::SECURITY_WANTASSERTIONSENCRYPTED,
             ConfigEntity::SECURITY_SIGNMETADATA,
             ConfigEntity::SECURITY_WANTNAMEID,
-            ConfigEntity::SP_CERTIFICATE, ConfigEntity::SP_KEY, ConfigEntity::SP_NAME_FORMAT,
-            ConfigEntity::IDP_ENTITY_ID, ConfigEntity::IDP_SSO_URL, ConfigEntity::IDP_SLO_URL,
-            ConfigEntity::IDP_CERTIFICATE, ConfigEntity::AUTHN_CONTEXT, ConfigEntity::AUTHN_COMPARE,
-            ConfigEntity::ENCRYPT_NAMEID, ConfigEntity::SIGN_AUTHN, ConfigEntity::SIGN_SLO_REQ,
-            ConfigEntity::SIGN_SLO_RES, ConfigEntity::COMPRESS_REQ, ConfigEntity::COMPRESS_RES,
-            ConfigEntity::XML_VALIDATION, ConfigEntity::DEST_VALIDATION, ConfigEntity::LOWERCASE_URL,
-            ConfigEntity::COMMENT, ConfigEntity::IS_ACTIVE,
+            ConfigEntity::SP_CERTIFICATE,
+            ConfigEntity::SP_KEY,
+            ConfigEntity::SP_NAME_FORMAT,
+            ConfigEntity::IDP_ENTITY_ID,
+            ConfigEntity::IDP_SSO_URL,
+            ConfigEntity::IDP_SLO_URL,
+            ConfigEntity::IDP_CERTIFICATE,
+            ConfigEntity::AUTHN_CONTEXT,
+            ConfigEntity::AUTHN_COMPARE,
+            ConfigEntity::ENCRYPT_NAMEID,
+            ConfigEntity::SIGN_AUTHN,
+            ConfigEntity::SIGN_SLO_REQ,
+            ConfigEntity::SIGN_SLO_RES,
+            ConfigEntity::COMPRESS_REQ,
+            ConfigEntity::COMPRESS_RES,
+            ConfigEntity::XML_VALIDATION,
+            ConfigEntity::DEST_VALIDATION,
+            ConfigEntity::LOWERCASE_URL,
+            ConfigEntity::COMMENT,
+            ConfigEntity::IS_ACTIVE,
         ];
 
         $restoredCount  = 0;
@@ -308,9 +350,7 @@ HTML;
         $now            = date('Y-m-d H:i:s');
 
         foreach ($data['configurations'] as $index => $entry) {
-            if ($this->restoreConfigEntry($index, $entry, $now, $exportFields, $configsTable, $errors)) {
-                $restoredCount++;
-            }
+            $restoredCount += (int) $this->restoreConfigEntry($index, $entry, $now, $exportFields, $configsTable, $errors);
         }
 
         // --- 5. Report results ---
@@ -380,33 +420,17 @@ HTML;
     {
         global $DB;
 
-        if (!isset($entry['config']) || !is_array($entry['config'])) {
-            $errors[] = sprintf(__('Entry %d skipped: missing config block.', PLUGIN_NAME), $index);
+        $cfgData = isset($entry['config']) && is_array($entry['config']) ? $entry['config'] : null;
+        $origId = (int) ($cfgData[ConfigEntity::ID] ?? 0);
+        if ($cfgData === null || $origId <= 0) {
+            $message = $cfgData === null
+                ? __('Entry %d skipped: missing config block.', PLUGIN_NAME)
+                : __('Entry %d skipped: missing or invalid id.', PLUGIN_NAME);
+            $errors[] = sprintf($message, $index);
             return false;
         }
 
-        $cfgData = $entry['config'];
-        $origId  = isset($cfgData[ConfigEntity::ID]) ? (int)$cfgData[ConfigEntity::ID] : 0;
-
-        if ($origId <= 0) {
-            $errors[] = sprintf(__('Entry %d skipped: missing or invalid id.', PLUGIN_NAME), $index);
-            return false;
-        }
-
-        // Build insert row; only use known fields that are present in export
-        $defaultTpl = ConfigDefaultTpl::template();
-        $insertRow = [ConfigEntity::IS_DELETED => 0, 'date_creation' => $now, 'date_mod' => $now];
-        foreach ($exportFields as $field) {
-            if ($field === ConfigEntity::ID) {
-                $insertRow['id'] = $origId;
-                continue;
-            }
-            if (array_key_exists($field, $cfgData) && $cfgData[$field] !== null) {
-                $insertRow[$field] = $cfgData[$field];
-            } elseif (array_key_exists($field, $defaultTpl)) {
-                $insertRow[$field] = is_bool($defaultTpl[$field]) ? ($defaultTpl[$field] ? 1 : 0) : $defaultTpl[$field];
-            }
-        }
+        $insertRow = self::buildRestoreRow($cfgData, $origId, $now, $exportFields);
 
         // Direct DB insert to preserve original ID
         if (!$DB->insert($configsTable, $insertRow)) {
@@ -431,7 +455,7 @@ HTML;
      * Handles the form calls from the ConfigFormController and loads the
      * configuration item requested from the listing.
      *
-     * @param array     $postData $_POST data from form
+     * @param Request $request Incoming request.
      * @return Response|RedirectResponse   String containing HTML form with values or redirect into added form.
      */
     public function invokeForm(Request $request): Response|RedirectResponse     // NOSONAR - CRUDE returns by design.
@@ -465,39 +489,47 @@ HTML;
 
         $inputBag = $request->getPayload();                                     // Assign the inputBag
         $id = !empty($request->get('id')) ? (int) $request->get('id') : -1;     // Assign the ID if any
-        $options['template'] = ( $request->get('template') &&                   // iF set URI?template={template}
-                                 ctype_alpha($request->get('update')) ) ?       // iF template only contains alpha txt
-                                 $request->get('update') :                     // THEN set it to requested template
-                                 'default';                                         // Else fallback to default.
+        $options['template'] = ($request->get('template') &&                   // iF set URI?template={template}
+            ctype_alpha($request->get('update'))) ?       // iF template only contains alpha txt
+            $request->get('update') :                     // THEN set it to requested template
+            'default';                                         // Else fallback to default.
         $options['search'] = (string)$request->get('search', '');
         $options['page'] = !empty($request->get('page')) ? (int)$request->get('page') : 1;
-                                 
+
         // Add using template
-        if( !$inputBag->has('update')     &&
-            !$inputBag->has('delete')     ){                                // IF the update is empy load a given template for initial form.
+        if (
+            !$inputBag->has('update')     &&
+            !$inputBag->has('delete')
+        ) {                                // IF the update is empy load a given template for initial form.
             Session::checkRight('config', READ);
             $this->displayUIHeader();
             return $this->showForm($id, $options);                  // Return the form
-    
-        // Add new item
-        }elseif($inputBag->has('update')  &&                                // IF we received an update
-                $id == -1                 ){                                    // AND ID param is empty
+
+            // Add new item
+        } elseif (
+            $inputBag->has('update')  &&                                // IF we received an update
+            $id == -1
+        ) {                                    // AND ID param is empty
             Session::checkRight('config', UPDATE);
             $this->displayUIHeader();
             return $this->addSamlConfig($inputBag->getIterator());  // Call Create handler
 
-        // Update an item
-        }elseif($inputBag->has('update')  &&                                    // IF update is set
-                $id > 0                   ){                                    // AND $id is higher than 0
+            // Update an item
+        } elseif (
+            $inputBag->has('update')  &&                                    // IF update is set
+            $id > 0
+        ) {                                    // AND $id is higher than 0
             Session::checkRight('config', UPDATE);
             return $this->updateSamlConfig($inputBag->getIterator());
 
-        // Delete an item
-        }elseif($inputBag->has('delete')  &&                                    // IF get delete
-                $id > 0                   ){                                    // AND $id is higer then 0
-           Session::checkRight('config', UPDATE);
-           return $this->deleteSamlConfig($inputBag->getIterator());
-        }else{
+            // Delete an item
+        } elseif (
+            $inputBag->has('delete')  &&                                    // IF get delete
+            $id > 0
+        ) {                                    // AND $id is higer then 0
+            Session::checkRight('config', UPDATE);
+            return $this->deleteSamlConfig($inputBag->getIterator());
+        } else {
             $this->displayUIHeader();
             return new Response('No valid instructions received');
         }
@@ -508,79 +540,79 @@ HTML;
      * Populates the GLPI headers (UI)
      * Might cause headers to be send prematurely as Html::header contains echo operations.
      *
-     * @param void
      * @return void
      */
     private function displayUIHeader()
     {
-        Html::header(Config::getTypeName().' entities',                         // Title for browser tab
-                     SamlSsoController::CONFIG_ROUTE,
-                     SamlSsoController::CONFIG_PNAME,
-                     Config::class);
+        Html::header(
+            Config::getTypeName() . ' entities',                         // Title for browser tab
+            SamlSsoController::CONFIG_ROUTE,
+            SamlSsoController::CONFIG_PNAME,
+            Config::class
+        );
     }
 
 
     /**
      * Add new phpSaml configuration
      *
-     * @param array     $postData $_POST data from form
+     * @param \ArrayIterator $postData Submitted form data.
      * @return          Response|RedirectResponse          String containing HTML form with values or redirect into added form.
      */
     public function addSamlConfig(\ArrayIterator $postData): Response|RedirectResponse
     {
         // Populate configEntity using post;
         $configEntity = new ConfigEntity(-1, ['template' => 'post', 'postData' => $postData]);
-        
+
         // Populate and validate claim mappings
         $claimMap = isset($postData['claim_map']) && is_array($postData['claim_map']) ? $postData['claim_map'] : [];
         $claimMapEntity = new ClaimMapEntity(-1);
         $claimMapValid = $claimMapEntity->validate($claimMap);
 
         // Validate configEntity and claim mappings
-        if($configEntity->isValid() && $claimMapValid){
+        if ($configEntity->isValid() && $claimMapValid) {
             // Get the normalized database fields
             $fields = $configEntity->getDBFields([ConfigEntity::ID, ConfigEntity::CREATE_DATE, ConfigEntity::MOD_DATE]);
             // Get instance of SamlConfig for db update.
             $config = new Config();
             // Perform database insert using db fields.
-            if (($id = $config->add($fields))) {
+            if ($id = $config->add($fields)) {
                 // Save claim mappings if present in postData
                 $claimMapEntity = new ClaimMapEntity((int)$id);
                 $claimMapEntity->save($claimMap);
                 // Leave succes message for user and redirect
                 Session::addMessageAfterRedirect(__('Successfully added new samlSSO configuration.', PLUGIN_NAME));
-                return new RedirectResponse(samlsso_webdir().SamlSsoController::CONFIGFORM_ROUTE.'?id='.$id);
+                return new RedirectResponse(samlsso_webdir() . SamlSsoController::CONFIGFORM_ROUTE . '?id=' . $id);
             } else {
                 // Leave error message for user and regenerate form with values
                 Session::addMessageAfterRedirect(__('Unable to add new samlSSO configuration, please review error logging', PLUGIN_NAME));
-                return new Response( $this->generateForm($configEntity) );
+                return new Response($this->generateForm($configEntity));
             }
-        }else{
+        } else {
             // Leave error message for user and regenerate form with values
             Session::addMessageAfterRedirect(__('Configuration invalid, please correct all ⭕ errors first', PLUGIN_NAME));
-            return new Response( $this->generateForm($configEntity) );
+            return new Response($this->generateForm($configEntity));
         }
     }
 
     /**
      * Update phpSaml configuration
      *
-     * @param int   $id of configuration to update
-     * @param array $postData $_POST data from form
+     * @param \ArrayIterator $postData Submitted form data.
      * @return      Response|RedirectResponse -
      */
     public function updateSamlConfig(\ArrayIterator $postData): Response|RedirectResponse
     {
         // Populate configEntity using post;
         $configEntity = new ConfigEntity(-1, ['template' => 'post', 'postData' => $postData]);
-        
+
         // Populate and validate claim mappings
         $claimMap = isset($postData['claim_map']) && is_array($postData['claim_map']) ? $postData['claim_map'] : [];
         $claimMapEntity = new ClaimMapEntity((int)$postData['id']);
         $claimMapValid = $claimMapEntity->validate($claimMap);
 
         // Validate configEntity and claim mappings
-        if($configEntity->isValid() && $claimMapValid){
+        if ($configEntity->isValid() && $claimMapValid) {
             // Get the normalized database fields
             $fields = $configEntity->getDBFields([ConfigEntity::CREATE_DATE, ConfigEntity::IS_DELETED]);
             // Add the cross site request forgery token to the fields
@@ -588,19 +620,21 @@ HTML;
             // Get instance of SamlConfig for db update.
             $config = new Config();
             // Perform database update using fields.
-            if($config->canUpdate()       &&
-               $config->update($fields) ){
+            if (
+                $config->canUpdate()       &&
+                $config->update($fields)
+            ) {
                 // Save claim mappings
                 $claimMapEntity->save($claimMap);
                 // Leave a success message for the user and redirect using ID.
                 Session::addMessageAfterRedirect(__('Configuration updated successfully', PLUGIN_NAME));
-                return new RedirectResponse(samlsso_webdir().SamlSsoController::CONFIGFORM_ROUTE.'?id='.$postData['id']);
+                return new RedirectResponse(samlsso_webdir() . SamlSsoController::CONFIGFORM_ROUTE . '?id=' . $postData['id']);
             } else {
                 // Leave a failed message
                 Session::addMessageAfterRedirect(__('Configuration update failed, check your update rights or error logging', PLUGIN_NAME));
-                return new RedirectResponse(samlsso_webdir().SamlSsoController::CONFIGFORM_ROUTE.'?id='.$postData['id']);
+                return new RedirectResponse(samlsso_webdir() . SamlSsoController::CONFIGFORM_ROUTE . '?id=' . $postData['id']);
             }
-        }else{
+        } else {
             // Leave an error message and reload the form with provided values and errors
             Session::addMessageAfterRedirect(__('Configuration invalid, please correct all ⭕ errors first', PLUGIN_NAME));
             $this->displayUIHeader();
@@ -611,7 +645,7 @@ HTML;
     /**
      * Add new phpSaml configuration
      *
-     * @param array $postData $_POST data from form
+     * @param \ArrayIterator $postData Submitted form data.
      * @return      Response|RedirectResponse
      */
     public function deleteSamlConfig(\ArrayIterator $postData): RedirectResponse
@@ -619,15 +653,17 @@ HTML;
         // Get SamlConfig object for deletion
         $config = new Config();
         // Validate user has the rights to delete then delete
-        if($config->canPurge()  &&
-           $config->delete((array) $postData)){
+        if (
+            $config->canPurge()  &&
+            $config->delete((array) $postData)
+        ) {
             // Leave success message and redirect
             Session::addMessageAfterRedirect(__('Configuration deleted successfully', PLUGIN_NAME));
-            return new RedirectResponse(samlsso_webdir().SamlSsoController::CONFIG_ROUTE);
+            return new RedirectResponse(samlsso_webdir() . SamlSsoController::CONFIG_ROUTE);
         } else {
             // Leave fail message and redirect back to config.
             Session::addMessageAfterRedirect(__('Not allowed or error deleting SAML configuration!', PLUGIN_NAME));
-            return new RedirectResponse(samlsso_webdir().SamlSsoController::CONFIG_ROUTE.'?id='.$postData['id']);
+            return new RedirectResponse(samlsso_webdir() . SamlSsoController::CONFIG_ROUTE . '?id=' . $postData['id']);
         }
     }
 
@@ -640,16 +676,16 @@ HTML;
      */
     public function showForm(int $id, array $options = []): Response|RedirectResponse
     {
-        if($id === -1 || $id > 0){
+        if ($id === -1 || $id > 0) {
             // Generate form using a template
             return new Response($this->generateForm(new ConfigEntity($id, $options), $options));
-        }else{
+        } else {
             // Invalid id used redirect back to origin
             return new RedirectResponse(__('Invalid request, redirecting back', PLUGIN_NAME));
         }
     }
 
-     /**
+    /**
      * Figure out if there are errors in one of the tabs and displays a
      * warning sign if an error is found
      *
@@ -658,55 +694,69 @@ HTML;
     private function getTabWarnings(array $fields): array
     {
         // What fields are in what tab
-        $tabFields = ['general_warning'     => [configEntity::NAME,
-                                                configEntity::CONF_DOMAIN,
-                                                configEntity::CONF_ICON,
-                                                configEntity::COMMENT,
-                                                configEntity::IS_ACTIVE,
-                                                configEntity::DEBUG,
-                                                configEntity::REQUEST_TIMEOUT,
-                                                configEntity::INACTIVITY_TIMEOUT],
-                      'transit_warning'     => [configEntity::COMPRESS_REQ,
-                                                configEntity::COMPRESS_RES,
-                                                configEntity::PROXIED,
-                                                configEntity::XML_VALIDATION,
-                                                configEntity::DEST_VALIDATION,
-                                                configEntity::LOWERCASE_URL],
-                      'provider_warning'    => [configEntity::SP_CERTIFICATE,
-                                                configEntity::SP_KEY,
-                                                configEntity::SP_NAME_FORMAT],
-                      'idp_warning'         => [configEntity::IDP_ENTITY_ID,
-                                                configEntity::IDP_SSO_URL,
-                                                configEntity::IDP_SLO_URL,
-                                                configEntity::IDP_CERTIFICATE,
-                                                configEntity::AUTHN_CONTEXT,
-                                                configEntity::AUTHN_COMPARE],
-                      'security_warning'    => [configEntity::ENFORCE_SSO,
-                                                configEntity::STRICT,
-                                                configEntity::USER_JIT,
-                                                configEntity::SYNC_ON_LOGIN,
-                                                configEntity::ENCRYPT_NAMEID,
-                                                configEntity::SIGN_AUTHN,
-                                                configEntity::SIGN_SLO_REQ,
-                                                configEntity::SIGN_SLO_RES,
-                                                configEntity::SECURITY_WANTMESSAGESSIGNED,
-                                                configEntity::SECURITY_WANTASSERTIONSSIGNED,
-                                                configEntity::SECURITY_WANTASSERTIONSENCRYPTED,
-                                                configEntity::SECURITY_SIGNMETADATA,
-                                                configEntity::SECURITY_WANTNAMEID]];
+        $tabFields = [
+            'general_warning'     => [
+                configEntity::NAME,
+                configEntity::CONF_DOMAIN,
+                configEntity::CONF_ICON,
+                configEntity::COMMENT,
+                configEntity::IS_ACTIVE,
+                configEntity::DEBUG,
+                configEntity::REQUEST_TIMEOUT,
+                configEntity::INACTIVITY_TIMEOUT
+            ],
+            'transit_warning'     => [
+                configEntity::COMPRESS_REQ,
+                configEntity::COMPRESS_RES,
+                configEntity::PROXIED,
+                configEntity::XML_VALIDATION,
+                configEntity::DEST_VALIDATION,
+                configEntity::LOWERCASE_URL
+            ],
+            'provider_warning'    => [
+                configEntity::SP_CERTIFICATE,
+                configEntity::SP_KEY,
+                configEntity::SP_NAME_FORMAT
+            ],
+            'idp_warning'         => [
+                configEntity::IDP_ENTITY_ID,
+                configEntity::IDP_SSO_URL,
+                configEntity::IDP_SLO_URL,
+                configEntity::IDP_CERTIFICATE,
+                configEntity::AUTHN_CONTEXT,
+                configEntity::AUTHN_COMPARE
+            ],
+            'security_warning'    => [
+                configEntity::ENFORCE_SSO,
+                configEntity::STRICT,
+                configEntity::USER_JIT,
+                configEntity::SYNC_ON_LOGIN,
+                configEntity::ENCRYPT_NAMEID,
+                configEntity::SIGN_AUTHN,
+                configEntity::SIGN_SLO_REQ,
+                configEntity::SIGN_SLO_RES,
+                configEntity::SECURITY_WANTMESSAGESSIGNED,
+                configEntity::SECURITY_WANTASSERTIONSSIGNED,
+                configEntity::SECURITY_WANTASSERTIONSENCRYPTED,
+                configEntity::SECURITY_SIGNMETADATA,
+                configEntity::SECURITY_WANTNAMEID
+            ]
+        ];
         // Parse config fields
         // https://github.com/DonutsNL/samlsso/issues/27
         // Make sure all tabs are present for twig.
         $warnings = [];
-        foreach($tabFields as $tab => $entityFields){
+        foreach ($tabFields as $tab => $entityFields) {
             $warnings[$tab] = '';
-            foreach($entityFields as $field) {
-                if(!empty($fields[$field]['errors'])){
+            foreach ($entityFields as $field) {
+                if (!empty($fields[$field]['errors'])) {
                     $warnings[$tab] = '⚠️';
                 }
                 // Add cert validation warnings
-                if(!empty($fields[$field]['validate']['validations']['validTo'])   ||
-                   !empty($fields[$field]['validate']['validations']['validFrom']) ){
+                if (
+                    !empty($fields[$field]['validate']['validations']['validTo'])   ||
+                    !empty($fields[$field]['validate']['validations']['validFrom'])
+                ) {
                     $warnings[$tab] = '⚠️';
                 }
             }
@@ -731,7 +781,7 @@ HTML;
         // Get warnings tabs
         $tplVars  = [];
         $tplVars = array_merge($tplVars, $this->getTabWarnings($fields));
-       
+
         // Get AuthN context as array
         $fields[ConfigEntity::AUTHN_CONTEXT][ConfigItem::VALUE] = $configEntity->getRequestedAuthnContextArray();
 
@@ -743,7 +793,7 @@ HTML;
 
         $idpId = is_numeric($fields[ConfigEntity::ID]['value']) ? (int)$fields[ConfigEntity::ID]['value'] : -1;
         $claimMapEntity = new ClaimMapEntity($idpId);
-        
+
         $claimErrors = [];
         $claimMapValid = true;
         if (isset($_POST['claim_map']) && is_array($_POST['claim_map'])) {
@@ -758,24 +808,7 @@ HTML;
         $observedClaims = $claimMapEntity->getObservedClaims();
         $presets = ClaimMapEntity::getPresets();
 
-        $claimWarnings = [];
-        $hasClaimWarning = false;
-        $unusedRuleFields = [];
-        if ($idpId > 0) {
-            $unusedRuleFields = $claimMapEntity->getUnusedRuleFields();
-            if (!empty($unusedRuleFields)) {
-                $hasClaimWarning = true;
-            }
-            if (!empty($observedClaims)) {
-                foreach ($claimMappings as $index => $mapping) {
-                    $claim = $mapping['saml_claim'] ?? '';
-                    if ($claim !== '' && !in_array($claim, $observedClaims, true)) {
-                        $claimWarnings[$index] = __('This claim key has not been observed in any SAML responses yet.', PLUGIN_NAME);
-                        $hasClaimWarning = true;
-                    }
-                }
-            }
-        }
+        [$claimWarnings, $hasClaimWarning, $unusedRuleFields] = $this->claimWarnings($idpId, $claimMapEntity, $observedClaims, $claimMappings);
 
         if ($idpId > 0) {
             $totalCount = LoginState::getLoggingEntriesCount($idpId, $search);
@@ -790,23 +823,8 @@ HTML;
             $totalPages = 1;
             $page = 1;
         }
-        
-        // Twig strict_variables compatibility (GLPI 12 instances running with
-        // kernel.debug=true, e.g. a git checkout install): the form templates
-        // below read errors/formtitle/formexplain/validate for every field,
-        // but validation does not always populate those sub-keys. Default the
-        // optional sub-keys so strict mode renders exactly like production
-        // (where undefined keys resolve to an empty string).
-        foreach ($fields as $fkey => $fval) {
-            if (!is_array($fval)) {
-                continue;
-            }
-            foreach ([ConfigItem::ERRORS, ConfigItem::FORMTITLE, ConfigItem::FORMEXPLAIN, ConfigItem::VALIDATE, ConfigItem::FIELD, ConfigItem::VALUE] as $skey) {
-                if (!array_key_exists($skey, $fval)) {
-                    $fields[$fkey][$skey] = '';
-                }
-            }
-        }
+
+        $fields = self::normalizeTemplateFields($fields);
 
         // Define static field translations
         $tplVars = array_merge($tplVars, [
@@ -818,40 +836,48 @@ HTML;
             'allowed_rule_fields'       =>  ClaimMapItem::ALLOWED_RULE_FIELDS,
             'claim_warnings'            =>  $claimWarnings,
             'unused_rule_fields'        =>  $unusedRuleFields,
-            'claim_tab_warning'         =>  ($hasClaimWarning || !$claimMapValid) ? '⚠️' : '',
+            'claim_tab_warning'         => ($hasClaimWarning || !$claimMapValid) ? '⚠️' : '',
             'saml_xml_structure'        =>  $fields[ConfigEntity::SAML_XML_STRUCTURE]['value'] ?? '',
             'plugin'                    =>  PLUGIN_NAME,
             'close_form'                =>  Html::closeForm(false),
             'csrf_token'                =>  \Session::getNewCSRFToken(),
             'currentUserId'             =>  (int) \Session::getLoginUserID(),
             'currentUsername'           =>  (string) ($_SESSION['glpiname'] ?? ''),
-            'glpi_rootdoc'              =>  samlsso_webdir().SamlSsoController::CONFIGFORM_ROUTE.'?id='.$fields[ConfigEntity::ID][ConfigItem::VALUE],
+            'glpi_rootdoc'              =>  samlsso_webdir() . SamlSsoController::CONFIGFORM_ROUTE . '?id=' . $fields[ConfigEntity::ID][ConfigItem::VALUE],
             'glpi_tpl_macro'            =>  '/components/form/fields_macros.html.twig',
             'inputfields'               =>  $fields,
-            'buttonsHiddenWarn'         =>  ($configEntity->getConfigDomain()) ? true : false,
+            'buttonsHiddenWarn'         => ($configEntity->getConfigDomain()) ? true : false,
             'loggingfields'             =>  $logging,
             'logging_search'            =>  $search,
             'logging_page'              =>  $page,
             'logging_total_pages'       =>  $totalPages,
             'logging_total_count'       =>  $totalCount,
-            'entityID'                  =>  $CFG_GLPI['url_base'].'/',
-            'acsUrl'                    =>  samlsso_webdir().SamlSsoController::ACS_ROUTE.'/'.$fields[ConfigEntity::ID][ConfigItem::VALUE],
-            'metaUrl'                   =>  samlsso_webdir().SamlSsoController::META_ROUTE.'/'.$fields[ConfigEntity::ID][ConfigItem::VALUE],
-            'sloUrl'                    =>  samlsso_webdir().SamlSsoController::SLO_ROUTE.'/'.$fields[ConfigEntity::ID][ConfigItem::VALUE],
-            'inputOptionsBool'          =>  [ 1                                 => __('Yes', PLUGIN_NAME),
-                                              0                                 => __('No', PLUGIN_NAME)],
-            'inputOptionsNameFormat'    =>  [Saml2Const::NAMEID_UNSPECIFIED     => __('Unspecified', PLUGIN_NAME),
-                                             Saml2Const::NAMEID_EMAIL_ADDRESS   => __('Email Address', PLUGIN_NAME),
-                                             Saml2Const::NAMEID_TRANSIENT       => __('Transient', PLUGIN_NAME),
-                                             Saml2Const::NAMEID_PERSISTENT      => __('Persistent', PLUGIN_NAME)],
-            'inputOptionsAuthnContext'  =>  ['PasswordProtectedTransport'   => __('PasswordProtectedTransport', PLUGIN_NAME),
-                                             'Password'                     => __('Password', PLUGIN_NAME),
-                                             'X509'                         => __('X509', PLUGIN_NAME),
-                                             'none'                         => __('none', PLUGIN_NAME)],
-            'inputOptionsAuthnCompare'  =>  ['exact'                        => __('Exact', PLUGIN_NAME),
-                                             'minimum'                      => __('Minimum', PLUGIN_NAME),
-                                             'maximum'                      => __('Maximum', PLUGIN_NAME),
-                                             'better'                       => __('Better', PLUGIN_NAME)],
+            'entityID'                  =>  $CFG_GLPI['url_base'] . '/',
+            'acsUrl'                    =>  samlsso_webdir() . SamlSsoController::ACS_ROUTE . '/' . $fields[ConfigEntity::ID][ConfigItem::VALUE],
+            'metaUrl'                   =>  samlsso_webdir() . SamlSsoController::META_ROUTE . '/' . $fields[ConfigEntity::ID][ConfigItem::VALUE],
+            'sloUrl'                    =>  samlsso_webdir() . SamlSsoController::SLO_ROUTE . '/' . $fields[ConfigEntity::ID][ConfigItem::VALUE],
+            'inputOptionsBool'          =>  [
+                1                                 => __('Yes', PLUGIN_NAME),
+                0                                 => __('No', PLUGIN_NAME)
+            ],
+            'inputOptionsNameFormat'    =>  [
+                Saml2Const::NAMEID_UNSPECIFIED     => __('Unspecified', PLUGIN_NAME),
+                Saml2Const::NAMEID_EMAIL_ADDRESS   => __('Email Address', PLUGIN_NAME),
+                Saml2Const::NAMEID_TRANSIENT       => __('Transient', PLUGIN_NAME),
+                Saml2Const::NAMEID_PERSISTENT      => __('Persistent', PLUGIN_NAME)
+            ],
+            'inputOptionsAuthnContext'  =>  [
+                'PasswordProtectedTransport'   => __('PasswordProtectedTransport', PLUGIN_NAME),
+                'Password'                     => __('Password', PLUGIN_NAME),
+                'X509'                         => __('X509', PLUGIN_NAME),
+                'none'                         => __('none', PLUGIN_NAME)
+            ],
+            'inputOptionsAuthnCompare'  =>  [
+                'exact'                        => __('Exact', PLUGIN_NAME),
+                'minimum'                      => __('Minimum', PLUGIN_NAME),
+                'maximum'                      => __('Maximum', PLUGIN_NAME),
+                'better'                       => __('Better', PLUGIN_NAME)
+            ],
             'inputOptionsIcons'         =>  self::getAvailableIcons(),
         ]);
 
@@ -881,11 +907,7 @@ HTML;
         ];
 
         $cssPath = GLPI_ROOT . '/public/lib/base.css';
-        if (!file_exists($cssPath)) {
-            return $defaultIcons;
-        }
-
-        $content = file_get_contents($cssPath);
+        $content = file_exists($cssPath) ? file_get_contents($cssPath) : false;
         if ($content === false) {
             return $defaultIcons;
         }
@@ -898,11 +920,39 @@ HTML;
 
         $icons = [];
         $ignoredNames = [
-            'solid', 'regular', 'brands', 'classic', 'fw', 'ul', 'li', 'border', 'inverse',
-            'pull-left', 'pull-right', 'beat', 'bounce', 'fade', 'beat-fade', 'flip', 'shake',
-            'spin', 'spin-reverse', 'pulse', 'spin-pulse', 'rotate-90', 'rotate-180',
-            'rotate-270', 'flip-horizontal', 'flip-vertical', 'flip-both', 'rotate-by',
-            'stack', 'stack-1x', 'stack-2x', 'sr-only', 'sr-only-focusable'
+            'solid',
+            'regular',
+            'brands',
+            'classic',
+            'fw',
+            'ul',
+            'li',
+            'border',
+            'inverse',
+            'pull-left',
+            'pull-right',
+            'beat',
+            'bounce',
+            'fade',
+            'beat-fade',
+            'flip',
+            'shake',
+            'spin',
+            'spin-reverse',
+            'pulse',
+            'spin-pulse',
+            'rotate-90',
+            'rotate-180',
+            'rotate-270',
+            'flip-horizontal',
+            'flip-vertical',
+            'flip-both',
+            'rotate-by',
+            'stack',
+            'stack-1x',
+            'stack-2x',
+            'sr-only',
+            'sr-only-focusable'
         ];
 
         foreach ($matches[1] as $match) {
@@ -913,7 +963,8 @@ HTML;
                 continue;
             }
 
-            if (preg_match('/^\d+x$/', $name) || preg_match('/^\d+xs$/', $name) || preg_match('/^\d+xl$/', $name) ||
+            if (
+                preg_match('/^\d+x$/', $name) || preg_match('/^\d+xs$/', $name) || preg_match('/^\d+xl$/', $name) ||
                 preg_match('/^(xs|sm|lg|xl)$/', $name) || preg_match('/^\d+$/', $name)
             ) {
                 continue;
@@ -929,11 +980,77 @@ HTML;
             }
         }
 
-        if (count($icons) > 0) {
+        if (!empty($icons)) {
             asort($icons);
-            return $icons;
+        }
+        return $icons ?: $defaultIcons;
+    }
+    /** Describe unmapped observations separately from form rendering. */
+    private function claimWarnings(int $idpId, ClaimMapEntity $claimMapEntity, array $observedClaims, array $claimMappings): array
+    {
+        $claimWarnings = [];
+        $hasClaimWarning = false;
+        $unusedRuleFields = [];
+        if ($idpId > 0) {
+            $unusedRuleFields = $claimMapEntity->getUnusedRuleFields();
+            if (!empty($unusedRuleFields)) {
+                $hasClaimWarning = true;
+            }
+            if (!empty($observedClaims)) {
+                foreach ($claimMappings as $index => $mapping) {
+                    $claim = $mapping['saml_claim'] ?? '';
+                    if ($claim !== '' && !in_array($claim, $observedClaims, true)) {
+                        $claimWarnings[$index] = __('This claim key has not been observed in any SAML responses yet.', PLUGIN_NAME);
+                        $hasClaimWarning = true;
+                    }
+                }
+            }
         }
 
-        return $defaultIcons;
+        return [$claimWarnings, $hasClaimWarning, $unusedRuleFields];
+    }
+
+    /** Fill optional keys read by Twig strict_variables without overwriting validation values. */
+    private static function normalizeTemplateFields(array $fields): array
+    {
+        // Twig strict_variables compatibility (GLPI 12 instances running with
+        // kernel.debug=true, e.g. a git checkout install): the form templates
+        // below read errors/formtitle/formexplain/validate for every field,
+        // but validation does not always populate those sub-keys. Default the
+        // optional sub-keys so strict mode renders exactly like production
+        // (where undefined keys resolve to an empty string).
+        foreach ($fields as $fkey => $fval) {
+            if (!is_array($fval)) {
+                continue;
+            }
+            foreach ([ConfigItem::ERRORS, ConfigItem::FORMTITLE, ConfigItem::FORMEXPLAIN, ConfigItem::VALIDATE, ConfigItem::FIELD, ConfigItem::VALUE] as $skey) {
+                if (!array_key_exists($skey, $fval)) {
+                    $fields[$fkey][$skey] = '';
+                }
+            }
+        }
+
+        return $fields;
+    }
+
+    /** Preserve exported IDs and fill only known, missing configuration fields. */
+    private static function buildRestoreRow(array $cfgData, int $origId, string $now, array $exportFields): array
+    {
+        // Build insert row; only use known fields that are present in export
+        $defaultTpl = ConfigDefaultTpl::template();
+        $insertRow = [ConfigEntity::IS_DELETED => 0, 'date_creation' => $now, 'date_mod' => $now];
+        foreach ($exportFields as $field) {
+            if ($field === ConfigEntity::ID) {
+                $insertRow['id'] = $origId;
+                continue;
+            }
+            if (array_key_exists($field, $cfgData) && $cfgData[$field] !== null) {
+                $insertRow[$field] = $cfgData[$field];
+            } elseif (array_key_exists($field, $defaultTpl)) {
+                $insertRow[$field] = is_bool($defaultTpl[$field]) ? (int) $defaultTpl[$field] : $defaultTpl[$field];
+            }
+        }
+
+        return $insertRow;
     }
 }

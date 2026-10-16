@@ -46,7 +46,7 @@ declare(strict_types=1);
 
 /**
  * RunAllTests.php
- * 
+ *
  * Central test runner that executes all test suites in isolated processes.
  * Ensures each test file runs in its own process space to prevent shim/class definition conflicts.
  */
@@ -80,18 +80,23 @@ echo "================================================\n\n";
  */
 foreach ($files as $file) {
     $filename = basename($file);
-    
+
     $output = [];
     $returnCode = 0;
-    
+
     /**
      * Run the test file using the current PHP binary and capture output and return code.
      */
     exec("php " . escapeshellarg($file) . " 2>&1", $output, $returnCode);
-    
+
+    // A zero exit status must not hide PHP runtime warnings emitted by a suite.
+    if ($returnCode === 0 && preg_match('/^(?:PHP )?(?:Warning|Notice|Deprecated|Fatal error|Parse error):/m', implode("\n", $output))) {
+        $returnCode = 1;
+    }
+
     if ($returnCode === 0) {
         $results[$filename] = '✅ PASSED';
-        
+
         /**
          * Print individual success symbols/lines from the test output to show granular progress.
          */
@@ -104,7 +109,7 @@ foreach ($files as $file) {
     } else {
         $results[$filename] = '❌ FAILED';
         $allPassed = false;
-        
+
         /**
          * Output full details of the failure for debugging purposes.
          */

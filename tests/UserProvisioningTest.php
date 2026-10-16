@@ -46,7 +46,7 @@ declare(strict_types=1);
 
 /**
  * UserProvisioningTest.php
- * 
+ *
  * Unit tests validating GLPI user lookup, JIT (Just-In-Time) provisioning,
  * rule engine processing, and groups/profiles updates.
  */
@@ -109,7 +109,7 @@ namespace GlpiPlugin\Samlsso\Tests {
             $samlUser = new SamlUser();
             $glpiUser = $samlUser->getOrCreateUser($userData, $configEntity);
             if (!isset($glpiUser->fields['id']) || $glpiUser->fields['id'] !== 123) {
-                throw new \Exception("Existing user lookup failed.");
+                throw new \UnexpectedValueException("Existing user lookup failed.");
             }
             echo "✅ Existing user lookup by NameId\n";
         }
@@ -130,7 +130,7 @@ namespace GlpiPlugin\Samlsso\Tests {
             $samlUser = new SamlUser();
             $glpiUser = $samlUser->getOrCreateUser($userData, $configEntity);
             if (!isset($glpiUser->fields['id']) || $glpiUser->fields['id'] !== 999) {
-                throw new \Exception("JIT User creation failed.");
+                throw new \UnexpectedValueException("JIT User creation failed.");
             }
             echo "✅ JIT User creation and Rule engine invocation\n";
         }
@@ -143,7 +143,7 @@ namespace GlpiPlugin\Samlsso\Tests {
         public function testJitDisabledRespectsIdpConfig(): void {
             $userData = $this->getFullUserData('new.user', 'new.user@example.com');
             \User::$mockObject->mockUserData = null;
-            
+
             // Setup ConfigEntity with JIT disabled and valid ID
             MockConfigEntity::$mockFields[ConfigEntity::USER_JIT] = 0;
             MockConfigEntity::$mockFields[ConfigEntity::NAME] = 'Disabled JIT IDP';
@@ -154,7 +154,7 @@ namespace GlpiPlugin\Samlsso\Tests {
 
             try {
                 $samlUser->getOrCreateUser($userData, $configEntity);
-                throw new \Exception("Expected PrintFatalLoginError due to disabled JIT, but method completed.");
+                throw new \UnexpectedValueException("Expected PrintFatalLoginError due to disabled JIT, but method completed.");
             } catch (\Exception $e) {
                 if (str_contains($e->getMessage(), 'is disabled for: Disabled JIT IDP')) {
                     echo "✅ JIT disabled respects IDP config\n";
@@ -203,7 +203,7 @@ namespace GlpiPlugin\Samlsso\Tests {
             foreach ($actionKeys as $key) {
                 $searchString = $mapping[$key] ?? $key;
                 if (!str_contains($methodSource, $searchString)) {
-                    throw new \Exception("Rule action key '{$key}' does not have a corresponding handler in User::updateUserRights.");
+                    throw new \UnexpectedValueException("Rule action key '{$key}' does not have a corresponding handler in User::updateUserRights.");
                 }
             }
 
@@ -236,13 +236,13 @@ namespace GlpiPlugin\Samlsso\Tests {
 
             // 1. Verify user was added to the group
             if (empty(\Group_User::$added) || \Group_User::$added[0]['groups_id'] !== 50) {
-                throw new \Exception("Group assignment handler failed to add user to group 50 via Group_User.");
+                throw new \UnexpectedValueException("Group assignment handler failed to add user to group 50 via Group_User.");
             }
 
             // 2. Verify default group was updated on the user object
             $updatedData = \User::$mockObject->updatedUserData;
             if ($updatedData === null || ($updatedData['groups_id'] ?? null) !== 60) {
-                throw new \Exception("User defaults handler failed to update default groups_id to 60.");
+                throw new \UnexpectedValueException("User defaults handler failed to update default groups_id to 60.");
             }
 
             echo "✅ User rights update (Groups/Profiles)\n";
@@ -255,7 +255,7 @@ namespace GlpiPlugin\Samlsso\Tests {
         public function testSyncOnLogin(): void {
             $samlUser = new SamlUser();
             $configEntity = new ConfigEntity();
-            
+
             // Setup mock existing user fields
             \User::$mockObject->mockUserData = [
                 'id'         => 999,
@@ -264,28 +264,33 @@ namespace GlpiPlugin\Samlsso\Tests {
                 'is_deleted' => 0,
                 'is_active'  => 1
             ];
-            
+
             // 1. Sync on Login is disabled: should not trigger update
             MockConfigEntity::$mockFields[ConfigEntity::SYNC_ON_LOGIN] = 0;
             \User::$mockObject->mockUpdateCalled = false;
-            
+
             $userFields = $this->getFullUserData('existing_user', 'existing@example.com');
+            $userFields[SamlUser::REALNAME] = "O'Reilly & <Fixture>";
             $resUser = $samlUser->getOrCreateUser($userFields, $configEntity);
-            
+
             if (\User::$mockObject->mockUpdateCalled) {
-                throw new \Exception("User update was triggered on login even though sync_on_login is disabled.");
+                throw new \UnexpectedValueException("User update was triggered on login even though sync_on_login is disabled.");
             }
-            
+
             // 2. Sync on Login is enabled: should trigger update
             MockConfigEntity::$mockFields[ConfigEntity::SYNC_ON_LOGIN] = 1;
             \User::$mockObject->mockUpdateCalled = false;
-            
+
             $resUser = $samlUser->getOrCreateUser($userFields, $configEntity);
-            
-            if (!\User::$mockObject->mockUpdateCalled) {
-                throw new \Exception("User update was NOT triggered on login even though sync_on_login is enabled.");
+            if (\User::$mockObject->updatedUserData[SamlUser::REALNAME] !== "O'Reilly & <Fixture>") {
+                throw new \UnexpectedValueException('GLPI 11+ update payload was HTML encoded instead of remaining raw');
             }
-            
+
+
+            if (!\User::$mockObject->mockUpdateCalled) {
+                throw new \UnexpectedValueException("User update was NOT triggered on login even though sync_on_login is enabled.");
+            }
+
             echo "✅ Synchronize claim mappings and rerun rules engine on login verified\n";
         }
 
@@ -297,7 +302,7 @@ namespace GlpiPlugin\Samlsso\Tests {
         public function testSyncOnLoginTraceLogging(): void {
             $samlUser = new SamlUser();
             $configEntity = new ConfigEntity();
-            
+
             \User::$mockObject->mockUserData = [
                 'id'         => 999,
                 'name'       => 'existing_user',
@@ -309,13 +314,13 @@ namespace GlpiPlugin\Samlsso\Tests {
                 'is_deleted' => 0,
                 'is_active'  => 1
             ];
-            
+
             MockConfigEntity::$mockFields[ConfigEntity::SYNC_ON_LOGIN] = 1;
-            
+
             $userFields = $this->getFullUserData('existing_user', 'newemail@example.com');
             $userFields[SamlUser::REALNAME] = 'NewRealName';
             $userFields[SamlUser::FIRSTNAME] = 'NewFirstName';
-            
+
             /* Emulate LoginState */
             $state = new class extends \GlpiPlugin\Samlsso\LoginState {
                 public array $traces = [];
@@ -325,24 +330,24 @@ namespace GlpiPlugin\Samlsso\Tests {
                     return true;
                 }
             };
-            
+
             $resUser = $samlUser->getOrCreateUser($userFields, $configEntity, $state);
-            
+
             if (!isset($state->traces['syncUpdatedFields'])) {
-                throw new \Exception("Sync changes trace log was not written.");
+                throw new \UnexpectedValueException("Sync changes trace log was not written.");
             }
-            
+
             $logContent = $state->traces['syncUpdatedFields'];
             if (!str_contains($logContent, "realname: 'OldRealName' => 'NewRealName'") ||
                 !str_contains($logContent, "firstname: 'OldFirstName' => 'NewFirstName'") ||
                 !str_contains($logContent, "email added: 'newemail@example.com'")) {
-                throw new \Exception("Sync changes trace log has incorrect detail: " . $logContent);
+                throw new \UnexpectedValueException("Sync changes trace log has incorrect detail: " . $logContent);
             }
 
             if (!isset($state->traces['rulesEngineInput']) || !isset($state->traces['rulesEngineOutput'])) {
-                throw new \Exception("Rules engine inputs or outputs were not logged.");
+                throw new \UnexpectedValueException("Rules engine inputs or outputs were not logged.");
             }
-            
+
             echo "✅ Synchronize claim mappings trace logging verified\n";
         }
 
@@ -352,7 +357,7 @@ namespace GlpiPlugin\Samlsso\Tests {
         public function testSyncOnLoginCaseInsensitiveEmail(): void {
             $samlUser = new SamlUser();
             $configEntity = new ConfigEntity();
-            
+
             \User::$mockObject->mockUserData = [
                 'id'         => 999,
                 'name'       => 'existing_user',
@@ -360,17 +365,17 @@ namespace GlpiPlugin\Samlsso\Tests {
                 'is_deleted' => 0,
                 'is_active'  => 1
             ];
-            
+
             MockConfigEntity::$mockFields[ConfigEntity::SYNC_ON_LOGIN] = 1;
-            
+
             // Set response from DB to mock user's email in glpi_useremails
             $this->db->setResponse('glpi_useremails', [
                 ['email' => 'Existing@Example.Com']
             ]);
-            
+
             // New incoming SAML email has different casing: existing@example.com
             $userFields = $this->getFullUserData('existing_user', 'existing@example.com');
-            
+
             /* Emulate LoginState */
             $state = new class extends \GlpiPlugin\Samlsso\LoginState {
                 public array $traces = [];
@@ -380,13 +385,13 @@ namespace GlpiPlugin\Samlsso\Tests {
                     return true;
                 }
             };
-            
+
             $resUser = $samlUser->getOrCreateUser($userFields, $configEntity, $state);
-            
+
             if (isset($state->traces['syncUpdatedFields']) && str_contains($state->traces['syncUpdatedFields'], "email added")) {
-                throw new \Exception("Email casing mismatch incorrectly triggered a duplicate email addition.");
+                throw new \UnexpectedValueException("Email casing mismatch incorrectly triggered a duplicate email addition.");
             }
-            
+
             echo "✅ Case-insensitive user email comparison on sync_on_login verified\n";
         }
     }

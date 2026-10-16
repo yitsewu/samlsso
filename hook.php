@@ -44,6 +44,7 @@
  **/
 
 /** This file is included in the GLPI\Plugins\Hooks context. */
+
 use GlpiPlugin\Samlsso\Exclude;
 use GlpiPlugin\Samlsso\RuleSaml;
 use GlpiPlugin\Samlsso\LoginFlow;
@@ -91,7 +92,6 @@ function updateUser(array $params): void
 /**
  * Add Excludes to setup dropdown menu.
  *
- * @param void
  * @return array [ClassName => __('Menu label') ]
  */
 function plugin_samlsso_getDropdown(): array                                      // NOSONAR - Default GLPI naming
@@ -109,7 +109,6 @@ function plugin_samlsso_getDropdown(): array                                    
  * This function is hooked by Hooks::POST_INIT to trigger our loginFlow logic.
  * This hook is registered by setup.php
  *
- * @param void
  * @return void
  */
 function plugin_samlsso_evalAuth(): void                                          // NOSONAR - Default GLPI naming
@@ -127,7 +126,6 @@ function plugin_samlsso_evalAuth(): void                                        
  * This function is hooked by Hooks::DISPLAY_LOGIN to show our custom login form.
  * This hook is registered by setup.php
  *
- * @param void
  * @return void
  */
 function plugin_samlsso_displaylogin(): void                                      // NOSONAR - Default GLPI naming
@@ -174,14 +172,8 @@ function plugin_samlsso_install(): bool                                         
         if ($value !== '') {
             $last = strtolower($value[strlen($value) - 1]);
             $bytes = (int)$value;
-            switch ($last) {
-                case 'g':
-                    $bytes *= 1024;
-                case 'm':
-                    $bytes *= 1024;
-                case 'k':
-                    $bytes *= 1024;
-            }
+            $multipliers = ['g' => 1073741824, 'm' => 1048576, 'k' => 1024];
+            $bytes *= $multipliers[$last] ?? 1;
 
             if ($bytes < 536870912) {
                 Session::addMessageAfterRedirect(__('⚠️ PHP memory_limit is less than 512M. This may cause crashes during SAML Login. See: ', PLUGIN_NAME) . ' <a href="https://github.com/DonutsNL/samlsso/wiki/Container-crashes-during-SAML-Login" target="_blank">Wiki</a>', false, WARNING);
@@ -266,4 +258,3 @@ function plugin_samlsso_uninstall(): bool                                       
     }
     return true;
 }
-

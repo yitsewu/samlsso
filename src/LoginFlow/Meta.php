@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /**
  *  ------------------------------------------------------------------------
@@ -64,28 +65,28 @@ class Meta
     {
 
         $id = (filter_var($request->get('idpId'), FILTER_VALIDATE_INT)) ?           // Did we get a valid ID?
-              (int) $request->get('idpId') :                                        // Then assign it
-              -1;                                                                   // Else fall back to -1
+            (int) $request->get('idpId') :                                        // Then assign it
+            -1;                                                                   // Else fall back to -1
 
-        try{                                                                        // If we have an ID then try to build the metadata.
+        try {                                                                        // If we have an ID then try to build the metadata.
             $configEntity = new ConfigEntity($id);                                  // ConfigEntity expects/validates datatype INT.
-            if($configEntity->getField(ConfigEntity::DEBUG)){                       // Are we allowed to expose metadata.
+            if ($configEntity->getField(ConfigEntity::DEBUG)) {                       // Are we allowed to expose metadata.
                 $samlSettings = new Settings($configEntity->getPhpSamlConfig());    // Get the samlConfig using the provided ID.
                 $metadata = $samlSettings->getSPMetadata();
                 if (!$metadata) {                // Get the Serviceprovider metadata.
-                    $metadata = self::STAG.                                         // Set error if something is wrong
-                                __("Error fetching spMetadata.",PLUGIN_NAME).
-                                self::ETAG;
-                }
-            }else{
-                $metadata = self::STAG.                                             // Set error if something is wrong
-                            __("Invalid id or metadata not exposed.",PLUGIN_NAME).
-                            self::ETAG;
-            }
-        } catch (Exception $e) {
-            $metadata = self::STAG.                                                 // Set error if something is wrong
-                        __("Error fetching config.",PLUGIN_NAME).
+                    $metadata = self::STAG .                                         // Set error if something is wrong
+                        __("Error fetching spMetadata.", PLUGIN_NAME) .
                         self::ETAG;
+                }
+            } else {
+                $metadata = self::STAG .                                             // Set error if something is wrong
+                    __("Invalid id or metadata not exposed.", PLUGIN_NAME) .
+                    self::ETAG;
+            }
+        } catch (Exception) {
+            $metadata = self::STAG .                                                 // Set error if something is wrong
+                __("Error fetching config.", PLUGIN_NAME) .
+                self::ETAG;
         }
 
         return new Response($metadata, 200, ['Content-Type' => 'text/xml']);        // Return the result to the calling object.

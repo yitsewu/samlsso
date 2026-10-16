@@ -226,7 +226,7 @@ class ConfigItem    //NOSONAR
 
     /**
      * Validates the URL the passed SAML Single Sign On Service string
-     * @param string    Single Sign On Service URL to be validated
+     * @param string $var Single Sign On Service URL to be validated
      * @return array    Contextual information about the parameter and validation outcomes
      */
     protected function idp_single_sign_on_service(string $var): array //NOSONAR
@@ -259,7 +259,7 @@ class ConfigItem    //NOSONAR
 
     /**
      * Validates the URL the passed SAML Single Log Off Service string
-     * @param string    Single Sign On Service URL to be validated
+     * @param string $var Single Sign On Service URL to be validated
      * @return array    Contextual information about the parameter and validation outcomes
      */
     protected function idp_single_logout_service(string $var): array //NOSONAR
@@ -392,7 +392,7 @@ class ConfigItem    //NOSONAR
         ];
     }
 
-    protected function saml_xml_structure(mixed $var): array
+    protected function saml_xml_structure(mixed $var): array // NOSONAR - Validator is dispatched by the persisted database field name.
     {
         return [
             ConfigItem::FORMEXPLAIN => __('The anonymized SAML response XML structure', PLUGIN_NAME),
@@ -467,7 +467,7 @@ class ConfigItem    //NOSONAR
         );
     }
 
-    protected function enforce_sso(mixed $var): array                   //NOSONAR 
+    protected function enforce_sso(mixed $var): array                   //NOSONAR
     {
         return array_merge(
             [
@@ -483,14 +483,14 @@ class ConfigItem    //NOSONAR
     protected function proxied(mixed $var): array
     {
         $result = ConfigItem::handleAsBool($var, ConfigEntity::PROXIED);
-        
+
         if ($result[ConfigItem::VALUE] == 1) {
             $validation = $this->validateProxyEnvironment();
             if (!$validation['isValid']) {
                 $result[ConfigItem::ERRORS] = $validation['htmlTable'];
             }
         }
-        
+
         return array_merge(
             [
                 ConfigItem::FORMEXPLAIN   => __('Is GLPI positioned behind a proxy that alters the SAML response scheme?', PLUGIN_NAME),
@@ -547,7 +547,7 @@ class ConfigItem    //NOSONAR
      * @param  mixed $var  Raw input value (usually '1' or '0')
      * @return array       Contextual metadata and validation results
      */
-    protected function sync_on_login(mixed $var): array
+    protected function sync_on_login(mixed $var): array // NOSONAR - Validator is dispatched by the persisted database field name.
     {
         return array_merge(
             [
@@ -566,7 +566,7 @@ class ConfigItem    //NOSONAR
      * @param  mixed $var  Raw input value
      * @return array       Metadata and validation results
      */
-    protected function security_wantmessagessigned(mixed $var): array
+    protected function security_wantmessagessigned(mixed $var): array // NOSONAR - Validator is dispatched by the persisted database field name.
     {
         return array_merge(
             [
@@ -585,7 +585,7 @@ class ConfigItem    //NOSONAR
      * @param  mixed $var  Raw input value
      * @return array       Metadata and validation results
      */
-    protected function security_wantassertionssigned(mixed $var): array
+    protected function security_wantassertionssigned(mixed $var): array // NOSONAR - Validator is dispatched by the persisted database field name.
     {
         return array_merge(
             [
@@ -604,7 +604,7 @@ class ConfigItem    //NOSONAR
      * @param  mixed $var  Raw input value
      * @return array       Metadata and validation results
      */
-    protected function security_wantassertionsencrypted(mixed $var): array
+    protected function security_wantassertionsencrypted(mixed $var): array // NOSONAR - Validator is dispatched by the persisted database field name.
     {
         return array_merge(
             [
@@ -623,7 +623,7 @@ class ConfigItem    //NOSONAR
      * @param  mixed $var  Raw input value
      * @return array       Metadata and validation results
      */
-    protected function security_signmetadata(mixed $var): array
+    protected function security_signmetadata(mixed $var): array // NOSONAR - Validator is dispatched by the persisted database field name.
     {
         return array_merge(
             [
@@ -642,7 +642,7 @@ class ConfigItem    //NOSONAR
      * @param  mixed $var  Raw input value
      * @return array       Metadata and validation results
      */
-    protected function security_wantnameid(mixed $var): array
+    protected function security_wantnameid(mixed $var): array // NOSONAR - Validator is dispatched by the persisted database field name.
     {
         return array_merge(
             [
@@ -799,14 +799,13 @@ class ConfigItem    //NOSONAR
             // Start with an empty array
             $validations = [];
             // Try to parse the certificate using Openssl.
-            if (($parsedCertificate = openssl_x509_parse($certificate))) {
+            if ($parsedCertificate = openssl_x509_parse($certificate)) {
                 // Create time object from current timestamp to calculate with
                 $n = new DateTimeImmutable('now');
                 // Create time objects from certificate validity properties.
                 $t = $this->createCertificateDateTime($parsedCertificate, 'validTo');
                 $f = $this->createCertificateDateTime($parsedCertificate, 'validFrom');
                 // Get the certificate's common name property.
-                /** @var array $subject */
                 $subject = $parsedCertificate['subject'];
                 $cn = (string)($subject['CN'] ?? '');
                 if ($t instanceof DateTimeImmutable) {
@@ -861,14 +860,12 @@ class ConfigItem    //NOSONAR
             return (new DateTimeImmutable())->setTimestamp((int)$parsedCertificate[$timestampField]);
         }
 
-        if (empty($parsedCertificate[$field]) || !is_string($parsedCertificate[$field])) {
-            return null;
-        }
-
-        foreach (['ymdHisT', 'YmdHisT'] as $format) {
-            $date = DateTimeImmutable::createFromFormat($format, $parsedCertificate[$field]);
-            if ($date instanceof DateTimeImmutable) {
-                return $date;
+        if (!empty($parsedCertificate[$field]) && is_string($parsedCertificate[$field])) {
+            foreach (['ymdHisT', 'YmdHisT'] as $format) {
+                $date = DateTimeImmutable::createFromFormat($format, $parsedCertificate[$field]);
+                if ($date instanceof DateTimeImmutable) {
+                    return $date;
+                }
             }
         }
 
@@ -885,7 +882,7 @@ class ConfigItem    //NOSONAR
         }
     }
 
-    protected function request_timeout(mixed $var): array
+    protected function request_timeout(mixed $var): array // NOSONAR - Validator is dispatched by the persisted database field name.
     {
         $error = false;
         if (!is_numeric($var) || (int)$var <= 0) {
@@ -915,7 +912,7 @@ class ConfigItem    //NOSONAR
         return $result;
     }
 
-    protected function inactivity_timeout(mixed $var): array
+    protected function inactivity_timeout(mixed $var): array // NOSONAR - Validator is dispatched by the persisted database field name.
     {
         $error = false;
         if (!is_numeric($var) || (int)$var < 0) {
@@ -955,58 +952,66 @@ class ConfigItem    //NOSONAR
         $xff = !empty($_SERVER['HTTP_X_FORWARDED_FOR']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : '';
         $xfp = !empty($_SERVER['HTTP_X_FORWARDED_PROTO']) ? $_SERVER['HTTP_X_FORWARDED_PROTO'] : '';
         $xfh = !empty($_SERVER['HTTP_X_FORWARDED_HOST']) ? $_SERVER['HTTP_X_FORWARDED_HOST'] : '';
-        
+
         $isHttps = (
             (isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] === 'on' || $_SERVER['HTTPS'] == 1)) ||
             (strtolower($xfp) === 'https')
         );
-        
+
         $cookieSecureEnabled = (bool)ini_get('session.cookie_secure');
         $cookieConflict = ($cookieSecureEnabled && !$isHttps);
         $cookieSecurityMissing = ($isHttps && !$cookieSecureEnabled);
-        
+
         $hasXForwarded = !empty($xff) || !empty($xfh) || !empty($xfp);
-        
+
         if ($hasXForwarded && $isHttps && !$cookieConflict && !$cookieSecurityMissing) {
             return ['isValid' => true, 'htmlTable' => ''];
         }
-        
+
+        return ['isValid' => false, 'htmlTable' => $this->renderProxyEnvironment($xff, $xfp, $xfh, $isHttps, $cookieSecureEnabled)];
+    }
+
+    /** Render diagnostic values only after the proxy checks have failed. */
+    private function renderProxyEnvironment(string $xff, string $xfp, string $xfh, bool $isHttps, bool $cookieSecureEnabled): string
+    {
+        $cookieConflict = $cookieSecureEnabled && !$isHttps;
+        $cookieSecurityMissing = $isHttps && !$cookieSecureEnabled;
         $cookieSecure = $cookieSecureEnabled ? __('Active (Secure)', PLUGIN_NAME) : __('Inactive', PLUGIN_NAME);
-        
+
         $statusXff = !empty($xff) ? '✅' : '❌';
         $statusXfp = (strtolower($xfp) === 'https') ? '✅' : '❌';
         $statusXfh = !empty($xfh) ? '✅' : '❌';
         $statusHttps = $isHttps ? '✅' : '❌';
         $statusCookie = ($cookieConflict || $cookieSecurityMissing) ? '❌' : '✅';
-        
+
         $detectedHttpsStr = $isHttps ? 'HTTPS' : 'HTTP';
-        
+
         $table = '<table class="table table-bordered table-sm text-start mt-2" style="font-size: 0.8rem; min-width: 320px; margin-bottom: 0;">';
         $table .= '<thead><tr class="table-light"><th>' . __('Condition / Parameter', PLUGIN_NAME) . '</th><th>' . __('Expected', PLUGIN_NAME) . '</th><th>' . __('Detected', PLUGIN_NAME) . '</th><th>' . __('Status', PLUGIN_NAME) . '</th></tr></thead>';
         $table .= '<tbody>';
-        
+
         // session.cookie_secure check
         $expectedCookie = $isHttps ? __('Active (Secure)', PLUGIN_NAME) : __('Any', PLUGIN_NAME);
         $table .= '<tr><td>session.cookie_secure</td><td>' . $expectedCookie . '</td><td>' . $cookieSecure . '</td><td>' . $statusCookie . '</td></tr>';
-        
+
         // Proxy headers
-        $detectedXff = !empty($xff) ? sprintf(__('Detected (%s)', PLUGIN_NAME), $xff) : __('Not Detected', PLUGIN_NAME);
-        $detectedXfp = !empty($xfp) ? sprintf(__('Detected (%s)', PLUGIN_NAME), $xfp) : __('Not Detected', PLUGIN_NAME);
-        $detectedXfh = !empty($xfh) ? sprintf(__('Detected (%s)', PLUGIN_NAME), $xfh) : __('Not Detected', PLUGIN_NAME);
-        
+        $detectedXff = self::detectedHeader($xff);
+        $detectedXfp = self::detectedHeader($xfp);
+        $detectedXfh = self::detectedHeader($xfh);
+
         $linkXff = '<a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For" target="_blank" rel="noopener noreferrer">X-Forwarded-For</a>';
         $linkXfp = '<a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Proto" target="_blank" rel="noopener noreferrer">X-Forwarded-Proto</a>';
         $linkXfh = '<a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Host" target="_blank" rel="noopener noreferrer">X-Forwarded-Host</a>';
-        
+
         $table .= '<tr><td>' . $linkXff . '</td><td>' . __('Present', PLUGIN_NAME) . '</td><td>' . $detectedXff . '</td><td>' . $statusXff . '</td></tr>';
         $table .= '<tr><td>' . $linkXfp . '</td><td>https</td><td>' . $detectedXfp . '</td><td>' . $statusXfp . '</td></tr>';
         $table .= '<tr><td>' . $linkXfh . '</td><td>' . __('Present', PLUGIN_NAME) . '</td><td>' . $detectedXfh . '</td><td>' . $statusXfh . '</td></tr>';
-        
+
         // HTTPS Context
         $expectedHttps = $cookieSecureEnabled ? __('HTTPS (Secure)', PLUGIN_NAME) : __('HTTP or HTTPS', PLUGIN_NAME);
         $table .= '<tr><td>HTTPS Context (PHP)</td><td>' . $expectedHttps . '</td><td>' . $detectedHttpsStr . '</td><td>' . $statusHttps . '</td></tr>';
         $table .= '</tbody></table>';
-        
+
         if ($cookieConflict) {
             $table .= '<div class="mt-2 text-danger" style="font-size: 0.75rem; font-weight: 600;">' . __('⚠️ Conflict: Secure cookie is enabled but PHP is running in a non-secure HTTP context. Cookies will be rejected by the browser!', PLUGIN_NAME) . '</div>';
         }
@@ -1014,8 +1019,8 @@ class ConfigItem    //NOSONAR
             $table .= '<div class="mt-2 text-warning" style="font-size: 0.75rem; font-weight: 600;">' . __('⚠️ Security Warning: HTTPS is detected but session.cookie_secure is disabled. Cookies are not protected!', PLUGIN_NAME) . '</div>';
         }
         $table .= '<div class="mt-2 text-muted" style="font-size: 0.75rem;">' . __('Unsatisfied conditions might break the authentication flow in proxied or containerized environments depending on your setup and naming schemes.', PLUGIN_NAME) . '</div>';
-        
-        return ['isValid' => false, 'htmlTable' => $table];
+
+        return $table;
     }
 
     /**
@@ -1032,7 +1037,7 @@ class ConfigItem    //NOSONAR
             if ($iterator && $iterator->count() > 0) {
                 $dbNow = $iterator->current()['now'];
             }
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             // Keep null
         }
 
@@ -1066,7 +1071,7 @@ class ConfigItem    //NOSONAR
             if ($tzIterator && $tzIterator->count() > 0) {
                 $dbTzQuery = $tzIterator->current()['tz'];
             }
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             // Keep null
         }
         $dbTz = $dbTzQuery ?: 'Unknown';
@@ -1081,16 +1086,19 @@ class ConfigItem    //NOSONAR
             $table .= '<tr><td>Database Session</td><td>' . $dbTimeStr . '</td><td>✅</td></tr>';
             $table .= '</tbody></table>';
             $table .= '<div class="mt-2 text-success" style="font-size: 0.75rem; font-weight: 600;">' . __('✅ Timezone Alignment: PHP and Database connection clocks are synchronized. (Shown because Debug mode is enabled)', PLUGIN_NAME) . '</div>';
-            return ['isValid' => true, 'htmlTable' => $table];
+        } else {
+            $table .= '<tr><td>Database Session</td><td>' . $dbTimeStr . '</td><td>❌</td></tr>';
+            $table .= '</tbody></table>';
+
+            $diffHours = round($diff / 3600, 2);
+            $table .= '<div class="mt-2 text-danger" style="font-size: 0.75rem; font-weight: 600;">' . sprintf(__('⚠️ Timezone Mismatch: PHP and Database connection clocks differ by %s hours (%s seconds). This will cause authentication requests to time out prematurely or linger too long.', PLUGIN_NAME), $diffHours, $diff) . '</div>';
+            $table .= '<div class="mt-2 text-muted" style="font-size: 0.75rem;">' . __('Ensure GLPI\'s timezone usage configuration is enabled (under Setup > General > System), MySQL timezone tables are loaded, or PHP\'s date.timezone matches the database timezone.', PLUGIN_NAME) . '</div>';
         }
-
-        $table .= '<tr><td>Database Session</td><td>' . $dbTimeStr . '</td><td>❌</td></tr>';
-        $table .= '</tbody></table>';
-
-        $diffHours = round($diff / 3600, 2);
-        $table .= '<div class="mt-2 text-danger" style="font-size: 0.75rem; font-weight: 600;">' . sprintf(__('⚠️ Timezone Mismatch: PHP and Database connection clocks differ by %s hours (%s seconds). This will cause authentication requests to time out prematurely or linger too long.', PLUGIN_NAME), $diffHours, $diff) . '</div>';
-        $table .= '<div class="mt-2 text-muted" style="font-size: 0.75rem;">' . __('Ensure GLPI\'s timezone usage configuration is enabled (under Setup > General > System), MySQL timezone tables are loaded, or PHP\'s date.timezone matches the database timezone.', PLUGIN_NAME) . '</div>';
-
         return ['isValid' => true, 'htmlTable' => $table];
+    }
+    /** Proxy diagnostics display request headers as text, never as markup. */
+    private static function detectedHeader(string $value): string
+    {
+        return $value !== '' ? sprintf(__('Detected (%s)', PLUGIN_NAME), htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')) : __('Not Detected', PLUGIN_NAME);
     }
 }

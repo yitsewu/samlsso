@@ -46,7 +46,7 @@ declare(strict_types=1);
 
 /**
  * ConfigIntegrityTest.php
- * 
+ *
  * Unit tests validating schema definitions, configuration field mapping,
  * validator existence, and identifying dead configuration fields.
  */
@@ -61,6 +61,10 @@ namespace GlpiPlugin\Samlsso\Tests {
     require_once __DIR__ . '/../src/Config/ConfigItem.php';
     require_once __DIR__ . '/../src/Config/ConfigEntity.php';
     require_once __DIR__ . '/../src/Config.php';
+    require_once __DIR__ . '/../src/Config/ConfigForm.php';
+    require_once __DIR__ . '/../src/Config/ConfigDefaultTpl.php';
+    require_once __DIR__ . '/../src/LoginFlow/LoginFlowItem.php';
+    require_once __DIR__ . '/../src/LoginFlow/LoginFlowEntity.php';
     require_once __DIR__ . '/TestHarness.php';
     require_once __DIR__ . '/../src/Controller/SamlSsoController.php';
 
@@ -75,6 +79,60 @@ namespace GlpiPlugin\Samlsso\Tests {
      * Evaluates configuration schemas, validator presence, and references.
      */
     class ConfigIntegrityTest extends TestHarness {
+
+        /** Restore keeps original IDs and cannot import unknown fields. */
+        public function testRestoreFieldBoundary(): void {
+            $method = new \ReflectionMethod(\GlpiPlugin\Samlsso\Config\ConfigForm::class, 'buildRestoreRow');
+            $row = $method->invoke(null, ['id' => 27, 'name' => 'Fixture', 'unexpected' => 'ignored'], 27, '2026-01-01 00:00:00', ['id', 'name', 'strict']);
+            if ($row['id'] !== 27 || $row['name'] !== 'Fixture' || $row['strict'] !== 0 || array_key_exists('unexpected', $row)) {
+                throw new \UnexpectedValueException('Restore field boundary changed');
+            }
+            echo "✅ Restore preserves IDs, defaults and known-field boundary\n";
+        }
+
+        /** POST options must be validated instead of silently loading an unrelated DB row. */
+        public function testLoginFlowPostValidation(): void {
+            $entity = new \GlpiPlugin\Samlsso\LoginFlow\LoginFlowEntity(1, [
+                'template' => 'post',
+                'postData' => ['debug' => '1', 'enforced' => '0', '_glpi_csrf_token' => 'fixture'],
+            ]);
+            if (!$entity->isValid() || !$entity->getField('debug') || $entity->getField('enforced')) {
+                throw new \UnexpectedValueException('Login flow submitted values were not normalized');
+            }
+            if ($entity->getField('_glpi_csrf_token') !== false) {
+                throw new \UnexpectedValueException('Login flow accepted an undeclared configuration field');
+            }
+            $invalid = new \GlpiPlugin\Samlsso\LoginFlow\LoginFlowEntity(1, [
+                'template' => 'post', 'postData' => ['forcedIdp' => 'not-an-id'],
+            ]);
+            if ($invalid->isValid()) {
+                throw new \UnexpectedValueException('Invalid login flow provider ID was accepted');
+            }
+            echo "✅ Login flow POST values are validated and normalized\n";
+        }
+
+        /** Diagnostic XML must not resolve entities and must remove identity material. */
+        public function testDiagnosticXmlIsolation(): void {
+            foreach ([
+                '<!DOCTYPE Response [<!ENTITY marker "fixture-value">]><Response>&marker;</Response>',
+                '<!DOCTYPE Response SYSTEM "https://invalid.example.test/fixture.dtd"><Response/>',
+                '<Response>',
+            ] as $xml) {
+                if (ConfigEntity::anonymizeXml($xml) !== 'Invalid XML response') {
+                    throw new \UnexpectedValueException('Unsafe or invalid diagnostic XML was accepted');
+                }
+            }
+            $safe = ConfigEntity::anonymizeXml('<Response ID="fixture-id"><NameID>fixture-user</NameID><Signature>fixture-signature</Signature></Response>');
+            foreach (['fixture-id', 'fixture-user', 'fixture-signature', '<Signature'] as $value) {
+                if (str_contains($safe, $value)) {
+                    throw new \UnexpectedValueException('Diagnostic XML retained identity or signature material');
+                }
+            }
+            if (!str_contains($safe, '[STRIPPED]') || ConfigEntity::anonymizeXml('') !== '') {
+                throw new \UnexpectedValueException('Diagnostic XML normalization changed');
+            }
+            echo "✅ Diagnostic XML rejects DTDs and strips identity material\n";
+        }
 
         /** Verify real configuration output selects the exact provider callback. */
         public function testProviderSpecificLogoutEndpoint(): void {
@@ -107,43 +165,43 @@ namespace GlpiPlugin\Samlsso\Tests {
          */
         public function testSchemaVsConstants(): void {
             global $DB;
-            
+
             $customCharset = 'test_charset_' . uniqid();
             $customCollation = 'test_collation_' . uniqid();
             $customSign = 'UNSIGNED_TEST';
-            
+
             DBConnection::$defaultCharset = $customCharset;
             DBConnection::$defaultCollation = $customCollation;
             DBConnection::$defaultPrimaryKeySignOption = $customSign;
-            
+
             $this->db->mockTableExists = false;
             $migration = new Migration('1.0.0');
-            
+
             Config::install($migration);
-            
+
             $sql = $this->db->lastQuery;
-            
+
             if (empty($sql) || !str_contains($sql, 'CREATE TABLE')) {
-                throw new \Exception("Failed to capture CREATE TABLE statement.");
+                throw new \UnexpectedValueException("Failed to capture CREATE TABLE statement.");
             }
 
             if (!str_contains($sql, $customCharset)) {
-                throw new \Exception("SQL missing custom charset: $customCharset");
+                throw new \UnexpectedValueException("SQL missing custom charset: $customCharset");
             }
             if (!str_contains($sql, $customCollation)) {
-                throw new \Exception("SQL missing custom collation: $customCollation");
+                throw new \UnexpectedValueException("SQL missing custom collation: $customCollation");
             }
             if (!str_contains($sql, $customSign)) {
-                throw new \Exception("SQL missing custom PK sign: $customSign");
+                throw new \UnexpectedValueException("SQL missing custom PK sign: $customSign");
             }
 
             if (!preg_match('/\((.*)\)/s', $sql, $matches)) {
-                throw new \Exception("Could not parse fields from SQL.");
+                throw new \UnexpectedValueException("Could not parse fields from SQL.");
             }
-            
+
             $fieldsBlock = $matches[1];
             preg_match_all('/`(\w+)`?\s+([A-Za-z]+)/', $fieldsBlock, $fieldMatches);
-            
+
             $dbFields = [];
             for ($i = 0; $i < count($fieldMatches[1]); $i++) {
                 $dbFields[$fieldMatches[1][$i]] = strtoupper($fieldMatches[2][$i]);
@@ -161,30 +219,30 @@ namespace GlpiPlugin\Samlsso\Tests {
                 if (array_key_exists($name, $metaConstants)) {
                     continue;
                 }
-                
+
                 if (!isset($dbFields[$field])) {
-                    throw new \Exception("ConfigEntity constant '$name' refers to field '$field' which is NOT in the captured database schema.");
+                    throw new \UnexpectedValueException("ConfigEntity constant '$name' refers to field '$field' which is NOT in the captured database schema.");
                 }
 
                 $actualType = $dbFields[$field];
-                
+
                 if ($field === 'id') {
                     if ($actualType !== 'INT') {
-                        throw new \Exception("Field 'id' should be INT, found $actualType");
+                        throw new \UnexpectedValueException("Field 'id' should be INT, found $actualType");
                     }
                 } elseif (str_starts_with($field, 'date_')) {
                     if ($actualType !== 'TIMESTAMP') {
-                        throw new \Exception("Field '$field' should be TIMESTAMP, found $actualType");
+                        throw new \UnexpectedValueException("Field '$field' should be TIMESTAMP, found $actualType");
                     }
                 } elseif (in_array($field, ['sp_certificate', 'sp_private_key', 'idp_certificate', 'requested_authn_context', 'comment'])) {
                     if ($actualType !== 'TEXT') {
-                        throw new \Exception("Field '$field' should be TEXT, found $actualType");
+                        throw new \UnexpectedValueException("Field '$field' should be TEXT, found $actualType");
                     }
                 } elseif (in_array($actualType, ['TINYINT', 'INT', 'VARCHAR', 'TEXT', 'TIMESTAMP'])) {
                     $boolPrefixes = ['enforce_', 'proxied', 'strict', 'debug', 'user_jit', 'security_', 'compress_', 'validate_', 'lowercase_', 'is_'];
                     foreach ($boolPrefixes as $prefix) {
                         if (str_starts_with($field, $prefix) && $actualType !== 'TINYINT') {
-                            throw new \Exception("Flag field '$field' should be TINYINT, found $actualType");
+                            throw new \UnexpectedValueException("Flag field '$field' should be TINYINT, found $actualType");
                         }
                     }
                 }
@@ -200,7 +258,7 @@ namespace GlpiPlugin\Samlsso\Tests {
         public function testValidatorsExistence(): void {
             $reflection = new \ReflectionClass(ConfigEntity::class);
             $constants = $reflection->getConstants();
-            
+
             /**
              * Validators are methods in ConfigItem named exactly like the corresponding database field.
              */
@@ -214,9 +272,9 @@ namespace GlpiPlugin\Samlsso\Tests {
                 if (array_key_exists($name, $metaConstants)) {
                     continue;
                 }
-                
+
                 if (!$itemReflection->hasMethod($field)) {
-                    throw new \Exception("Field '$field' (ConfigEntity::$name) missing validator method '$field()' in ConfigItem.");
+                    throw new \UnexpectedValueException("Field '$field' (ConfigEntity::$name) missing validator method '$field()' in ConfigItem.");
                 }
             }
             echo "✅ Configuration field validator existence\n";
@@ -231,7 +289,7 @@ namespace GlpiPlugin\Samlsso\Tests {
             $reflection = new \ReflectionClass(ConfigEntity::class);
             $constants = $reflection->getConstants();
             $metaConstants = (new \ReflectionClass(ConfigItem::class))->getConstants();
-            
+
             $pluginDir = dirname(__DIR__);
             $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($pluginDir));
             foreach ($constants as $name => $field) {
@@ -241,7 +299,7 @@ namespace GlpiPlugin\Samlsso\Tests {
                 if (array_key_exists($name, $metaConstants)) {
                     continue;
                 }
-                
+
                 $found = false;
                 foreach ($files as $file) {
                     if ($file->isDir() || str_contains($file->getPathname(), '/tests/')) {
@@ -254,7 +312,7 @@ namespace GlpiPlugin\Samlsso\Tests {
                     }
                 }
                 if (!$found) {
-                    throw new \Exception("Field '$field' (ConfigEntity::$name) is never referenced.");
+                    throw new \UnexpectedValueException("Field '$field' (ConfigEntity::$name) is never referenced.");
                 }
             }
             echo "✅ Dead configuration field detection\n";
@@ -295,15 +353,15 @@ namespace GlpiPlugin\Samlsso\Tests {
             // Verify that enforce_sso has been set to 0 and warning populated in errors
             $enforceSso = $fields[ConfigEntity::ENFORCE_SSO] ?? null;
             if ($enforceSso === null) {
-                throw new \Exception("enforce_sso field not populated in fields array.");
+                throw new \UnexpectedValueException("enforce_sso field not populated in fields array.");
             }
 
             if ((int)$enforceSso[ConfigItem::VALUE] !== 0) {
-                throw new \Exception("Expected enforce_sso value to be corrected to 0, got: " . var_export($enforceSso[ConfigItem::VALUE], true));
+                throw new \UnexpectedValueException("Expected enforce_sso value to be corrected to 0, got: " . var_export($enforceSso[ConfigItem::VALUE], true));
             }
 
             if (empty($enforceSso[ConfigItem::ERRORS])) {
-                throw new \Exception("Expected enforce_sso error message to be set, but it was empty.");
+                throw new \UnexpectedValueException("Expected enforce_sso error message to be set, but it was empty.");
             }
 
             echo "✅ Multi-IDP Enforce auto-disable and warning verified\n";
@@ -345,15 +403,15 @@ namespace GlpiPlugin\Samlsso\Tests {
             foreach ($inboundFields as $field) {
                 $f = $fields[$field] ?? null;
                 if ($f === null) {
-                    throw new \Exception("Field '$field' not populated in fields array.");
+                    throw new \UnexpectedValueException("Field '$field' not populated in fields array.");
                 }
 
                 if ((int)$f[ConfigItem::VALUE] !== 0) {
-                    throw new \Exception("Expected '$field' value to be corrected to 0, got: " . var_export($f[ConfigItem::VALUE], true));
+                    throw new \UnexpectedValueException("Expected '$field' value to be corrected to 0, got: " . var_export($f[ConfigItem::VALUE], true));
                 }
 
                 if (empty($f[ConfigItem::ERRORS])) {
-                    throw new \Exception("Expected '$field' error message to be set, but it was empty.");
+                    throw new \UnexpectedValueException("Expected '$field' error message to be set, but it was empty.");
                 }
             }
 
@@ -368,6 +426,9 @@ namespace {
      */
     $test = new GlpiPlugin\Samlsso\Tests\ConfigIntegrityTest();
     try {
+        $test->testRestoreFieldBoundary();
+        $test->testLoginFlowPostValidation();
+        $test->testDiagnosticXmlIsolation();
         $test->testProviderSpecificLogoutEndpoint();
         $test->testSchemaVsConstants();
         $test->testValidatorsExistence();
