@@ -227,6 +227,11 @@ class LoginFlow extends LoginFlowCompat
         if (!is_string($requestPath)) {
             $requestPath = '';
         }
+        // Protocol callbacks must reach their controller, not the logout chooser.
+        if (preg_match('~/(?:plugins|marketplace)/samlsso/front/logout(?:/[1-9][0-9]*)?/?$~D', $requestPath)) {
+            return;
+        }
+
         if (strpos($requestPath, 'front/acs') !== false) {
             return;
         }
@@ -583,6 +588,13 @@ class LoginFlow extends LoginFlowCompat
         // so we can keep tracking it after the next redirect.
         // https://github.com/DonutsNL/samlsso/issues/26
         $state->setSessionId();
+        // Bind IdP-initiated logout to this freshly validated SAML login.
+        $_SESSION['samlsso_slo_context'] = [
+            'idp' => $state->getIdpId(),
+            'name_id' => $response->getNameId(),
+            'session_index' => $response->getSessionIndex(),
+        ];
+
 
         // Dont depend on GLPI core to perform the correct type of redirect.
         $this->performBrowserRedirect();

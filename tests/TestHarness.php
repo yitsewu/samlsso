@@ -114,6 +114,12 @@ namespace OneLogin\Saml2 {
              *
              * @return string Mock name ID.
              */
+            /** Return the fixture session index consumed by fresh SLO context capture. */
+            public function getSessionIndex(): string
+            {
+                return 'MOCK_SESSION_INDEX';
+            }
+
             public function getNameId(): string
             {
                 return 'testuser';

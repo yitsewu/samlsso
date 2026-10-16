@@ -88,21 +88,71 @@ final class SamlSsoController extends AbstractController
     #[Route(self::SLO_ROUTE.self::SLO_PARAM, name: self::SLO_NAME.'_param')] // Decorator to register route to controller
     public function slo(Request $request): Response                     // What to do if route is invoked.
     {
-        global $CFG_GLPI;
-
-        ob_start();
-        \Html::nullHeader("SamlSSO Logout", '/');
-        
-        $tplVars = [
-            'loginPath' => $CFG_GLPI['url_base'] . '/index.php?noAuto=1'
-        ];
-        
-        echo TemplateRenderer::getInstance()->render('@samlsso/loggedOut.html.twig', $tplVars);
-        
-        \Html::nullFooter();
-        $content = ob_get_clean();
-
-        return new Response($content);
+        // Only signed IdP-initiated HTTP-Redirect requests are supported here.
+        // Unsolicited responses and unsigned/local requests must not clear a session.
+        try {
+            $idpId = (int) $request->attributes->get(LoginState::IDP_ID, 0);
+            $context = $_SESSION['samlsso_slo_context'] ?? null;
+            if (!$request->isMethod('GET') || $idpId < 1 ||
+                !is_array($context) || ($context['idp'] ?? 0) !== $idpId ||
+                empty($_SESSION['glpiID']) || empty($context['name_id']) ||
+                empty($context['session_index']) ||
+                !is_string($_GET['SAMLRequest'] ?? null) ||
+                isset($_GET['SAMLResponse']) || empty($_GET['Signature']) ||
+                strlen($_GET['SAMLRequest']) > 65536) {
+                throw new \RuntimeException('missing_context');
+            }
+            $config = new \GlpiPlugin\Samlsso\Config\ConfigEntity($idpId);
+            if (!$config->isValid() || !$config->isActive()) {
+                throw new \RuntimeException('inactive_provider');
+            }
+            $settingsData = $config->getPhpSamlConfig();
+            $settingsData['strict'] = true;
+            $settingsData['debug'] = false;
+            $settingsData['security']['wantMessagesSigned'] = true;
+            $settingsData['security']['wantXMLValidation'] = true;
+            $settingsData['security']['relaxDestinationValidation'] = false;
+            $settingsData['security']['rejectDeprecatedAlgorithm'] = true;
+            $settings = new \OneLogin\Saml2\Settings($settingsData);
+            $logout = new \OneLogin\Saml2\LogoutRequest($settings, $_GET['SAMLRequest']);
+            if (!$logout->isValid(true)) {
+                throw new \RuntimeException('invalid_request');
+            }
+            $xml = $logout->getXML();
+            $dom = new \DOMDocument();
+            if (!\OneLogin\Saml2\Utils::loadXML($dom, $xml)) {
+                throw new \RuntimeException('invalid_xml');
+            }
+            $root = $dom->documentElement;
+            $issued = \OneLogin\Saml2\Utils::parseSAML2Time($root->getAttribute('IssueInstant'));
+            if (abs(time() - $issued) > 300 ||
+                $root->getAttribute('Destination') !== $settingsData['sp']['singleLogoutService']['url'] ||
+                \OneLogin\Saml2\LogoutRequest::getIssuer($xml) !== $settingsData['idp']['entityId'] ||
+                !hash_equals((string) $context['name_id'], (string) \OneLogin\Saml2\LogoutRequest::getNameId($xml)) ||
+                !in_array($context['session_index'], \OneLogin\Saml2\LogoutRequest::getSessionIndexes($xml), true)) {
+                throw new \RuntimeException('context_mismatch');
+            }
+            $state = new LoginState();
+            if ($state->getIdpId() !== $idpId || !$state->isSamlAuthed()) {
+                throw new \RuntimeException('state_mismatch');
+            }
+            $auth = new \OneLogin\Saml2\Auth($settingsData);
+            $target = $auth->processSLO(false, null, true, static function () use ($state): void {
+                $state->setPhase(LoginState::PHASE_LOGOFF);
+                unset($_SESSION['samlsso_slo_context']);
+                \Session::cleanOnLogout();
+                if (session_status() === PHP_SESSION_ACTIVE) {
+                    session_regenerate_id(true);
+                }
+            }, true);
+            if ($auth->getErrors() || !is_string($target) || $target === '') {
+                throw new \RuntimeException('logout_failed');
+            }
+            return new \Symfony\Component\HttpFoundation\RedirectResponse($target, 302, ['Cache-Control' => 'no-store']);
+        } catch (\Throwable $error) {
+            // Never include SAML payloads, identity values or session IDs in errors.
+            return new Response('SAML logout request rejected. Sign in again if the session predates this update.', 400, ['Cache-Control' => 'no-store']);
+        }
     }
 
 
