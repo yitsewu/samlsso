@@ -1,5 +1,6 @@
 
 **V1.3.3**
+- Bugfix (fork candidate): Include the provider ID in generated SLO metadata so signed callbacks match their configured destination; cover multiple IDs through the real configuration builder.
 - Tests (fork candidate): Remove developer-specific GLPI bootstrap paths, provide standalone ACS request/HTML-escaping doubles, and resolve plugin source paths relative to the tests (yitsewu/samlsso#1).
 - Tests (fork candidate): Validate published release entries in development builds; require an exact version entry when packaging with SAMLSSO_RELEASE_VALIDATION=1. Add negative release-policy fixtures without publishing a fictitious download.
 - Bugfix (fork candidate): Validate signed IdP-initiated HTTP-Redirect logout callbacks against fresh login context before clearing the current session; includes protocol regression tests. Tracks https://github.com/yitsewu/samlsso/issues/1.
