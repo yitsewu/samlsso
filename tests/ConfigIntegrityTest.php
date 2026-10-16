@@ -78,14 +78,15 @@ namespace GlpiPlugin\Samlsso\Tests {
 
         /** Verify real configuration output selects the exact provider callback. */
         public function testProviderSpecificLogoutEndpoint(): void {
-            global $CFG_GLPI;
-            $CFG_GLPI['url_base'] = 'https://sp.example.test';
+            $GLOBALS['CFG_GLPI']['url_base'] = 'https://sp.example.test';
             foreach ([1, 27] as $id) {
                 $entity = new class($id) extends ConfigEntity {
                     public function __construct(int $id) {
-                        foreach ((new \ReflectionClass(ConfigEntity::class))->getConstants() as $field) {
-                            if (is_string($field)) $this->fields[$field] = '';
-                        }
+                        $fieldNames = array_filter(
+                            (new \ReflectionClass(ConfigEntity::class))->getConstants(),
+                            'is_string'
+                        );
+                        $this->fields = array_fill_keys($fieldNames, '');
                         $this->fields[self::ID] = $id;
                     }
                     public function isValid(): bool { return true; }
@@ -93,7 +94,7 @@ namespace GlpiPlugin\Samlsso\Tests {
                 $config = $entity->getPhpSamlConfig();
                 $expected = 'https://sp.example.test/plugins/samlsso/front/logout/' . $id;
                 if ($config['sp']['singleLogoutService']['url'] !== $expected) {
-                    throw new \Exception('Logout metadata must identify the configured provider.');
+                    throw new \UnexpectedValueException('Logout metadata must identify the configured provider.');
                 }
             }
             echo "Provider-specific logout endpoint: PASS\n";

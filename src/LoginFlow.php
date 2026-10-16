@@ -228,7 +228,7 @@ class LoginFlow extends LoginFlowCompat
             $requestPath = '';
         }
         // Protocol callbacks must reach their controller, not the logout chooser.
-        if (preg_match('~/(?:plugins|marketplace)/samlsso/front/logout(?:/[1-9][0-9]*)?/?$~D', $requestPath)) {
+        if (preg_match('~/(?:plugins|marketplace)/samlsso/front/logout(?:/[1-9]\d*)?/?$~D', $requestPath)) {
             return;
         }
 

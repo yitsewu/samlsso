@@ -100,11 +100,11 @@ final class SamlSsoController extends AbstractController
                 !is_string($_GET['SAMLRequest'] ?? null) ||
                 isset($_GET['SAMLResponse']) || empty($_GET['Signature']) ||
                 strlen($_GET['SAMLRequest']) > 65536) {
-                throw new \RuntimeException('missing_context');
+                throw new \UnexpectedValueException('missing_context');
             }
             $config = new \GlpiPlugin\Samlsso\Config\ConfigEntity($idpId);
             if (!$config->isValid() || !$config->isActive()) {
-                throw new \RuntimeException('inactive_provider');
+                throw new \UnexpectedValueException('inactive_provider');
             }
             $settingsData = $config->getPhpSamlConfig();
             $settingsData['strict'] = true;
@@ -116,12 +116,12 @@ final class SamlSsoController extends AbstractController
             $settings = new \OneLogin\Saml2\Settings($settingsData);
             $logout = new \OneLogin\Saml2\LogoutRequest($settings, $_GET['SAMLRequest']);
             if (!$logout->isValid(true)) {
-                throw new \RuntimeException('invalid_request');
+                throw new \UnexpectedValueException('invalid_request');
             }
             $xml = $logout->getXML();
             $dom = new \DOMDocument();
             if (!\OneLogin\Saml2\Utils::loadXML($dom, $xml)) {
-                throw new \RuntimeException('invalid_xml');
+                throw new \UnexpectedValueException('invalid_xml');
             }
             $root = $dom->documentElement;
             $issued = \OneLogin\Saml2\Utils::parseSAML2Time($root->getAttribute('IssueInstant'));
@@ -130,11 +130,11 @@ final class SamlSsoController extends AbstractController
                 \OneLogin\Saml2\LogoutRequest::getIssuer($xml) !== $settingsData['idp']['entityId'] ||
                 !hash_equals((string) $context['name_id'], (string) \OneLogin\Saml2\LogoutRequest::getNameId($xml)) ||
                 !in_array($context['session_index'], \OneLogin\Saml2\LogoutRequest::getSessionIndexes($xml), true)) {
-                throw new \RuntimeException('context_mismatch');
+                throw new \UnexpectedValueException('context_mismatch');
             }
             $state = new LoginState();
             if ($state->getIdpId() !== $idpId || !$state->isSamlAuthed()) {
-                throw new \RuntimeException('state_mismatch');
+                throw new \UnexpectedValueException('state_mismatch');
             }
             $auth = new \OneLogin\Saml2\Auth($settingsData);
             $target = $auth->processSLO(false, null, true, static function () use ($state): void {
@@ -146,10 +146,10 @@ final class SamlSsoController extends AbstractController
                 }
             }, true);
             if ($auth->getErrors() || !is_string($target) || $target === '') {
-                throw new \RuntimeException('logout_failed');
+                throw new \UnexpectedValueException('logout_failed');
             }
             return new \Symfony\Component\HttpFoundation\RedirectResponse($target, 302, ['Cache-Control' => 'no-store']);
-        } catch (\Throwable $error) {
+        } catch (\Throwable) {
             // Never include SAML payloads, identity values or session IDs in errors.
             return new Response('SAML logout request rejected. Sign in again if the session predates this update.', 400, ['Cache-Control' => 'no-store']);
         }

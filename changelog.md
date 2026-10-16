@@ -1,5 +1,6 @@
 
 **V1.3.3**
+- Static analysis (fork candidate): Use specific validation exceptions, remove unused catch bindings, and improve request doubles and regression fixtures; retain protocol validation behavior.
 - Bugfix (fork candidate): Include the provider ID in generated SLO metadata so signed callbacks match their configured destination; cover multiple IDs through the real configuration builder.
 - Tests (fork candidate): Remove developer-specific GLPI bootstrap paths, provide standalone ACS request/HTML-escaping doubles, and resolve plugin source paths relative to the tests (yitsewu/samlsso#1).
 - Tests (fork candidate): Validate published release entries in development builds; require an exact version entry when packaging with SAMLSSO_RELEASE_VALIDATION=1. Add negative release-policy fixtures without publishing a fictitious download.

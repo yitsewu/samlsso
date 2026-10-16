@@ -55,7 +55,7 @@ namespace Symfony\Component\HttpFoundation {
     class Request {
         public ParameterBag $attributes;
         public function __construct() { $this->attributes = new ParameterBag(); }
-        public static function create($url): self { return new self(); }
+        public static function create(): self { return new self(); }
         public function isMethod($method): bool { return $method === 'GET'; }
     }
     class Response {
@@ -72,13 +72,13 @@ namespace GlpiPlugin\Samlsso { class LoginState {
  public function setPhase($v){$GLOBALS['phase']=$v;}
 } }
 namespace GlpiPlugin\Samlsso\Config { class ConfigEntity {
- public function __construct($id){} public function isValid(){return true;}
+ public function __construct($id){ if ($id !== 1) { throw new \UnexpectedValueException('Unknown fixture provider'); } } public function isValid(){return true;}
  public function isActive(){return true;} public function getPhpSamlConfig(){return $GLOBALS['settings'];}
 } }
 namespace { class Session { public static function cleanOnLogout(){ $GLOBALS['cleared']=true; $_SESSION=[]; } }
 
-require __DIR__ . '/../vendor/autoload.php';
-require __DIR__ . '/../src/Controller/SamlSsoController.php';
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../src/Controller/SamlSsoController.php';
 $key=openssl_pkey_new(['private_key_bits'=>2048,'private_key_type'=>OPENSSL_KEYTYPE_RSA]);
 $csr=openssl_csr_new(['commonName'=>'slo-test.invalid'],$key,['digest_alg'=>'sha256']);
 $crt=openssl_csr_sign($csr,null,$key,1,['digest_alg'=>'sha256']);openssl_x509_export($crt,$cert);
@@ -95,13 +95,13 @@ function attempt($case,$edits=[], $unsigned=false, $tamper=false, $context=true)
  if(!$unsigned){$q.='&Signature='.rawurlencode(base64_encode($sig));}
  $_SERVER=['HTTP_HOST'=>'sp.example.test','SERVER_NAME'=>'sp.example.test','SERVER_PORT'=>'443','HTTPS'=>'on','SCRIPT_NAME'=>'/index.php','REQUEST_URI'=>'/marketplace/samlsso/front/logout/1?'.$q,'QUERY_STRING'=>$q,'REQUEST_METHOD'=>'GET'];
  parse_str($q,$_GET);$_POST=[];$_SESSION=['glpiID'=>8];
- if($context) $_SESSION['samlsso_slo_context']=['idp'=>1,'name_id'=>'fixture-owner','session_index'=>'fixture-session'];
+ if($context) { $_SESSION['samlsso_slo_context']=['idp'=>1,'name_id'=>'fixture-owner','session_index'=>'fixture-session']; }
  $GLOBALS['cleared']=false;
- $request=\Symfony\Component\HttpFoundation\Request::create($url.'?'.$q);$request->attributes->set('idpId',1);
+ $request=\Symfony\Component\HttpFoundation\Request::create();$request->attributes->set('idpId',1);
  $response=(new \GlpiPlugin\Samlsso\Controller\SamlSsoController())->slo($request);
  $ok=$case==='valid' ? $response->getStatusCode()===302 && $GLOBALS['cleared'] : $response->getStatusCode()===400 && !$GLOBALS['cleared'];
  echo $case.':'.($ok?'PASS':'FAIL').' status='.$response->getStatusCode().' cleared='.(int)$GLOBALS['cleared']."\n";
- if(!$ok) $GLOBALS['failures']++;
+ if(!$ok) { $GLOBALS['failures']++; }
 }
 $GLOBALS['failures']=0;
 attempt('valid');attempt('unsigned',[],true);attempt('tampered',[],false,true);

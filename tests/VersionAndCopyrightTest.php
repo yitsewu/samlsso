@@ -134,7 +134,7 @@ namespace GlpiPlugin\Samlsso\Tests {
          * Validate every published entry without inventing an unreleased download.
          * Release builds additionally require the exact packaged version in the catalog.
          *
-         * @throws \RuntimeException for malformed, duplicate, missing or inconsistent entries.
+         * @throws \UnexpectedValueException for malformed, duplicate, missing or inconsistent entries.
          */
         public static function validateReleaseCatalog(
             \SimpleXMLElement $xml,
@@ -150,12 +150,12 @@ namespace GlpiPlugin\Samlsso\Tests {
                 $legacy = 'https://github.com/DonutsNL/glpisaml/releases/download/v' . $version . '/glpisaml.zip';
                 $validUrl = $url === $expected || (version_compare($version, '1.2.0', '<') && $url === $legacy);
                 if (!preg_match('/^\d+\.\d+\.\d+$/D', $version) || isset($versions[$version]) || !$validUrl) {
-                    throw new \RuntimeException('Invalid or duplicate release catalog entry.');
+                    throw new \UnexpectedValueException('Invalid or duplicate release catalog entry.');
                 }
                 $versions[$version] = true;
             }
             if ($versions === []) {
-                throw new \RuntimeException('Release catalog is empty.');
+                throw new \UnexpectedValueException('Release catalog is empty.');
             }
             if (isset($versions[$targetVersion])) {
                 return;
@@ -163,41 +163,44 @@ namespace GlpiPlugin\Samlsso\Tests {
             $declared = preg_match('/^\*\*V' . preg_quote($targetVersion, '/') . '\*\*$/m', $changelog) === 1;
             foreach (array_keys($versions) as $version) {
                 if (version_compare($targetVersion, $version, '<=')) {
-                    throw new \RuntimeException('Missing version is not newer than published releases.');
+                    throw new \UnexpectedValueException('Missing version is not newer than published releases.');
                 }
             }
             if ($release || !$declared) {
-                throw new \RuntimeException('Packaged version must be listed, or explicitly declared as development.');
+                throw new \UnexpectedValueException('Packaged version must be listed, or explicitly declared as development.');
             }
         }
 
         /** Exercise development acceptance and strict release rejection using local fixtures. */
         public function testReleaseCatalogPolicy(): void
         {
+            $publishedVersion = '1.0.0';
+            $developmentVersion = '1.1.0';
+            $developmentEntry = '**V1.1.0**';
             $xml = simplexml_load_string('<root><versions><version><num>1.0.0</num>'
                 . '<download_url>https://github.com/DonutsNL/samlsso/releases/download/v1.0.0/samlsso.zip</download_url>'
                 . '</version></versions></root>');
-            self::validateReleaseCatalog($xml, '1.0.0', '', true);
-            self::validateReleaseCatalog($xml, '1.1.0', '**V1.1.0**', false);
+            self::validateReleaseCatalog($xml, $publishedVersion, '', true);
+            self::validateReleaseCatalog($xml, $developmentVersion, $developmentEntry, false);
             $cases = [
-                [$xml, '1.1.0', '**V1.1.0**', true],
-                [$xml, '1.1.0', '', false],
+                [$xml, $developmentVersion, $developmentEntry, true],
+                [$xml, $developmentVersion, '', false],
                 [$xml, '0.9.0', '**V0.9.0**', false],
-                [simplexml_load_string('<root><versions/></root>'), '1.1.0', '**V1.1.0**', false],
+                [simplexml_load_string('<root><versions/></root>'), $developmentVersion, $developmentEntry, false],
             ];
             $badUrl = simplexml_load_string($xml->asXML());
             $badUrl->versions->version->download_url = 'https://untrusted.example/download.zip';
-            $cases[] = [$badUrl, '1.0.0', '', true];
+            $cases[] = [$badUrl, $publishedVersion, '', true];
             $duplicate = simplexml_load_string(str_replace('</versions>',
                 $xml->versions->version->asXML() . '</versions>', $xml->asXML()));
-            $cases[] = [$duplicate, '1.0.0', '', true];
+            $cases[] = [$duplicate, $publishedVersion, '', true];
             foreach ($cases as $case) {
                 try {
                     self::validateReleaseCatalog(...$case);
-                } catch (\RuntimeException $expected) {
+                } catch (\UnexpectedValueException $expected) {
                     continue;
                 }
-                throw new \Exception('Invalid release policy fixture was accepted.');
+                throw new \UnexpectedValueException('Invalid release policy fixture was accepted.');
             }
             echo "✅ Development builds remain distinct from strict release validation.\n";
         }

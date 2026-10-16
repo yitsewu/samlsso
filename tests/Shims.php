@@ -893,14 +893,24 @@ namespace Symfony\Component\HttpFoundation {
         class Request
         {
             private array $parameters = [];
+            private string $uri;
+            private string $method;
 
             /** Retain the submitted parameters without requiring a GLPI installation. */
             public static function create(string $uri, string $method = 'GET', array $parameters = []): self
             {
                 $request = new self();
                 $request->parameters = $parameters;
+                $request->uri = $uri;
+                $request->method = $method;
                 return $request;
             }
+
+            /** Return the request target retained by the fixture. */
+            public function getUri(): string { return $this->uri; }
+
+            /** Return the HTTP method retained by the fixture. */
+            public function getMethod(): string { return $this->method; }
 
             /** Return a submitted field or the caller's default. */
             public function get(string $key, mixed $default = null): mixed
