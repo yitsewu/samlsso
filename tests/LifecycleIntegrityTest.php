@@ -70,7 +70,7 @@ namespace GlpiPlugin\Samlsso\Tests {
          */
         public function testLifecycleClasses(): void {
             $basePath = realpath(__DIR__ . '/..');
-            $srcDir = $basePath . '/src';
+            $srcDir = str_replace('\\', '/', $basePath . '/src');
             $setupFile = $basePath . '/setup.php';
 
             if (!file_exists($setupFile)) {
@@ -115,8 +115,8 @@ namespace GlpiPlugin\Samlsso\Tests {
 
             foreach ($iterator as $file) {
                 if ($file->isFile() && $file->getExtension() === 'php') {
-                    $filePath = $file->getRealPath();
-                    if ($filePath === false) {
+                    $filePath = str_replace('\\', '/', $file->getRealPath() ?: '');
+                    if ($filePath === '') {
                         continue;
                     }
 
@@ -146,15 +146,15 @@ namespace GlpiPlugin\Samlsso\Tests {
 
                     // Verify symmetry: a class has both or neither
                     if ($hasInstall !== $hasUninstall) {
-                        $relative = str_replace($srcDir . DIRECTORY_SEPARATOR, '', $filePath);
+                        $relative = substr($filePath, strlen($srcDir) + 1);
                         $mismatchedClasses[] = "Class in $relative has " . ($hasInstall ? 'install' : 'uninstall') . " but is missing the corresponding " . ($hasInstall ? 'uninstall' : 'install') . " method.";
                     }
 
                     if ($hasInstall && $hasUninstall) {
                         // Construct class FQCN
-                        $relative = str_replace($srcDir . DIRECTORY_SEPARATOR, '', $filePath);
+                        $relative = substr($filePath, strlen($srcDir) + 1);
                         $relative = str_replace('.php', '', $relative);
-                        $className = 'GlpiPlugin\\Samlsso\\' . str_replace(DIRECTORY_SEPARATOR, '\\', $relative);
+                        $className = 'GlpiPlugin\\Samlsso\\' . str_replace('/', '\\', $relative);
                         $classesWithLifecycle[] = $className;
                     }
                 }

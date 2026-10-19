@@ -91,8 +91,8 @@ namespace GlpiPlugin\Samlsso\Tests {
 
             foreach ($iterator as $file) {
                 if ($file->isFile() && $file->getExtension() === 'php') {
-                    $filePath = $file->getRealPath();
-                    if ($filePath === false) {
+                    $filePath = str_replace('\\', '/', $file->getRealPath() ?: '');
+                    if ($filePath === '') {
                         continue;
                     }
 

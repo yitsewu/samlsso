@@ -942,6 +942,171 @@ class LoginState extends CommonDBTM // NOSONAR - Preserve the existing public fa
         return $safeState;
     }
 
+    /** Update timeout state without triggering full object-save side effects. */
+    private static function persistTimeout(array $state, string $reason, string $message): void
+    {
+        global $DB;
+        $trace = empty($state[self::LOGIN_FLOW_TRACE]) ? [] : unserialize($state[self::LOGIN_FLOW_TRACE], ['allowed_classes' => false]);
+        $trace = is_array($trace) ? $trace : [];
+        $trace[$reason] = $message;
+        $DB->update(self::getTable(), [
+            self::STATE_ID => $state[self::STATE_ID],
+            self::PHASE => self::PHASE_TIMED_OUT,
+            self::LOGIN_FLOW_TRACE => serialize($trace),
+        ], [self::STATE_ID => $state[self::STATE_ID]]);
+    }
+
+    /**
+     * Finds and expires stale ACS requests in the database.
+     * Evaluates all records in PHASE_SAML_ACS and transitions them to PHASE_TIMED_OUT if expired.
+     */
+    public static function expireStaleAcsRequests(): void
+    {
+        global $DB;
+
+        // Query all records currently in SAML_ACS phase (2)
+        $where = [
+            LoginState::PHASE => LoginState::PHASE_SAML_ACS
+        ];
+
+        $iterator = $DB->request(['FROM' => LoginState::getTable(), 'WHERE' => $where]);
+        if ($iterator) {
+            foreach ($iterator as $sessionState) {
+                $timeoutMinutes = self::getProviderTimeout(
+                    (int) $sessionState[self::IDP_ID],
+                    \GlpiPlugin\Samlsso\Config\ConfigEntity::REQUEST_TIMEOUT,
+                    15
+                );
+
+                $loginTime = strtotime($sessionState[LoginState::LOGIN_DATETIME]);
+                if (time() - $loginTime > ($timeoutMinutes * 60)) {
+                    self::persistTimeout($sessionState, 'staleTimeout', __('Session was forcefully timed out by ACS evaluation.', PLUGIN_NAME));
+                }
+            }
+        }
+    }
+
+    /**
+     * Evaluates all records in PHASE_GLPI_AUTH and transitions them to PHASE_TIMED_OUT if idle beyond inactivity_timeout.
+     */
+    public static function expireStaleGlpiSessions(): void
+    {
+        global $DB;
+
+        // Query all records currently in GLPI_AUTH phase (4)
+        $where = [
+            LoginState::PHASE => LoginState::PHASE_GLPI_AUTH
+        ];
+
+        $iterator = $DB->request(['FROM' => LoginState::getTable(), 'WHERE' => $where]);
+        if ($iterator) {
+            foreach ($iterator as $sessionState) {
+                $inactivityTimeout = self::getProviderTimeout(
+                    (int) $sessionState[self::IDP_ID],
+                    \GlpiPlugin\Samlsso\Config\ConfigEntity::INACTIVITY_TIMEOUT,
+                    0
+                );
+
+                if ($inactivityTimeout > 0) {
+                    $lastActivityTime = strtotime($sessionState[LoginState::LAST_ACTIVITY]);
+                    if (time() - $lastActivityTime > ($inactivityTimeout * 60)) {
+                        self::persistTimeout($sessionState, 'inactivityTimeout', __('Session was timed out due to inactivity.', PLUGIN_NAME));
+                    }
+                }
+            }
+        }
+    }
+
+    /** Maintain the existing state-table migration step. */
+    private static function migrateRequestFields(Migration $migration, string $table): void
+    {
+        global $DB;
+        // Add new requestId field for version 1.1.2.
+        // https://codeberg.org/QuinQuies/glpisaml/issues/45
+        if (
+            $DB->tableExists($table)                                                                                                                  &&   // Table should exist
+            !$DB->fieldExists($table, LoginState::SAML_REQUEST_ID, false)                                                                              &&   // Field should not exist
+            $migration->addField($table, LoginState::SAML_REQUEST_ID, 'str', ['null' => true, 'update' => true])
+        ) {   // @see Migration::fieldFormat()
+            Session::addMessageAfterRedirect("🆗 Added field LoginState::SAML_REQUEST_ID for v1.2.0");
+        } // We silently ignore errors. Most common cause for an error is if the field already exists.
+
+        if (
+            $DB->tableExists($table)                                                                                                                      &&   // Table should exist
+            !$DB->fieldExists($table, LoginState::SAML_UNSOLICITED, false)                                                                                 &&   // Field should not exist
+            $migration->addField($table, LoginState::SAML_UNSOLICITED, 'str', ['null' => true, 'update' => true])
+        ) {   // @see Migration::fieldFormat()
+            Session::addMessageAfterRedirect("🆗 Added field LoginState::SAML_UNSOLLICITED for v1.1.2");
+        } // We silently ignore errors. Most common cause for an error is if the field already exists.
+
+        if (
+            $DB->tableExists($table)                                                                                                                       &&   // Table should exist
+            !$DB->fieldExists($table, LoginState::SAML_RESPONSE_ID, false)                                                                                  &&   // Field should not exist
+            $migration->addField($table, LoginState::SAML_RESPONSE_ID, 'str', ['null' => true, 'update' => true])
+        ) {   // @see Migration::fieldFormat()
+            Session::addMessageAfterRedirect("🆗 Added field LoginState::SAML_RESPONSE_ID for v1.1.2");
+        } // We silently ignore errors. Most common cause for an error is if the field already exists.
+
+    }
+
+    /** Maintain the existing state-table migration step. */
+    private static function ensureSessionIndex(string $table): void
+    {
+        global $DB;
+        // https://github.com/DonutsNL/samlsso/issues/58
+        // Add missing indexes to the state table for performance.
+        // ALTER TABLE glpi_plugin_samlsso_loginstates ADD INDEX sessionId_idx (sessionId);
+        if ($DB->tableExists($table)) {
+            // Use the GLPI DB object to check for the index existence properly
+            // prevent ERROR 1061 (42000): Duplicate key name errors.
+            $index_exists = $DB->request([
+                'SELECT' => 'INDEX_NAME',
+                'FROM'   => 'information_schema.STATISTICS',
+                'WHERE'  => [
+                    'TABLE_SCHEMA' => $_SESSION['glpidbname'] ?? $DB->dbdefault,
+                    'TABLE_NAME'   => $table,
+                    'COLUMN_NAME'  => 'sessionId'
+                ]
+            ]);
+            // if no index exists create one.
+            if ($index_exists->count() == 0) {
+                // Create statement
+                $query = "ALTER TABLE `$table` ADD INDEX `sessionId_idx` (`sessionId`)";
+                // Perform the query.
+                // https://github.com/DonutsNL/samlsso/issues/102
+                if ($DB->doQuery($query)) {
+                    Session::addMessageAfterRedirect("🆗 Added index to: $table");
+                } else {
+                    // Handle error without killing the whole application
+                    Session::addMessageAfterRedirect("⚠️ Failed to add index: " . $DB->error(), false, ERROR);
+                }
+            } else {
+                // Do nothing
+                Session::addMessageAfterRedirect("🆗 Index already exists, skipping.");
+            }
+        }
+    }
+
+    /** Expire the pre-session-namespace enforcement cookie during migration. */
+    private static function clearLegacyEnforcementCookie(): void
+    {
+        // Clean old cookies
+        if (isset($_COOKIE['enforce_sso'])) {
+            // Unset by setting expire in the past.
+            setcookie(
+                'enforce_sso',
+                '-1',
+                [
+                    'expires' => time() - 3600,
+                    'secure'   => true,
+                    'path'     => '/',
+                    'httponly' => true,
+                    'samesite' => 'None',
+                ]
+            );
+        }
+    }
+
     /**
      * Install the LoginState DB table
      * @param   Migration $migration
@@ -1058,81 +1223,6 @@ class LoginState extends CommonDBTM // NOSONAR - Preserve the existing public fa
         } // We silently ignore errors. Most common cause for an error is if the field already exists.
     }
 
-    /** Update timeout state without triggering full object-save side effects. */
-    private static function persistTimeout(array $state, string $reason, string $message): void
-    {
-        global $DB;
-        $trace = empty($state[self::LOGIN_FLOW_TRACE]) ? [] : unserialize($state[self::LOGIN_FLOW_TRACE], ['allowed_classes' => false]);
-        $trace = is_array($trace) ? $trace : [];
-        $trace[$reason] = $message;
-        $DB->update(self::getTable(), [
-            self::STATE_ID => $state[self::STATE_ID],
-            self::PHASE => self::PHASE_TIMED_OUT,
-            self::LOGIN_FLOW_TRACE => serialize($trace),
-        ], [self::STATE_ID => $state[self::STATE_ID]]);
-    }
-
-    /**
-     * Finds and expires stale ACS requests in the database.
-     * Evaluates all records in PHASE_SAML_ACS and transitions them to PHASE_TIMED_OUT if expired.
-     */
-    public static function expireStaleAcsRequests(): void
-    {
-        global $DB;
-
-        // Query all records currently in SAML_ACS phase (2)
-        $where = [
-            LoginState::PHASE => LoginState::PHASE_SAML_ACS
-        ];
-
-        $iterator = $DB->request(['FROM' => LoginState::getTable(), 'WHERE' => $where]);
-        if ($iterator) {
-            foreach ($iterator as $sessionState) {
-                $timeoutMinutes = self::getProviderTimeout(
-                    (int) $sessionState[self::IDP_ID],
-                    \GlpiPlugin\Samlsso\Config\ConfigEntity::REQUEST_TIMEOUT,
-                    15
-                );
-
-                $loginTime = strtotime($sessionState[LoginState::LOGIN_DATETIME]);
-                if (time() - $loginTime > ($timeoutMinutes * 60)) {
-                    self::persistTimeout($sessionState, 'staleTimeout', __('Session was forcefully timed out by ACS evaluation.', PLUGIN_NAME));
-                }
-            }
-        }
-    }
-
-    /**
-     * Evaluates all records in PHASE_GLPI_AUTH and transitions them to PHASE_TIMED_OUT if idle beyond inactivity_timeout.
-     */
-    public static function expireStaleGlpiSessions(): void
-    {
-        global $DB;
-
-        // Query all records currently in GLPI_AUTH phase (4)
-        $where = [
-            LoginState::PHASE => LoginState::PHASE_GLPI_AUTH
-        ];
-
-        $iterator = $DB->request(['FROM' => LoginState::getTable(), 'WHERE' => $where]);
-        if ($iterator) {
-            foreach ($iterator as $sessionState) {
-                $inactivityTimeout = self::getProviderTimeout(
-                    (int) $sessionState[self::IDP_ID],
-                    \GlpiPlugin\Samlsso\Config\ConfigEntity::INACTIVITY_TIMEOUT,
-                    0
-                );
-
-                if ($inactivityTimeout > 0) {
-                    $lastActivityTime = strtotime($sessionState[LoginState::LAST_ACTIVITY]);
-                    if (time() - $lastActivityTime > ($inactivityTimeout * 60)) {
-                        self::persistTimeout($sessionState, 'inactivityTimeout', __('Session was timed out due to inactivity.', PLUGIN_NAME));
-                    }
-                }
-            }
-        }
-    }
-
     /**
      * Uninstall the LoginState DB table
      * @param   Migration $migration
@@ -1144,94 +1234,5 @@ class LoginState extends CommonDBTM // NOSONAR - Preserve the existing public fa
         $table = getTableForItemType(static::class);
         $migration->dropTable($table);
         Session::addMessageAfterRedirect("🆗 Removed: $table.");
-    }
-    /** Maintain the existing state-table migration step. */
-    private static function migrateRequestFields(Migration $migration, string $table): void
-    {
-        global $DB;
-        // Add new requestId field for version 1.1.2.
-        // https://codeberg.org/QuinQuies/glpisaml/issues/45
-        if (
-            $DB->tableExists($table)                                                                                                                  &&   // Table should exist
-            !$DB->fieldExists($table, LoginState::SAML_REQUEST_ID, false)                                                                              &&   // Field should not exist
-            $migration->addField($table, LoginState::SAML_REQUEST_ID, 'str', ['null' => true, 'update' => true])
-        ) {   // @see Migration::fieldFormat()
-            Session::addMessageAfterRedirect("🆗 Added field LoginState::SAML_REQUEST_ID for v1.2.0");
-        } // We silently ignore errors. Most common cause for an error is if the field already exists.
-
-        if (
-            $DB->tableExists($table)                                                                                                                      &&   // Table should exist
-            !$DB->fieldExists($table, LoginState::SAML_UNSOLICITED, false)                                                                                 &&   // Field should not exist
-            $migration->addField($table, LoginState::SAML_UNSOLICITED, 'str', ['null' => true, 'update' => true])
-        ) {   // @see Migration::fieldFormat()
-            Session::addMessageAfterRedirect("🆗 Added field LoginState::SAML_UNSOLLICITED for v1.1.2");
-        } // We silently ignore errors. Most common cause for an error is if the field already exists.
-
-        if (
-            $DB->tableExists($table)                                                                                                                       &&   // Table should exist
-            !$DB->fieldExists($table, LoginState::SAML_RESPONSE_ID, false)                                                                                  &&   // Field should not exist
-            $migration->addField($table, LoginState::SAML_RESPONSE_ID, 'str', ['null' => true, 'update' => true])
-        ) {   // @see Migration::fieldFormat()
-            Session::addMessageAfterRedirect("🆗 Added field LoginState::SAML_RESPONSE_ID for v1.1.2");
-        } // We silently ignore errors. Most common cause for an error is if the field already exists.
-
-    }
-
-    /** Maintain the existing state-table migration step. */
-    private static function ensureSessionIndex(string $table): void
-    {
-        global $DB;
-        // https://github.com/DonutsNL/samlsso/issues/58
-        // Add missing indexes to the state table for performance.
-        // ALTER TABLE glpi_plugin_samlsso_loginstates ADD INDEX sessionId_idx (sessionId);
-        if ($DB->tableExists($table)) {
-            // Use the GLPI DB object to check for the index existence properly
-            // prevent ERROR 1061 (42000): Duplicate key name errors.
-            $index_exists = $DB->request([
-                'SELECT' => 'INDEX_NAME',
-                'FROM'   => 'information_schema.STATISTICS',
-                'WHERE'  => [
-                    'TABLE_SCHEMA' => $_SESSION['glpidbname'] ?? $DB->dbdefault,
-                    'TABLE_NAME'   => $table,
-                    'COLUMN_NAME'  => 'sessionId'
-                ]
-            ]);
-            // if no index exists create one.
-            if ($index_exists->count() == 0) {
-                // Create statement
-                $query = "ALTER TABLE `$table` ADD INDEX `sessionId_idx` (`sessionId`)";
-                // Perform the query.
-                // https://github.com/DonutsNL/samlsso/issues/102
-                if ($DB->doQuery($query)) {
-                    Session::addMessageAfterRedirect("🆗 Added index to: $table");
-                } else {
-                    // Handle error without killing the whole application
-                    Session::addMessageAfterRedirect("⚠️ Failed to add index: " . $DB->error(), false, ERROR);
-                }
-            } else {
-                // Do nothing
-                Session::addMessageAfterRedirect("🆗 Index already exists, skipping.");
-            }
-        }
-    }
-
-    /** Expire the pre-session-namespace enforcement cookie during migration. */
-    private static function clearLegacyEnforcementCookie(): void
-    {
-        // Clean old cookies
-        if (isset($_COOKIE['enforce_sso'])) {
-            // Unset by setting expire in the past.
-            setcookie(
-                'enforce_sso',
-                '-1',
-                [
-                    'expires' => time() - 3600,
-                    'secure'   => true,
-                    'path'     => '/',
-                    'httponly' => true,
-                    'samesite' => 'None',
-                ]
-            );
-        }
     }
 }

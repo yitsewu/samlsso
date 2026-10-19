@@ -2,6 +2,14 @@
 
 This separate branch addresses the owner's expanded cleanup request. It preserves the SLO fix as a smaller reviewable parent branch and does not represent an upstream submission.
 
+## Prepared review series — 2026-10-19
+
+The four-commit series ends at `8260354aee7364b31c2428acaba9df18690401e0`, with independently passing suite counts of 17, 18, 19 and 20 on PHP 8.4.26. The final head passes 85 PHP syntax checks; Intelephense and SonarLint open 54 PHP files and report zero diagnostics under the configurations below. The first three layers retain only upstream diagnostic fingerprints (82/89, 81/89 and 72/85 respectively). No global analyzer suppression was added.
+
+The SLO suite now has 38 cases. An additional false-return persistence case first reproduced an incorrect successful logout, then passed after checking `setPhase()` before native cleanup. Both original rule-route aliases are preserved. Lifecycle methods remain last in Config and LoginState. All six new messages are translated in 11 existing locales; compiled lookup, placeholder and HTML checks pass without altering unrelated translations. Final scoped PSR-12 checks cover the controller, trace renderer, IdpSloTest, RulePageContractTest and RunAllTests (LF Git content); this is not whole-repository certification.
+
+The browser matrix below belongs to `6d5496f`. The new database-write rejection, portable tests and catalogs have local validation; this preparation did not redeploy the isolated guests or production. Existing upstream database-error handling outside this change is not claimed to be fully covered. Owner-specific reports are excluded from all four review commits.
+
 ## Behavior changes
 
 - Use the canonical `/plugins/samlsso` route on GLPI 11 and 12, preserving subdirectory installations without duplicating the path.
@@ -73,4 +81,4 @@ The revised logout chooser was rendered in GLPI 12 and states that the identity 
 
 ## Suggested review order
 
-Split the contribution into standalone test infrastructure/release-policy changes, the protocol fix and its ADR, GLPI compatibility/rule-page/validation corrections, then behavior-preserving helper extraction. Obtain issue scope for the broader changes instead of treating the SLO preparation issue as covering every refactor. Revalidate each resulting PR head. No release catalogue entry or upstream PR has been invented or submitted.
+The prepared series starts with standalone test infrastructure/release validation, then the SLO fix with its ADR and translations, native GLPI compatibility, and finally state/configuration validation with helper extraction. This keeps the protocol fix reviewable before the broad cleanup. The last change explicitly includes behavioral validation improvements and is not described as purely mechanical. Obtain issue scope for each change rather than treating the SLO preparation issue as covering the entire series. No release catalogue entry or upstream PR has been invented or submitted.

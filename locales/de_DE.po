@@ -1117,31 +1117,31 @@ msgid "Continue with local logout"
 msgstr "Fahren Sie mit der lokalen Abmeldung fort"
 
 #: src/LoginFlow.php:632
-msgid "Log out everywhere"
-msgstr "Melden Sie sich überall ab"
+#~ msgid "Log out everywhere"
+#~ msgstr "Melden Sie sich überall ab"
 
 #: src/LoginFlow.php:636
 #, php-format
-msgid ""
-""
-"You have been authenticated using the SAML2 identity provider: <b>%1$s</b>."
-"<br><br>Because SAML authentication is enforced, logging out of GLPI locally "
-"will automatically log you back in immediately.<br><br>To sign out "
-"completely, please select <b>'%2$s'</b>. Note that this will also terminate "
-"your active sessions in all other applications connected to this Identity "
-"Provider.<br><br>If you want to leave GLPI, just close this browser tab."
-msgstr "Sie wurden mit dem SAML2-Identitätsanbieter authentifiziert: <b>%1$s</b>.<br><br>Da die SAML-Authentifizierung erzwungen wird, werden Sie beim lokalen Abmelden von GLPI automatisch sofort wieder angemeldet.<br><br>Um sich vollständig abzumelden, wählen Sie bitte <b>'Überall abmelden'</b>. Beachten Sie, dass dadurch auch Ihre aktiven Sitzungen in allen anderen mit diesem Identitätsanbieter verbundenen Anwendungen beendet werden.<br><br>Wenn Sie GLPI verlassen möchten, schließen Sie einfach diesen Browser-Tab."
+#~ msgid ""
+#~ ""
+#~ "You have been authenticated using the SAML2 identity provider: <b>%1$s</b>."
+#~ "<br><br>Because SAML authentication is enforced, logging out of GLPI locally "
+#~ "will automatically log you back in immediately.<br><br>To sign out "
+#~ "completely, please select <b>'%2$s'</b>. Note that this will also terminate "
+#~ "your active sessions in all other applications connected to this Identity "
+#~ "Provider.<br><br>If you want to leave GLPI, just close this browser tab."
+#~ msgstr "Sie wurden mit dem SAML2-Identitätsanbieter authentifiziert: <b>%1$s</b>.<br><br>Da die SAML-Authentifizierung erzwungen wird, werden Sie beim lokalen Abmelden von GLPI automatisch sofort wieder angemeldet.<br><br>Um sich vollständig abzumelden, wählen Sie bitte <b>'Überall abmelden'</b>. Beachten Sie, dass dadurch auch Ihre aktiven Sitzungen in allen anderen mit diesem Identitätsanbieter verbundenen Anwendungen beendet werden.<br><br>Wenn Sie GLPI verlassen möchten, schließen Sie einfach diesen Browser-Tab."
 
 #: src/LoginFlow.php:642
 #, php-format
-msgid ""
-""
-"You have been authenticated using the SAML2 identity provider: <b>%1$s</b>."
-"<br><br>You can log out permanently by also logging out with the IDP by "
-"pressing <b>'%2$s'</b> (which terminates active sessions in all other "
-"applications depending on it), or perform a local logout from GLPI only by "
-"pressing <b>'%3$s'</b>."
-msgstr "Sie wurden mit dem SAML2-Identitätsanbieter authentifiziert: <b>%1$s</b>.<br><br>Sie können sich dauerhaft abmelden, indem Sie sich auch beim IDP abmelden, indem Sie <b>'Überall abmelden'</b> drücken (wodurch aktive Sitzungen in allen anderen davon abhängigen Anwendungen beendet werden) oder eine lokale Abmeldung von GLPI durchführen, indem Sie nur <b>'GLPI-Abmeldung fortsetzen'</b> drücken."
+#~ msgid ""
+#~ ""
+#~ "You have been authenticated using the SAML2 identity provider: <b>%1$s</b>."
+#~ "<br><br>You can log out permanently by also logging out with the IDP by "
+#~ "pressing <b>'%2$s'</b> (which terminates active sessions in all other "
+#~ "applications depending on it), or perform a local logout from GLPI only by "
+#~ "pressing <b>'%3$s'</b>."
+#~ msgstr "Sie wurden mit dem SAML2-Identitätsanbieter authentifiziert: <b>%1$s</b>.<br><br>Sie können sich dauerhaft abmelden, indem Sie sich auch beim IDP abmelden, indem Sie <b>'Überall abmelden'</b> drücken (wodurch aktive Sitzungen in allen anderen davon abhängigen Anwendungen beendet werden) oder eine lokale Abmeldung von GLPI durchführen, indem Sie nur <b>'GLPI-Abmeldung fortsetzen'</b> drücken."
 
 #: src/LoginFlow.php:651
 msgid "🤔 How would you like to proceed?"
@@ -1826,19 +1826,19 @@ msgid "To be excluded path"
 msgstr "Auszuschließender Pfad"
 
 #: templates/loggedOut.html.twig:9
-msgid "Successfully Logged Out"
-msgstr "Erfolgreich abgemeldet"
+#~ msgid "Successfully Logged Out"
+#~ msgstr "Erfolgreich abgemeldet"
 
 #: templates/loggedOut.html.twig:12
-msgid ""
-""
-"You have been successfully logged out of your session. You can now safely "
-"close this browser window/tab, or log in again using the button below."
-msgstr ""
-""
-"Sie wurden erfolgreich von Ihrer Sitzung abgemeldet. Sie können dieses "
-"Browserfenster/diese Registerkarte jetzt sicher schließen oder sich über die "
-"Schaltfläche unten erneut anmelden."
+#~ msgid ""
+#~ ""
+#~ "You have been successfully logged out of your session. You can now safely "
+#~ "close this browser window/tab, or log in again using the button below."
+#~ msgstr ""
+#~ ""
+#~ "Sie wurden erfolgreich von Ihrer Sitzung abgemeldet. Sie können dieses "
+#~ "Browserfenster/diese Registerkarte jetzt sicher schließen oder sich über die "
+#~ "Schaltfläche unten erneut anmelden."
 
 #: templates/loggedOut.html.twig:17
 msgid "Log in again"
@@ -2288,3 +2288,63 @@ msgid ""
 "⚠️ Warning SP metadata exposed! - ROWID: %1$s | CREATED DATE: %2$s | LAST "
 "UPDATED: %3$s"
 msgstr "⚠️ Warnung: SP-Metadaten offengelegt! - ROWID: %1$s | ERSTELLUNGSDATUM: %2$s | ZULETZT AKTUALISIERT: %3$s"
+
+#: src/LoginFlow.php:639
+msgid "Request identity provider logout"
+msgstr "Abmeldung beim Identitätsanbieter anfordern"
+
+#: src/Controller/SamlSsoController.php:271 templates/loggedOut.html.twig:9
+msgid "Signed out of GLPI"
+msgstr "Von GLPI abgemeldet"
+
+#: src/Controller/SamlSsoController.php:131
+msgid ""
+"The logout request could not be verified. Sign in again or contact your "
+"administrator."
+msgstr ""
+"Die Abmeldeanfrage konnte nicht überprüft werden. Melden Sie sich erneut an "
+"oder wenden Sie sich an Ihre Administration."
+
+#: templates/loggedOut.html.twig:12
+msgid ""
+"You are signed out of GLPI. Your identity provider and other applications "
+"may still have active sessions."
+msgstr ""
+"Sie sind von GLPI abgemeldet. Bei Ihrem Identitätsanbieter und in anderen "
+"Anwendungen können weiterhin aktive Sitzungen bestehen."
+
+#: src/LoginFlow.php:643
+#, php-format
+msgid ""
+"You signed in through the identity provider: <b>%1$s</b>.<br><br>Because "
+"SAML sign-in is required, a local GLPI logout may sign you in again while "
+"your identity provider session remains active.<br><br>Select <b>'%2$s'</b> "
+"to sign out of GLPI and request logout from your identity provider. Your "
+"identity provider determines whether its own session and sessions in other "
+"applications are ended.<br><br>You can also return to GLPI or close this "
+"browser tab."
+msgstr ""
+"Sie haben sich über den Identitätsanbieter <b>%1$s</b> angemeldet.<br><br>Da"
+" die Anmeldung über SAML erforderlich ist, können Sie nach einer lokalen "
+"Abmeldung von GLPI erneut angemeldet werden, solange Ihre Sitzung beim "
+"Identitätsanbieter aktiv bleibt.<br><br>Wählen Sie <b>'%2$s'</b>, um sich "
+"von GLPI abzumelden und die Abmeldung beim Identitätsanbieter anzufordern. "
+"Ihr Identitätsanbieter bestimmt, ob seine eigene Sitzung und Sitzungen in "
+"anderen Anwendungen beendet werden.<br><br>Sie können auch zu GLPI "
+"zurückkehren oder diesen Browser-Tab schließen."
+
+#: src/LoginFlow.php:649
+#, php-format
+msgid ""
+"You signed in through the identity provider: <b>%1$s</b>.<br><br>Select "
+"<b>'%2$s'</b> to sign out of GLPI and request logout from your identity "
+"provider. Your identity provider determines whether its own session and "
+"sessions in other applications are ended.<br><br>To sign out of GLPI only, "
+"select <b>'%3$s'</b>."
+msgstr ""
+"Sie haben sich über den Identitätsanbieter <b>%1$s</b> "
+"angemeldet.<br><br>Wählen Sie <b>'%2$s'</b>, um sich von GLPI abzumelden und"
+" die Abmeldung beim Identitätsanbieter anzufordern. Ihr Identitätsanbieter "
+"bestimmt, ob seine eigene Sitzung und Sitzungen in anderen Anwendungen "
+"beendet werden.<br><br>Um sich nur von GLPI abzumelden, wählen Sie "
+"<b>'%3$s'</b>."

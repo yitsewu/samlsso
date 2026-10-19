@@ -198,8 +198,8 @@ namespace GlpiPlugin\Samlsso\Tests {
 
             foreach ($iterator as $file) {
                 if ($file->isFile()) {
-                    $filePath = $file->getRealPath();
-                    if ($filePath === false || str_contains($filePath, '/vendor/')) {
+                    $filePath = str_replace('\\', '/', $file->getRealPath() ?: '');
+                    if ($filePath === '' || str_contains($filePath, '/vendor/')) {
                         continue;
                     }
 

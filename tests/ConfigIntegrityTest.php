@@ -302,7 +302,7 @@ namespace GlpiPlugin\Samlsso\Tests {
 
                 $found = false;
                 foreach ($files as $file) {
-                    if ($file->isDir() || str_contains($file->getPathname(), '/tests/')) {
+                    if ($file->isDir() || str_contains(str_replace('\\', '/', $file->getPathname()), '/tests/')) {
                         continue;
                     }
                     $content = file_get_contents($file->getPathname());

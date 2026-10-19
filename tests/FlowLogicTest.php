@@ -251,9 +251,9 @@ namespace GlpiPlugin\Samlsso\Tests {
             $code = '<?php
                 global $GLPI_IS_COMMAND_LINE, $CFG_GLPI;
                 $GLPI_IS_COMMAND_LINE = false;
-                require_once "' . __DIR__ . '/TestHarness.php";
+                require_once ' . var_export(__DIR__ . '/TestHarness.php', true) . ';
                 $CFG_GLPI = ["url_base" => "http://glpi.local"];
-                require_once "' . __DIR__ . '/../src/LoginFlow.php";
+                require_once ' . var_export(__DIR__ . '/../src/LoginFlow.php', true) . ';
                 $_SESSION["glpiID"] = 1;
                 $_SERVER["REQUEST_URI"] = "/front/logout.php";
                 \GlpiPlugin\Samlsso\Config\MockConfigEntity::$mockFields[\GlpiPlugin\Samlsso\Config\MockConfigEntity::IDP_SLO_URL] = "http://idp.local/slo";
@@ -271,7 +271,7 @@ namespace GlpiPlugin\Samlsso\Tests {
 
             $output = [];
             $status = 0;
-            exec("php " . escapeshellarg($tempFile) . " 2>&1", $output, $status);
+            exec(escapeshellarg(PHP_BINARY) . " " . escapeshellarg($tempFile) . " 2>&1", $output, $status);
             $outputStr = implode("\n", $output);
             unlink($tempFile);
 
@@ -298,9 +298,9 @@ namespace GlpiPlugin\Samlsso\Tests {
             $code = '<?php
                 global $GLPI_IS_COMMAND_LINE, $CFG_GLPI;
                 $GLPI_IS_COMMAND_LINE = false;
-                require_once "' . __DIR__ . '/TestHarness.php";
+                require_once ' . var_export(__DIR__ . '/TestHarness.php', true) . ';
                 $CFG_GLPI = ["url_base" => "http://glpi.local"];
-                require_once "' . __DIR__ . '/../src/LoginFlow.php";
+                require_once ' . var_export(__DIR__ . '/../src/LoginFlow.php', true) . ';
                 $_SESSION["glpiID"] = 1;
                 $_SERVER["REQUEST_URI"] = "/front/logout.php";
                 \GlpiPlugin\Samlsso\Config\MockConfigEntity::$mockFields[\GlpiPlugin\Samlsso\Config\MockConfigEntity::IDP_SLO_URL] = "http://idp.local/slo";
@@ -318,7 +318,7 @@ namespace GlpiPlugin\Samlsso\Tests {
 
             $output = [];
             $status = 0;
-            exec("php " . escapeshellarg($tempFile) . " 2>&1", $output, $status);
+            exec(escapeshellarg(PHP_BINARY) . " " . escapeshellarg($tempFile) . " 2>&1", $output, $status);
             $outputStr = implode("\n", $output);
             unlink($tempFile);
 

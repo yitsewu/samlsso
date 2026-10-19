@@ -424,6 +424,60 @@ class Config extends ConfigCompat
     }
 
 
+    /** Apply incremental fields to an already installed configuration table. */
+    private static function updateSchema(Migration $migration, string $table): void
+    {
+        global $DB;
+        // Alter column width for conf_domain
+        if (!$DB->tableExists($table)) {
+            return;
+        }
+        $migration->displayMessage("Updating table layout for $table");
+        $query = <<<SQL
+            ALTER TABLE $table
+            MODIFY COLUMN `conf_domain` varchar(255) null;
+        SQL;
+        $DB->doQuery($query) or die($DB->error());
+
+        if (!$DB->fieldExists($table, 'saml_xml_structure', false)) {
+            $migration->addField($table, 'saml_xml_structure', 'text', ['null' => true, 'update' => true]);
+        }
+
+        if (!$DB->fieldExists($table, 'request_timeout', false)) {
+            $migration->addField($table, 'request_timeout', 'int', ['null' => false, 'default' => '15', 'update' => true]);
+        }
+
+        if (!$DB->fieldExists($table, 'inactivity_timeout', false)) {
+            $migration->addField($table, 'inactivity_timeout', 'int', ['null' => false, 'default' => '0', 'update' => true]);
+        }
+
+        if (!$DB->fieldExists($table, 'sync_on_login', false)) {
+            $migration->addField($table, 'sync_on_login', 'tinyint', ['null' => false, 'default' => '0', 'update' => true]);
+        }
+
+        if (!$DB->fieldExists($table, 'security_wantmessagessigned', false)) {
+            $migration->addField($table, 'security_wantmessagessigned', 'tinyint', ['null' => false, 'default' => '0', 'update' => true]);
+        }
+
+        if (!$DB->fieldExists($table, 'security_wantassertionssigned', false)) {
+            $migration->addField($table, 'security_wantassertionssigned', 'tinyint', ['null' => false, 'default' => '0', 'update' => true]);
+        }
+
+        if (!$DB->fieldExists($table, 'security_wantassertionsencrypted', false)) {
+            $migration->addField($table, 'security_wantassertionsencrypted', 'tinyint', ['null' => false, 'default' => '0', 'update' => true]);
+        }
+
+        if (!$DB->fieldExists($table, 'security_signmetadata', false)) {
+            $migration->addField($table, 'security_signmetadata', 'tinyint', ['null' => false, 'default' => '0', 'update' => true]);
+        }
+
+        if (!$DB->fieldExists($table, 'security_wantnameid', false)) {
+            $migration->addField($table, 'security_wantnameid', 'tinyint', ['null' => false, 'default' => '0', 'update' => true]);
+        }
+
+        Session::addMessageAfterRedirect("🆗 Updated: $table layout.");
+    }
+
     /**
      * Install table needed for Ticket Filter configuration dropdowns.
      *
@@ -519,58 +573,5 @@ class Config extends ConfigCompat
         Session::addMessageAfterRedirect("🆗 backup: $table.");
         $migration->dropTable($table);
         Session::addMessageAfterRedirect("🆗 Removed: $table.");
-    }
-    /** Apply incremental fields to an already installed configuration table. */
-    private static function updateSchema(Migration $migration, string $table): void
-    {
-        global $DB;
-        // Alter column width for conf_domain
-        if (!$DB->tableExists($table)) {
-            return;
-        }
-        $migration->displayMessage("Updating table layout for $table");
-        $query = <<<SQL
-            ALTER TABLE $table
-            MODIFY COLUMN `conf_domain` varchar(255) null;
-        SQL;
-        $DB->doQuery($query) or die($DB->error());
-
-        if (!$DB->fieldExists($table, 'saml_xml_structure', false)) {
-            $migration->addField($table, 'saml_xml_structure', 'text', ['null' => true, 'update' => true]);
-        }
-
-        if (!$DB->fieldExists($table, 'request_timeout', false)) {
-            $migration->addField($table, 'request_timeout', 'int', ['null' => false, 'default' => '15', 'update' => true]);
-        }
-
-        if (!$DB->fieldExists($table, 'inactivity_timeout', false)) {
-            $migration->addField($table, 'inactivity_timeout', 'int', ['null' => false, 'default' => '0', 'update' => true]);
-        }
-
-        if (!$DB->fieldExists($table, 'sync_on_login', false)) {
-            $migration->addField($table, 'sync_on_login', 'tinyint', ['null' => false, 'default' => '0', 'update' => true]);
-        }
-
-        if (!$DB->fieldExists($table, 'security_wantmessagessigned', false)) {
-            $migration->addField($table, 'security_wantmessagessigned', 'tinyint', ['null' => false, 'default' => '0', 'update' => true]);
-        }
-
-        if (!$DB->fieldExists($table, 'security_wantassertionssigned', false)) {
-            $migration->addField($table, 'security_wantassertionssigned', 'tinyint', ['null' => false, 'default' => '0', 'update' => true]);
-        }
-
-        if (!$DB->fieldExists($table, 'security_wantassertionsencrypted', false)) {
-            $migration->addField($table, 'security_wantassertionsencrypted', 'tinyint', ['null' => false, 'default' => '0', 'update' => true]);
-        }
-
-        if (!$DB->fieldExists($table, 'security_signmetadata', false)) {
-            $migration->addField($table, 'security_signmetadata', 'tinyint', ['null' => false, 'default' => '0', 'update' => true]);
-        }
-
-        if (!$DB->fieldExists($table, 'security_wantnameid', false)) {
-            $migration->addField($table, 'security_wantnameid', 'tinyint', ['null' => false, 'default' => '0', 'update' => true]);
-        }
-
-        Session::addMessageAfterRedirect("🆗 Updated: $table layout.");
     }
 }

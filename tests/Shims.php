@@ -85,6 +85,9 @@ namespace {
     if (!defined('ERROR')) {
         define('ERROR', 1);
     }
+    if (!defined('WARNING')) {
+        define('WARNING', 2);
+    }
     if (!function_exists('htmlescape')) {
         /** Match the native HTML escaping contract used by the redirect template. */
         function htmlescape(string $value): string

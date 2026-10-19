@@ -179,7 +179,9 @@ final class SamlSsoController extends AbstractController
         }
         $auth = new SamlAuth($settingsData);
         $target = $auth->processSLO(false, null, true, static function () use ($state): void {
-            $state->setPhase(LoginState::PHASE_LOGOFF);
+            if ($state->setPhase(LoginState::PHASE_LOGOFF) !== true) {
+                throw new \UnexpectedValueException('state_update_failed');
+            }
             unset($_SESSION['samlsso_slo_context']);
             \Session::cleanOnLogout();
             if (session_status() === PHP_SESSION_ACTIVE) {

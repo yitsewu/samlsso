@@ -73,8 +73,8 @@ namespace GlpiPlugin\Samlsso\Tests {
 
             foreach ($iterator as $file) {
                 if ($file->isFile() && $file->getExtension() === 'php') {
-                    $filePath = $file->getRealPath();
-                    if ($filePath === false || str_contains($filePath, '/vendor/')) {
+                    $filePath = str_replace('\\', '/', $file->getRealPath() ?: '');
+                    if ($filePath === '' || str_contains($filePath, '/vendor/')) {
                         continue;
                     }
 
@@ -132,9 +132,9 @@ namespace GlpiPlugin\Samlsso\Tests {
 
             foreach ($iterator as $file) {
                 if ($file->isFile() && $file->getExtension() === 'php') {
-                    $filePath = $file->getRealPath();
+                    $filePath = str_replace('\\', '/', $file->getRealPath() ?: '');
                     // Skip templates directory which might mix HTML and PHP, and vendor files
-                    if ($filePath === false || str_contains($filePath, '/vendor/') || str_contains($filePath, '/templates/')) {
+                    if ($filePath === '' || str_contains($filePath, '/vendor/') || str_contains($filePath, '/templates/')) {
                         continue;
                     }
 
@@ -173,9 +173,9 @@ namespace GlpiPlugin\Samlsso\Tests {
 
             foreach ($iterator as $file) {
                 if ($file->isFile() && $file->getExtension() === 'php') {
-                    $filePath = $file->getRealPath();
+                    $filePath = str_replace('\\', '/', $file->getRealPath() ?: '');
                     // Skip vendor files and tests directory (test files don't need translation domains)
-                    if ($filePath === false || str_contains($filePath, '/vendor/') || str_contains($filePath, '/tests/')) {
+                    if ($filePath === '' || str_contains($filePath, '/vendor/') || str_contains($filePath, '/tests/')) {
                         continue;
                     }
 
@@ -270,9 +270,9 @@ namespace GlpiPlugin\Samlsso\Tests {
 
             foreach ($iterator as $file) {
                 if ($file->isFile() && $file->getExtension() === 'php') {
-                    $filePath = $file->getRealPath();
+                    $filePath = str_replace('\\', '/', $file->getRealPath() ?: '');
                     // Skip vendor files and tests directory
-                    if ($filePath === false || str_contains($filePath, '/vendor/') || str_contains($filePath, '/tests/')) {
+                    if ($filePath === '' || str_contains($filePath, '/vendor/') || str_contains($filePath, '/tests/')) {
                         continue;
                     }
 

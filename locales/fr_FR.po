@@ -1122,31 +1122,31 @@ msgid "Continue with local logout"
 msgstr "Continuer avec la déconnexion locale"
 
 #: src/LoginFlow.php:632
-msgid "Log out everywhere"
-msgstr "Déconnectez-vous partout"
+#~ msgid "Log out everywhere"
+#~ msgstr "Déconnectez-vous partout"
 
 #: src/LoginFlow.php:636
 #, php-format
-msgid ""
-""
-"You have been authenticated using the SAML2 identity provider: <b>%1$s</b>."
-"<br><br>Because SAML authentication is enforced, logging out of GLPI locally "
-"will automatically log you back in immediately.<br><br>To sign out "
-"completely, please select <b>'%2$s'</b>. Note that this will also terminate "
-"your active sessions in all other applications connected to this Identity "
-"Provider.<br><br>If you want to leave GLPI, just close this browser tab."
-msgstr "Vous avez été authentifié à l'aide du fournisseur d'identité SAML2 : <b>%1$s</b>.<br><br>L'authentification SAML étant appliquée, la déconnexion locale de GLPI vous reconnectera automatiquement immédiatement.<br><br>Pour vous déconnecter complètement, veuillez sélectionner <b> « Se déconnecter partout » </b>. Notez que cela mettra également fin à vos sessions actives dans toutes les autres applications connectées à ce fournisseur d'identité.<br><br>Si vous souhaitez quitter GLPI, fermez simplement cet onglet du navigateur."
+#~ msgid ""
+#~ ""
+#~ "You have been authenticated using the SAML2 identity provider: <b>%1$s</b>."
+#~ "<br><br>Because SAML authentication is enforced, logging out of GLPI locally "
+#~ "will automatically log you back in immediately.<br><br>To sign out "
+#~ "completely, please select <b>'%2$s'</b>. Note that this will also terminate "
+#~ "your active sessions in all other applications connected to this Identity "
+#~ "Provider.<br><br>If you want to leave GLPI, just close this browser tab."
+#~ msgstr "Vous avez été authentifié à l'aide du fournisseur d'identité SAML2 : <b>%1$s</b>.<br><br>L'authentification SAML étant appliquée, la déconnexion locale de GLPI vous reconnectera automatiquement immédiatement.<br><br>Pour vous déconnecter complètement, veuillez sélectionner <b> « Se déconnecter partout » </b>. Notez que cela mettra également fin à vos sessions actives dans toutes les autres applications connectées à ce fournisseur d'identité.<br><br>Si vous souhaitez quitter GLPI, fermez simplement cet onglet du navigateur."
 
 #: src/LoginFlow.php:642
 #, php-format
-msgid ""
-""
-"You have been authenticated using the SAML2 identity provider: <b>%1$s</b>."
-"<br><br>You can log out permanently by also logging out with the IDP by "
-"pressing <b>'%2$s'</b> (which terminates active sessions in all other "
-"applications depending on it), or perform a local logout from GLPI only by "
-"pressing <b>'%3$s'</b>."
-msgstr "Vous avez été authentifié à l'aide du fournisseur d'identité SAML2 : <b>%1$s</b>.<br><br>Vous pouvez vous déconnecter définitivement en vous déconnectant également avec l'IDP en appuyant sur <b> « Se déconnecter partout » </b> (qui met fin aux sessions actives dans toutes les autres applications qui en dépendent), ou effectuer une déconnexion locale de GLPI uniquement en appuyant sur <b> « Continuer la déconnexion GLPI » </b>."
+#~ msgid ""
+#~ ""
+#~ "You have been authenticated using the SAML2 identity provider: <b>%1$s</b>."
+#~ "<br><br>You can log out permanently by also logging out with the IDP by "
+#~ "pressing <b>'%2$s'</b> (which terminates active sessions in all other "
+#~ "applications depending on it), or perform a local logout from GLPI only by "
+#~ "pressing <b>'%3$s'</b>."
+#~ msgstr "Vous avez été authentifié à l'aide du fournisseur d'identité SAML2 : <b>%1$s</b>.<br><br>Vous pouvez vous déconnecter définitivement en vous déconnectant également avec l'IDP en appuyant sur <b> « Se déconnecter partout » </b> (qui met fin aux sessions actives dans toutes les autres applications qui en dépendent), ou effectuer une déconnexion locale de GLPI uniquement en appuyant sur <b> « Continuer la déconnexion GLPI » </b>."
 
 #: src/LoginFlow.php:651
 msgid "🤔 How would you like to proceed?"
@@ -1824,19 +1824,19 @@ msgid "To be excluded path"
 msgstr "Chemin à exclure"
 
 #: templates/loggedOut.html.twig:9
-msgid "Successfully Logged Out"
-msgstr "Déconnexion réussie"
+#~ msgid "Successfully Logged Out"
+#~ msgstr "Déconnexion réussie"
 
 #: templates/loggedOut.html.twig:12
-msgid ""
-""
-"You have been successfully logged out of your session. You can now safely "
-"close this browser window/tab, or log in again using the button below."
-msgstr ""
-""
-"Vous avez été déconnecté avec succès de votre session. Vous pouvez "
-"maintenant fermer en toute sécurité cette fenêtre/onglet de navigateur ou "
-"vous reconnecter en utilisant le bouton ci-dessous."
+#~ msgid ""
+#~ ""
+#~ "You have been successfully logged out of your session. You can now safely "
+#~ "close this browser window/tab, or log in again using the button below."
+#~ msgstr ""
+#~ ""
+#~ "Vous avez été déconnecté avec succès de votre session. Vous pouvez "
+#~ "maintenant fermer en toute sécurité cette fenêtre/onglet de navigateur ou "
+#~ "vous reconnecter en utilisant le bouton ci-dessous."
 
 #: templates/loggedOut.html.twig:17
 msgid "Log in again"
@@ -2288,3 +2288,63 @@ msgid ""
 "⚠️ Warning SP metadata exposed! - ROWID: %1$s | CREATED DATE: %2$s | LAST "
 "UPDATED: %3$s"
 msgstr "⚠️ Attention métadonnées SP exposées ! - LIGNE : %1$s | DATE DE CRÉATION : %2$s | DERNIÈRE MISE À JOUR : %3$s"
+
+#: src/LoginFlow.php:639
+msgid "Request identity provider logout"
+msgstr "Demander la déconnexion du fournisseur d’identité"
+
+#: src/Controller/SamlSsoController.php:271 templates/loggedOut.html.twig:9
+msgid "Signed out of GLPI"
+msgstr "Déconnexion de GLPI effectuée"
+
+#: src/Controller/SamlSsoController.php:131
+msgid ""
+"The logout request could not be verified. Sign in again or contact your "
+"administrator."
+msgstr ""
+"La demande de déconnexion n’a pas pu être vérifiée. Reconnectez-vous ou "
+"contactez votre administrateur."
+
+#: templates/loggedOut.html.twig:12
+msgid ""
+"You are signed out of GLPI. Your identity provider and other applications "
+"may still have active sessions."
+msgstr ""
+"Vous êtes déconnecté de GLPI. Des sessions peuvent rester actives auprès de "
+"votre fournisseur d’identité et dans d’autres applications."
+
+#: src/LoginFlow.php:643
+#, php-format
+msgid ""
+"You signed in through the identity provider: <b>%1$s</b>.<br><br>Because "
+"SAML sign-in is required, a local GLPI logout may sign you in again while "
+"your identity provider session remains active.<br><br>Select <b>'%2$s'</b> "
+"to sign out of GLPI and request logout from your identity provider. Your "
+"identity provider determines whether its own session and sessions in other "
+"applications are ended.<br><br>You can also return to GLPI or close this "
+"browser tab."
+msgstr ""
+"Vous vous êtes connecté via le fournisseur d’identité : "
+"<b>%1$s</b>.<br><br>La connexion SAML étant obligatoire, vous pouvez être "
+"reconnecté après une déconnexion locale de GLPI tant que votre session "
+"auprès du fournisseur d’identité reste active.<br><br>Sélectionnez "
+"<b>'%2$s'</b> pour vous déconnecter de GLPI et demander la déconnexion "
+"auprès de votre fournisseur d’identité. Celui-ci détermine si sa propre "
+"session et celles des autres applications sont fermées.<br><br>Vous pouvez "
+"aussi revenir à GLPI ou fermer cet onglet du navigateur."
+
+#: src/LoginFlow.php:649
+#, php-format
+msgid ""
+"You signed in through the identity provider: <b>%1$s</b>.<br><br>Select "
+"<b>'%2$s'</b> to sign out of GLPI and request logout from your identity "
+"provider. Your identity provider determines whether its own session and "
+"sessions in other applications are ended.<br><br>To sign out of GLPI only, "
+"select <b>'%3$s'</b>."
+msgstr ""
+"Vous vous êtes connecté via le fournisseur d’identité : "
+"<b>%1$s</b>.<br><br>Sélectionnez <b>'%2$s'</b> pour vous déconnecter de GLPI"
+" et demander la déconnexion auprès de votre fournisseur d’identité. Celui-ci"
+" détermine si sa propre session et celles des autres applications sont "
+"fermées.<br><br>Pour vous déconnecter uniquement de GLPI, sélectionnez "
+"<b>'%3$s'</b>."

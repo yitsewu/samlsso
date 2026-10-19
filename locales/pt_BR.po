@@ -1114,31 +1114,31 @@ msgid "Continue with local logout"
 msgstr "Continuar com o logoff local"
 
 #: src/LoginFlow.php:632
-msgid "Log out everywhere"
-msgstr "Sair de todas as seções"
+#~ msgid "Log out everywhere"
+#~ msgstr "Sair de todas as seções"
 
 #: src/LoginFlow.php:636
 #, php-format
-msgid ""
-""
-"You have been authenticated using the SAML2 identity provider: <b>%1$s</b>."
-"<br><br>Because SAML authentication is enforced, logging out of GLPI locally "
-"will automatically log you back in immediately.<br><br>To sign out "
-"completely, please select <b>'%2$s'</b>. Note that this will also terminate "
-"your active sessions in all other applications connected to this Identity "
-"Provider.<br><br>If you want to leave GLPI, just close this browser tab."
-msgstr "Você foi autenticado usando o provedor de identidade SAML2: <b>%1$s</b>.<br><br>Como a autenticação SAML é imposta, sair localmente do GLPI irá automaticamente fazer com que você faça login novamente imediatamente.<br><br>Para sair completamente, selecione <b>'Sair de todos os lugares'</b>. Observe que isso também encerrará suas sessões ativas em todas as outras aplicações conectadas a este Provedor de Identidade.<br><br>Se você quiser sair do GLPI, basta fechar esta aba do navegador."
+#~ msgid ""
+#~ ""
+#~ "You have been authenticated using the SAML2 identity provider: <b>%1$s</b>."
+#~ "<br><br>Because SAML authentication is enforced, logging out of GLPI locally "
+#~ "will automatically log you back in immediately.<br><br>To sign out "
+#~ "completely, please select <b>'%2$s'</b>. Note that this will also terminate "
+#~ "your active sessions in all other applications connected to this Identity "
+#~ "Provider.<br><br>If you want to leave GLPI, just close this browser tab."
+#~ msgstr "Você foi autenticado usando o provedor de identidade SAML2: <b>%1$s</b>.<br><br>Como a autenticação SAML é imposta, sair localmente do GLPI irá automaticamente fazer com que você faça login novamente imediatamente.<br><br>Para sair completamente, selecione <b>'Sair de todos os lugares'</b>. Observe que isso também encerrará suas sessões ativas em todas as outras aplicações conectadas a este Provedor de Identidade.<br><br>Se você quiser sair do GLPI, basta fechar esta aba do navegador."
 
 #: src/LoginFlow.php:642
 #, php-format
-msgid ""
-""
-"You have been authenticated using the SAML2 identity provider: <b>%1$s</b>."
-"<br><br>You can log out permanently by also logging out with the IDP by "
-"pressing <b>'%2$s'</b> (which terminates active sessions in all other "
-"applications depending on it), or perform a local logout from GLPI only by "
-"pressing <b>'%3$s'</b>."
-msgstr "Você foi autenticado usando o provedor de identidade SAML2: <b>%1$s</b>.<br><br>Você pode sair permanentemente fazendo logout também com o IDP ao pressionar <b>'Sair de todos os lugares'</b> (o que encerra as sessões ativas em todas as outras aplicações dependendo dele), ou realizando um logout local do GLPI apenas ao pressionar <b>'Continuar logout do GLPI'</b>."
+#~ msgid ""
+#~ ""
+#~ "You have been authenticated using the SAML2 identity provider: <b>%1$s</b>."
+#~ "<br><br>You can log out permanently by also logging out with the IDP by "
+#~ "pressing <b>'%2$s'</b> (which terminates active sessions in all other "
+#~ "applications depending on it), or perform a local logout from GLPI only by "
+#~ "pressing <b>'%3$s'</b>."
+#~ msgstr "Você foi autenticado usando o provedor de identidade SAML2: <b>%1$s</b>.<br><br>Você pode sair permanentemente fazendo logout também com o IDP ao pressionar <b>'Sair de todos os lugares'</b> (o que encerra as sessões ativas em todas as outras aplicações dependendo dele), ou realizando um logout local do GLPI apenas ao pressionar <b>'Continuar logout do GLPI'</b>."
 
 #: src/LoginFlow.php:651
 msgid "🤔 How would you like to proceed?"
@@ -1800,19 +1800,19 @@ msgid "To be excluded path"
 msgstr "Caminho a ser excluído"
 
 #: templates/loggedOut.html.twig:9
-msgid "Successfully Logged Out"
-msgstr "Desconectado com sucesso"
+#~ msgid "Successfully Logged Out"
+#~ msgstr "Desconectado com sucesso"
 
 #: templates/loggedOut.html.twig:12
-msgid ""
-""
-"You have been successfully logged out of your session. You can now safely "
-"close this browser window/tab, or log in again using the button below."
-msgstr ""
-""
-"Você foi desconectado da sua sessão com sucesso. Agora você pode fechar esta "
-"janela/guia do navegador com segurança ou fazer login novamente usando o "
-"botão abaixo."
+#~ msgid ""
+#~ ""
+#~ "You have been successfully logged out of your session. You can now safely "
+#~ "close this browser window/tab, or log in again using the button below."
+#~ msgstr ""
+#~ ""
+#~ "Você foi desconectado da sua sessão com sucesso. Agora você pode fechar esta "
+#~ "janela/guia do navegador com segurança ou fazer login novamente usando o "
+#~ "botão abaixo."
 
 #: templates/loggedOut.html.twig:17
 msgid "Log in again"
@@ -2264,3 +2264,62 @@ msgid ""
 "⚠️ Warning SP metadata exposed! - ROWID: %1$s | CREATED DATE: %2$s | LAST "
 "UPDATED: %3$s"
 msgstr "⚠️ Aviso metadados SP expostos! - ROWID: %1$s | DATA DE CRIAÇÃO: %2$s | ÚLTIMA ATUALIZAÇÃO: %3$s"
+
+#: src/LoginFlow.php:639
+msgid "Request identity provider logout"
+msgstr "Solicitar encerramento da sessão no provedor de identidade"
+
+#: src/Controller/SamlSsoController.php:271 templates/loggedOut.html.twig:9
+msgid "Signed out of GLPI"
+msgstr "Sessão do GLPI encerrada"
+
+#: src/Controller/SamlSsoController.php:131
+msgid ""
+"The logout request could not be verified. Sign in again or contact your "
+"administrator."
+msgstr ""
+"Não foi possível verificar a solicitação de encerramento da sessão. Entre "
+"novamente ou entre em contato com o administrador."
+
+#: templates/loggedOut.html.twig:12
+msgid ""
+"You are signed out of GLPI. Your identity provider and other applications "
+"may still have active sessions."
+msgstr ""
+"Você saiu do GLPI. Ainda pode haver sessões ativas no seu provedor de "
+"identidade e em outros aplicativos."
+
+#: src/LoginFlow.php:643
+#, php-format
+msgid ""
+"You signed in through the identity provider: <b>%1$s</b>.<br><br>Because "
+"SAML sign-in is required, a local GLPI logout may sign you in again while "
+"your identity provider session remains active.<br><br>Select <b>'%2$s'</b> "
+"to sign out of GLPI and request logout from your identity provider. Your "
+"identity provider determines whether its own session and sessions in other "
+"applications are ended.<br><br>You can also return to GLPI or close this "
+"browser tab."
+msgstr ""
+"Você entrou pelo provedor de identidade: <b>%1$s</b>.<br><br>Como a "
+"autenticação por SAML é obrigatória, você poderá ser conectado novamente "
+"após sair localmente do GLPI enquanto a sessão do provedor de identidade "
+"permanecer ativa.<br><br>Selecione <b>'%2$s'</b> para sair do GLPI e "
+"solicitar o encerramento da sessão no seu provedor de identidade. O provedor"
+" de identidade determina se a própria sessão e as sessões em outros "
+"aplicativos serão encerradas.<br><br>Você também pode voltar ao GLPI ou "
+"fechar esta aba do navegador."
+
+#: src/LoginFlow.php:649
+#, php-format
+msgid ""
+"You signed in through the identity provider: <b>%1$s</b>.<br><br>Select "
+"<b>'%2$s'</b> to sign out of GLPI and request logout from your identity "
+"provider. Your identity provider determines whether its own session and "
+"sessions in other applications are ended.<br><br>To sign out of GLPI only, "
+"select <b>'%3$s'</b>."
+msgstr ""
+"Você entrou pelo provedor de identidade: <b>%1$s</b>.<br><br>Selecione "
+"<b>'%2$s'</b> para sair do GLPI e solicitar o encerramento da sessão no seu "
+"provedor de identidade. O provedor de identidade determina se a própria "
+"sessão e as sessões em outros aplicativos serão encerradas.<br><br>Para sair"
+" apenas do GLPI, selecione <b>'%3$s'</b>."

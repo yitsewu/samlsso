@@ -1,8 +1,8 @@
-# ADR 0025: Signed IdP-initiated logout (fork candidate)
+# ADR 0025: Signed IdP-initiated logout
 
 ## Status
 
-Proposed in https://github.com/yitsewu/samlsso/issues/1. Not an upstream decision or a production release.
+Proposed. Related issue: https://github.com/yitsewu/samlsso/issues/1.
 
 ## Context
 
@@ -16,11 +16,13 @@ Honor forwarded origin headers only when the provider's existing Requests Proxie
 
 The callback clears only its current browser session. It does not find or destroy other users' sessions. A consumed login loses its context, so repeating the request cannot clear a later unrelated login. Old sessions require a fresh SAML login after deployment.
 
+As a bounded exception to ADR 0003's centralized shims, the standalone protocol suite uses local HTTP/GLPI boundary doubles so it can exercise the real bundled toolkit without loading the shared harness's toolkit mocks; each suite still runs in its own process.
+
 ## Limits and alternatives
 
 This candidate requires NameID and SessionIndex in the authenticated assertion. It deliberately rejects unsigned requests and LogoutRequest messages without a matching login context. It does not process or correlate unsolicited LogoutResponse messages. An already logged-out browser making a GET without SAMLRequest may receive an inert local completion page, including on an SP return; that page does not mutate a session, validate a protocol response or confirm IdP/global logout. An authenticated browser does not receive that success page. A follow-up design is needed for SP-initiated response correlation, expired-session acknowledgements, encrypted NameID, full replay-cache semantics across reused IdP indexes and back-channel logout. A server-side session-index registry is an alternative but adds persistent schema and lifecycle concerns beyond this change.
 
-Prefer top-level browser navigation for the isolated integration test; no general claim is made about iframe behavior on other origins. No core files, login replay rules, or configured production identity providers are changed.
+The supported browser flow uses top-level navigation; cross-origin iframe behavior is not established. The design preserves core files, login replay rules and existing identity-provider configuration.
 
 ## Documentation proposal
 

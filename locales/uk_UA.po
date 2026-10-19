@@ -1092,31 +1092,31 @@ msgid "Continue with local logout"
 msgstr "Продовжте локальний вихід"
 
 #: src/LoginFlow.php:632
-msgid "Log out everywhere"
-msgstr "Вийти всюди"
+#~ msgid "Log out everywhere"
+#~ msgstr "Вийти всюди"
 
 #: src/LoginFlow.php:636
 #, php-format
-msgid ""
-""
-"You have been authenticated using the SAML2 identity provider: <b>%1$s</b>."
-"<br><br>Because SAML authentication is enforced, logging out of GLPI locally "
-"will automatically log you back in immediately.<br><br>To sign out "
-"completely, please select <b>'%2$s'</b>. Note that this will also terminate "
-"your active sessions in all other applications connected to this Identity "
-"Provider.<br><br>If you want to leave GLPI, just close this browser tab."
-msgstr "Ви пройшли автентифікацію за допомогою постачальника ідентифікаційної інформації SAML2: <b>%1$s</b>.<br><br>Оскільки застосовується автентифікація SAML, локальний вихід із GLPI призведе до негайного автоматичного повторного входу.<br><br>Щоб повністю вийти, виберіть <b>«Вийти з усюди»</b>. Зауважте, що це також припинить ваші активні сесії в усіх інших програмах, підключених до цього постачальника ідентифікаційної інформації.<br><br>IЯкщо ви хочете вийти з GLPI, просто закрийте цю вкладку браузера."
+#~ msgid ""
+#~ ""
+#~ "You have been authenticated using the SAML2 identity provider: <b>%1$s</b>."
+#~ "<br><br>Because SAML authentication is enforced, logging out of GLPI locally "
+#~ "will automatically log you back in immediately.<br><br>To sign out "
+#~ "completely, please select <b>'%2$s'</b>. Note that this will also terminate "
+#~ "your active sessions in all other applications connected to this Identity "
+#~ "Provider.<br><br>If you want to leave GLPI, just close this browser tab."
+#~ msgstr "Ви пройшли автентифікацію за допомогою постачальника ідентифікаційної інформації SAML2: <b>%1$s</b>.<br><br>Оскільки застосовується автентифікація SAML, локальний вихід із GLPI призведе до негайного автоматичного повторного входу.<br><br>Щоб повністю вийти, виберіть <b>«Вийти з усюди»</b>. Зауважте, що це також припинить ваші активні сесії в усіх інших програмах, підключених до цього постачальника ідентифікаційної інформації.<br><br>IЯкщо ви хочете вийти з GLPI, просто закрийте цю вкладку браузера."
 
 #: src/LoginFlow.php:642
 #, php-format
-msgid ""
-""
-"You have been authenticated using the SAML2 identity provider: <b>%1$s</b>."
-"<br><br>You can log out permanently by also logging out with the IDP by "
-"pressing <b>'%2$s'</b> (which terminates active sessions in all other "
-"applications depending on it), or perform a local logout from GLPI only by "
-"pressing <b>'%3$s'</b>."
-msgstr "Ви пройшли автентифікацію за допомогою постачальника ідентифікаційних даних SAML2: <b>%1$s</b>.<br><br>. Ви можете вийти назавжди, також вийшовши з IDP, натиснувши <b> «Вийти скрізь» </b> (що припиняє активні сеанси в усіх інших програмах залежно від цього), або виконати локальний вихід із GLPI, лише натиснувши <b> «Продовжити вихід з GLPI» </b>."
+#~ msgid ""
+#~ ""
+#~ "You have been authenticated using the SAML2 identity provider: <b>%1$s</b>."
+#~ "<br><br>You can log out permanently by also logging out with the IDP by "
+#~ "pressing <b>'%2$s'</b> (which terminates active sessions in all other "
+#~ "applications depending on it), or perform a local logout from GLPI only by "
+#~ "pressing <b>'%3$s'</b>."
+#~ msgstr "Ви пройшли автентифікацію за допомогою постачальника ідентифікаційних даних SAML2: <b>%1$s</b>.<br><br>. Ви можете вийти назавжди, також вийшовши з IDP, натиснувши <b> «Вийти скрізь» </b> (що припиняє активні сеанси в усіх інших програмах залежно від цього), або виконати локальний вихід із GLPI, лише натиснувши <b> «Продовжити вихід з GLPI» </b>."
 
 #: src/LoginFlow.php:651
 msgid "🤔 How would you like to proceed?"
@@ -1779,18 +1779,18 @@ msgid "To be excluded path"
 msgstr "Слід виключити шлях"
 
 #: templates/loggedOut.html.twig:9
-msgid "Successfully Logged Out"
-msgstr "Успішно вийшли"
+#~ msgid "Successfully Logged Out"
+#~ msgstr "Успішно вийшли"
 
 #: templates/loggedOut.html.twig:12
-msgid ""
-""
-"You have been successfully logged out of your session. You can now safely "
-"close this browser window/tab, or log in again using the button below."
-msgstr ""
-""
-"Ви успішно вийшли зі свого сеансу. Тепер ви можете безпечно закрити це вікно/"
-"вкладку браузера або знову увійти за допомогою кнопки нижче."
+#~ msgid ""
+#~ ""
+#~ "You have been successfully logged out of your session. You can now safely "
+#~ "close this browser window/tab, or log in again using the button below."
+#~ msgstr ""
+#~ ""
+#~ "Ви успішно вийшли зі свого сеансу. Тепер ви можете безпечно закрити це вікно/"
+#~ "вкладку браузера або знову увійти за допомогою кнопки нижче."
 
 #: templates/loggedOut.html.twig:17
 msgid "Log in again"
@@ -2241,3 +2241,62 @@ msgid ""
 "⚠️ Warning SP metadata exposed! - ROWID: %1$s | CREATED DATE: %2$s | LAST "
 "UPDATED: %3$s"
 msgstr "⚠️ Попередження: метадані SP розкрито! - ROWID: %1$s | ДАТА СТВОРЕННЯ: %2$s | ОСТАННЯ ОНОВЛЕННЯ: %3$s"
+
+#: src/LoginFlow.php:639
+msgid "Request identity provider logout"
+msgstr "Запросити вихід у постачальника ідентифікації"
+
+#: src/Controller/SamlSsoController.php:271 templates/loggedOut.html.twig:9
+msgid "Signed out of GLPI"
+msgstr "Вихід із GLPI виконано"
+
+#: src/Controller/SamlSsoController.php:131
+msgid ""
+"The logout request could not be verified. Sign in again or contact your "
+"administrator."
+msgstr ""
+"Не вдалося перевірити запит на вихід. Увійдіть знову або зверніться до "
+"адміністратора."
+
+#: templates/loggedOut.html.twig:12
+msgid ""
+"You are signed out of GLPI. Your identity provider and other applications "
+"may still have active sessions."
+msgstr ""
+"Ви вийшли з GLPI. Сеанси у вашого постачальника ідентифікації та в інших "
+"застосунках можуть залишатися активними."
+
+#: src/LoginFlow.php:643
+#, php-format
+msgid ""
+"You signed in through the identity provider: <b>%1$s</b>.<br><br>Because "
+"SAML sign-in is required, a local GLPI logout may sign you in again while "
+"your identity provider session remains active.<br><br>Select <b>'%2$s'</b> "
+"to sign out of GLPI and request logout from your identity provider. Your "
+"identity provider determines whether its own session and sessions in other "
+"applications are ended.<br><br>You can also return to GLPI or close this "
+"browser tab."
+msgstr ""
+"Ви ввійшли через постачальника ідентифікації: <b>%1$s</b>.<br><br>Оскільки "
+"вхід через SAML є обов’язковим, після локального виходу з GLPI може "
+"відбутися повторний вхід, доки сеанс у постачальника ідентифікації "
+"залишається активним.<br><br>Виберіть <b>'%2$s'</b>, щоб вийти з GLPI та "
+"надіслати запит на вихід вашому постачальнику ідентифікації. Постачальник "
+"ідентифікації визначає, чи завершуватимуться його власний сеанс і сеанси в "
+"інших застосунках.<br><br>Також можна повернутися до GLPI або закрити цю "
+"вкладку браузера."
+
+#: src/LoginFlow.php:649
+#, php-format
+msgid ""
+"You signed in through the identity provider: <b>%1$s</b>.<br><br>Select "
+"<b>'%2$s'</b> to sign out of GLPI and request logout from your identity "
+"provider. Your identity provider determines whether its own session and "
+"sessions in other applications are ended.<br><br>To sign out of GLPI only, "
+"select <b>'%3$s'</b>."
+msgstr ""
+"Ви ввійшли через постачальника ідентифікації: <b>%1$s</b>.<br><br>Виберіть "
+"<b>'%2$s'</b>, щоб вийти з GLPI та надіслати запит на вихід вашому "
+"постачальнику ідентифікації. Постачальник ідентифікації визначає, чи "
+"завершуватимуться його власний сеанс і сеанси в інших "
+"застосунках.<br><br>Щоб вийти лише з GLPI, виберіть <b>'%3$s'</b>."

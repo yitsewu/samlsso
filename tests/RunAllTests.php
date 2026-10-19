@@ -1,4 +1,5 @@
 <?php
+
 /**
  *  ------------------------------------------------------------------------
  *  samlSSO
@@ -90,11 +91,22 @@ foreach ($files as $file) {
      */
     $completionMarker = 'SAMLSSO_SUITE_COMPLETED_' . bin2hex(random_bytes(16));
     $wrapper = 'require $argv[1]; echo "\n", $argv[2], "\n";';
-    $command = escapeshellarg(PHP_BINARY)
-        . ' -d error_reporting=-1 -d display_errors=stderr -d log_errors=0 -d html_errors=0 '
-        . '-r ' . escapeshellarg($wrapper) . ' -- ' . escapeshellarg($file)
-        . ' ' . escapeshellarg($completionMarker) . ' 2>&1';
-    exec($command, $output, $returnCode);
+    /** Pass arguments directly so Windows shell quoting cannot alter the PHP wrapper. */
+    $process = proc_open(
+        [PHP_BINARY, '-d', 'error_reporting=-1', '-d', 'display_errors=stderr',
+            '-d', 'log_errors=0', '-d', 'html_errors=0', '-r', $wrapper, '--', $file, $completionMarker],
+        [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['redirect', 1]],
+        $pipes
+    );
+    if (is_resource($process)) {
+        fclose($pipes[0]);
+        $output = preg_split('/\r?\n/', (string) stream_get_contents($pipes[1]));
+        fclose($pipes[1]);
+        $returnCode = proc_close($process);
+    } else {
+        $output = ['Unable to start the isolated test process.'];
+        $returnCode = 1;
+    }
 
     if ($returnCode === 0 && !in_array($completionMarker, $output, true)) {
         $output[] = 'Suite exited before its completion marker; remaining assertions may not have run.';
@@ -152,4 +164,3 @@ if ($allPassed) {
     echo "Overall Status: SOME TESTS FAILED! 🛑\n";
     exit(1);
 }
-

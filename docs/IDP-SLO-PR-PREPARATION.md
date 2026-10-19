@@ -4,6 +4,8 @@ Tracking: https://github.com/yitsewu/samlsso/issues/1
 
 This fork branch is a review candidate, not a release. Base: upstream main `8d4823b`. Upstream already includes a GLPI 11/12 compatibility layer; this branch does not duplicate the earlier private compatibility changes.
 
+The current four-commit review series ends at `8260354aee7364b31c2428acaba9df18690401e0`. Each layer passes independently: 17, 18, 19 and 20 standalone suites on PHP 8.4.26. The SLO layer contains 38 real-toolkit cases, including a newly reproduced database-write failure: a false return from `setPhase()` now rejects the request before session cleanup or a success response. The prior browser acceptance belongs to `6d5496f`; this new failure guard, Windows test portability and translations have local verification, not a new browser deployment.
+
 ## Included
 
 - Protocol callbacks bypass the local logout chooser.
@@ -35,14 +37,14 @@ The owner subsequently requested a separate whole-project warning cleanup. That 
 
 ## Before an upstream PR
 
-- Completed: all 20 standalone suites finish and pass under fixed PHP diagnostic settings and a completion marker; 37 real-toolkit SLO cases and a native rule-page contract suite are included. Early-exit false positives in the previous runner are corrected.
-- Completed: Intelephense and SonarLint return zero diagnostics for the revised 54-file PHP tree. PSR-12 checks pass for the four explicitly scoped files listed in the analysis report, with narrow standalone-test exceptions.
+- Completed: all 20 standalone suites finish and pass under fixed PHP diagnostic settings and a completion marker; 38 real-toolkit SLO cases and a native rule-page contract suite are included. Early-exit false positives in the previous runner are corrected.
+- Completed: Intelephense and SonarLint return zero diagnostics for the final 54-file PHP tree. PSR-12 checks pass for the five explicitly scoped files listed in the analysis report, with narrow standalone-test exceptions.
 - Historical: SLO-only and `b01b1a0` GLPI 11/12 browser integration passed; these results remain evidence only for those earlier versions.
-- Current corrections: GLPI 11.0.11 passed fresh login, rule list/form, rejected bare/malformed logout with session preservation, a local-only SP completion page, and separately scoped IdP-initiated logout with session expiration.
-- Current corrections: GLPI 12.0.0 passed the same fresh browser matrix: login, rule list/form, bare/malformed logout rejection with session preservation, local-only SP completion with expired GLPI access, and scoped IdP logout removing the target session while preserving unrelated sessions.
-- Update translation catalogs for the new message IDs before upstream submission; they currently fall back to English. Review the strict signed-request requirements with maintainers. Actual reverse-proxy browser acceptance remains unverified; forwarded-header toolkit tests pass.
+- Browser-verified source `6d5496f`: GLPI 11.0.11 passed fresh login, rule list/form, rejected bare/malformed logout with session preservation, a local-only SP completion page, and separately scoped IdP-initiated logout with session expiration.
+- Browser-verified source `6d5496f`: GLPI 12.0.0 passed the same fresh browser matrix: login, rule list/form, bare/malformed logout rejection with session preservation, local-only SP completion with expired GLPI access, and scoped IdP logout removing the target session while preserving unrelated sessions.
+- Completed: all six new message IDs are translated in the 11 existing locales, with compiled MO lookup, placeholder and HTML checks. Replaced messages are obsolete without changing unrelated translations. Review the strict signed-request requirements with maintainers. Actual reverse-proxy browser acceptance remains unverified; forwarded-header toolkit tests pass.
 - Agree on unsupported cases listed in ADR 0025. The SP completion page neither correlates LogoutResponse nor confirms IdP-wide logout; general cross-origin iframe behavior is not claimed.
-- Split test infrastructure/release policy, SLO, compatibility corrections and broad refactoring into reviewable changes with appropriate issue scopes; do not submit this whole branch as a purely mechanical cleanup.
+- Prepared as a four-branch series: `codex/pr01-test-infrastructure`, `codex/pr02-signed-idp-logout`, `codex/pr03-native-compat`, then `codex/pr04-state-config-cleanup`. Each uses the preceding branch as its review base, allowing SLO review before broad helper extraction. These owner progress reports are excluded from the review branches. Confirm the corresponding issue scopes before submission; do not describe the whole series as purely mechanical cleanup.
 - The contribution guide references SECURITY.md, but that file is absent in this checkout. ADR 0017 and the architectural Wiki were reviewed; obtain the intended security policy before submission.
 
 No upstream issue, PR, maintainer message or production deployment has been made by this preparation task. This is a review candidate, not a release or an unconditional production-upgrade recommendation.

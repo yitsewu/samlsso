@@ -158,6 +158,7 @@ namespace GlpiPlugin\Samlsso {
         public const PHASE_LOGOFF = 8;
         public static int $providerId = 1;
         public static bool $authenticated = true;
+        public static bool $phaseWriteSucceeds = true;
         public static array $events = [];
 
         /** Return the provider associated with the current fixture login. */
@@ -172,10 +173,11 @@ namespace GlpiPlugin\Samlsso {
             return self::$authenticated;
         }
 
-        /** Record state mutation so its ordering relative to cleanup can be asserted. */
-        public function setPhase(int $phase): void
+        /** Record the update attempt and return the native persistence contract. */
+        public function setPhase(int $phase): bool
         {
             self::$events[] = 'phase:' . $phase;
+            return self::$phaseWriteSucceeds;
         }
     }
 }
@@ -355,6 +357,7 @@ namespace {
                 'wrong_context_provider' => ['context_provider' => 2],
                 'wrong_state_provider' => ['state_provider' => 2],
                 'unauthenticated_state' => ['state_authenticated' => false],
+                'state_write_failure' => ['phase_write' => false],
                 'disabled_provider' => ['active' => false],
                 'forwarded_without_trust' => ['forwarded' => true],
                 'forwarded_without_trust_restored' => ['forwarded' => true, 'initial_proxy' => true],
@@ -428,6 +431,7 @@ namespace {
             ];
             LoginState::$providerId = $options['state_provider'] ?? 1;
             LoginState::$authenticated = $options['state_authenticated'] ?? true;
+            LoginState::$phaseWriteSucceeds = $options['phase_write'] ?? true;
             LoginState::$events = [];
             TemplateRenderer::$renders = [];
             Html::$calls = [];
@@ -519,7 +523,7 @@ namespace {
             return $query;
         }
 
-        /** Assert an accepted request's response and cleanup, or an entirely inert rejection. */
+        /** Require cleanup after a successful state write and retain the session on every failure. */
         private function assertRequest(string $name, array $options, bool $accepted): void
         {
             $callback = $this->reset($options);
@@ -538,8 +542,10 @@ namespace {
                 $this->expect($_SESSION === [], $name . ': authenticated context survived cleanup');
                 $this->assertLogoutResponse($response, $options['sign_response'] ?? false);
             } else {
-                $this->expect(LoginState::$events === [], $name . ': rejected request mutated login state');
+                $expectedEvents = ($options['phase_write'] ?? true) ? [] : ['phase:8'];
+                $this->expect(LoginState::$events === $expectedEvents, $name . ': unexpected state or cleanup calls');
                 $this->expect($_SESSION === $sessionBefore, $name . ': rejected request altered the session');
+                $this->expect(!($response instanceof RedirectResponse), $name . ': rejected request redirected');
             }
             $this->passed++;
         }
