@@ -90,6 +90,8 @@ final class SamlSsoController extends AbstractController
     {
         // Only signed IdP-initiated HTTP-Redirect requests are supported here.
         // Unsolicited responses and unsigned/local requests must not clear a session.
+        // Keep toolkit parser diagnostics out of the response and restore request-global XML handling.
+        $previousXmlErrorMode = libxml_use_internal_errors(true);
         try {
             $idpId = (int) $request->attributes->get(LoginState::IDP_ID, 0);
             $context = $_SESSION['samlsso_slo_context'] ?? null;
@@ -156,6 +158,9 @@ final class SamlSsoController extends AbstractController
         } catch (\Throwable) {
             // Never include SAML payloads, identity values or session IDs in errors.
             return new Response('SAML logout request rejected. Sign in again if the session predates this update.', 400, ['Cache-Control' => 'no-store']);
+        } finally {
+            libxml_clear_errors();
+            libxml_use_internal_errors($previousXmlErrorMode);
         }
     }
 

@@ -160,7 +160,7 @@ namespace GlpiPlugin\Samlsso\Tests {
             if (isset($versions[$targetVersion])) {
                 return;
             }
-            $declared = preg_match('/^\*\*V' . preg_quote($targetVersion, '/') . '\*\*$/m', $changelog) === 1;
+            $declared = preg_match('/^\*\*V' . preg_quote($targetVersion, '/') . '\*\*\r?$/m', $changelog) === 1;
             foreach (array_keys($versions) as $version) {
                 if (version_compare($targetVersion, $version, '<=')) {
                     throw new \UnexpectedValueException('Missing version is not newer than published releases.');
@@ -182,6 +182,7 @@ namespace GlpiPlugin\Samlsso\Tests {
                 . '</version></versions></root>');
             self::validateReleaseCatalog($xml, $publishedVersion, '', true);
             self::validateReleaseCatalog($xml, $developmentVersion, $developmentEntry, false);
+            self::validateReleaseCatalog($xml, $developmentVersion, $developmentEntry . "\r\n", false);
             $cases = [
                 [$xml, $developmentVersion, $developmentEntry, true],
                 [$xml, $developmentVersion, '', false],

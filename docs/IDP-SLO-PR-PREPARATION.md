@@ -37,7 +37,7 @@ The owner subsequently requested a separate whole-project warning cleanup. That 
 - Completed: Intelephense and SonarLint checks, with explicit framework-contract exceptions documented in the analysis report.
 - Completed: SLO-only GLPI 11 and GLPI 12 browser integration.
 - Completed: fresh browser acceptance for expanded candidate `b01b1a0`, including canonical callbacks, configuration/claim/logging/trace rendering and both logout cases on GLPI 11.0.11 and 12.0.0.
-- Remaining diagnostics: malformed logout XML logs a toolkit parsing warning; GLPI 11 also emitted a core FuzzySearch browser error. See the analysis report; do not describe runtime execution as entirely warning-free.
+- Follow-up completed: malformed XML warnings are contained and libxml state restored; 13 SLO cases and all 19 suites pass. Both versions passed fresh login/negative logout/signed logout browser checks without new XML warnings. GLPI 11 menu search worked without reproducing the earlier core FuzzySearch error; its original cause is unverified. See the analysis report.
 - Review localization and the strict signed-request requirement with maintainers.
 - Extend protocol coverage and agree on unsupported cases listed in ADR 0025; SP-initiated LogoutResponse and cross-browser iframe behavior are not claimed.
 - The contribution guide references SECURITY.md, but that file is absent in this checkout. ADR 0017 and the architectural Wiki were reviewed; obtain the intended security policy before submission.

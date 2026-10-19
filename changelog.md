@@ -1,5 +1,6 @@
 
 **V1.3.3**
+- Bugfix (fork candidate): Contain malformed SLO XML diagnostics and restore the prior libxml mode; cover both error modes and CRLF development changelogs. Revalidated login and logout in isolated GLPI 11/12 browsers.
 - Cleanup (separate fork candidate): Resolve project-wide Intelephense/SonarLint findings with documented framework-contract exceptions; split complex state, claim, configuration, migration and provisioning helpers.
 - Compatibility correction (fork candidate): GLPI 11 already requires raw persistence inputs and canonical `/plugins/` URLs. Replace the earlier version-specific sanitizer/web-directory fallback and avoid duplicated subdirectory prefixes.
 - Regression fixes (fork candidate): Reject duplicate authentication-state rows, validate login-flow POST options, isolate diagnostic XML parsing and escape rendered trace/header values.

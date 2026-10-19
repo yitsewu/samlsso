@@ -84,11 +84,11 @@ $csr=openssl_csr_new(['commonName'=>'slo-test.invalid'],$key,['digest_alg'=>'sha
 $crt=openssl_csr_sign($csr,null,$key,1,['digest_alg'=>'sha256']);openssl_x509_export($crt,$cert);
 $url='https://sp.example.test/marketplace/samlsso/front/logout/1';
 $GLOBALS['settings']=['strict'=>true,'debug'=>false,'sp'=>['entityId'=>'https://sp.example.test/','assertionConsumerService'=>['url'=>'https://sp.example.test/acs'],'singleLogoutService'=>['url'=>$url]],'idp'=>['entityId'=>'https://idp.invalid/metadata','singleSignOnService'=>['url'=>'https://idp.invalid/sso'],'singleLogoutService'=>['url'=>'https://idp.invalid/slo'],'x509cert'=>$cert],'security'=>['wantMessagesSigned'=>true]];
-function attempt($case,$edits=[], $unsigned=false, $tamper=false, $context=true) {
+function attempt($case,$edits=[], $unsigned=false, $tamper=false, $context=true, ?string $payload=null) {
  global $url,$key;
  $v=array_merge(['issuer'=>'https://idp.invalid/metadata','destination'=>$url,'name'=>'fixture-owner','index'=>'fixture-session','time'=>gmdate('Y-m-d\TH:i:s\Z')],$edits);
  $xml='<samlp:LogoutRequest xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" ID="_fixture" Version="2.0" IssueInstant="'.$v['time'].'" Destination="'.$v['destination'].'"><saml:Issuer>'.$v['issuer'].'</saml:Issuer><saml:NameID>'.$v['name'].'</saml:NameID><samlp:SessionIndex>'.$v['index'].'</samlp:SessionIndex></samlp:LogoutRequest>';
- $enc=base64_encode(gzdeflate($xml));$alg='http://www.w3.org/2001/04/xmldsig-more#rsa-sha256';
+ $enc=$payload ?? base64_encode(gzdeflate($xml));$alg='http://www.w3.org/2001/04/xmldsig-more#rsa-sha256';
  $q='SAMLRequest='.rawurlencode($enc).'&RelayState=fixture&SigAlg='.rawurlencode($alg);
  openssl_sign($q,$sig,$key,OPENSSL_ALGO_SHA256);
  if($tamper){$q=str_replace('RelayState=fixture','RelayState=changed',$q);}
@@ -98,15 +98,35 @@ function attempt($case,$edits=[], $unsigned=false, $tamper=false, $context=true)
  if($context) { $_SESSION['samlsso_slo_context']=['idp'=>1,'name_id'=>'fixture-owner','session_index'=>'fixture-session']; }
  $GLOBALS['cleared']=false;
  $request=\Symfony\Component\HttpFoundation\Request::create();$request->attributes->set('idpId',1);
- $response=(new \GlpiPlugin\Samlsso\Controller\SamlSsoController())->slo($request);
+ $xmlErrorMode=libxml_use_internal_errors();
+ $warnings=[];
+ set_error_handler(static function ($severity, $message) use (&$warnings): bool {
+     if (error_reporting() & $severity) { $warnings[]=$message; }
+     return true;
+ });
+ try {
+     $response=(new \GlpiPlugin\Samlsso\Controller\SamlSsoController())->slo($request);
+ } finally {
+     restore_error_handler();
+ }
+ $runtimeClean=$warnings===[] && libxml_use_internal_errors()===$xmlErrorMode && libxml_get_errors()===[];
+
  $ok=$case==='valid' ? $response->getStatusCode()===302 && $GLOBALS['cleared'] : $response->getStatusCode()===400 && !$GLOBALS['cleared'];
+ $ok=$ok && $runtimeClean;
  echo $case.':'.($ok?'PASS':'FAIL').' status='.$response->getStatusCode().' cleared='.(int)$GLOBALS['cleared']."\n";
- if(!$ok) { $GLOBALS['failures']++; }
+ if(!$ok) { echo json_encode(['warnings'=>$warnings,'mode_restored'=>libxml_use_internal_errors()===$xmlErrorMode,'xml_errors'=>count(libxml_get_errors())])."\n"; $GLOBALS['failures']++; }
 }
 $GLOBALS['failures']=0;
 attempt('valid');attempt('unsigned',[],true);attempt('tampered',[],false,true);
 attempt('wrong_name',['name'=>'other']);attempt('wrong_index',['index'=>'other']);
 attempt('wrong_issuer',['issuer'=>'https://other.invalid']);attempt('wrong_destination',['destination'=>'https://other.invalid/slo']);
 attempt('expired',['time'=>gmdate('Y-m-d\TH:i:s\Z',time()-600)]);attempt('missing_context',[],false,false,false);
+foreach ([false,true] as $internalErrors) {
+ libxml_clear_errors();
+ libxml_use_internal_errors($internalErrors);
+ attempt('malformed_payload_'.(int)$internalErrors,[],false,false,true,'invalid');
+ attempt('truncated_xml_'.(int)$internalErrors,[],false,false,true,base64_encode(gzdeflate('<broken')));
+}
+libxml_use_internal_errors(false);
 exit($GLOBALS['failures']?1:0);
 }
