@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /**
  *  ------------------------------------------------------------------------
@@ -67,7 +68,7 @@ class Auth extends glpiAuth
      */
     public function loadUser(array $userFields, ConfigEntity $configEntity, ?\GlpiPlugin\Samlsso\LoginState $state = null)
     {
-        global $DB;
+
 
         // Get or Jit create user or exit on error.
         $this->user = (new User())->getOrCreateUser($userFields, $configEntity, $state);

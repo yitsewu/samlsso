@@ -2242,7 +2242,7 @@ msgid ""
 "UPDATED: %3$s"
 msgstr "⚠️ Попередження: метадані SP розкрито! - ROWID: %1$s | ДАТА СТВОРЕННЯ: %2$s | ОСТАННЯ ОНОВЛЕННЯ: %3$s"
 
-#: src/LoginFlow.php:638
+#: src/LoginFlow.php:639
 msgid "Request identity provider logout"
 msgstr "Запросити вихід у постачальника ідентифікації"
 
@@ -2266,7 +2266,7 @@ msgstr ""
 "Ви вийшли з GLPI. Сеанси у вашого постачальника ідентифікації та в інших "
 "застосунках можуть залишатися активними."
 
-#: src/LoginFlow.php:642
+#: src/LoginFlow.php:643
 #, php-format
 msgid ""
 "You signed in through the identity provider: <b>%1$s</b>.<br><br>Because "
@@ -2286,7 +2286,7 @@ msgstr ""
 "інших застосунках.<br><br>Також можна повернутися до GLPI або закрити цю "
 "вкладку браузера."
 
-#: src/LoginFlow.php:648
+#: src/LoginFlow.php:649
 #, php-format
 msgid ""
 "You signed in through the identity provider: <b>%1$s</b>.<br><br>Select "

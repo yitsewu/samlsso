@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /**
  *  ------------------------------------------------------------------------
@@ -84,5 +85,4 @@ class RuleSamlCollection extends RuleSamlCollectionCompat
     {
         return '/front/rulesengine.test.php';
     }
-
 }

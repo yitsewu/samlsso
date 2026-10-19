@@ -97,7 +97,7 @@ namespace GlpiPlugin\Samlsso\Compat {
          *
          * @return bool True on GLPI >= 12.0.0.
          */
-        function samlsso_glpi12(): bool
+        function samlsso_glpi12(): bool // NOSONAR - GLPI compatibility API requires this exact identifier.
         {
             return defined('GLPI_VERSION') && version_compare((string) GLPI_VERSION, '12.0.0', '>=');
         }
@@ -113,7 +113,7 @@ namespace GlpiPlugin\Samlsso\Compat {
         //   CommonDropdown :: public static string $rightname = 'dropdown';
         //   Rule           :: public static string $rightname = 'config';
         //   RuleCollection :: public static string $rightname = 'config';
-        //   RuleCollection :: public string $menu_option = "";
+        //   RuleCollection :: public string $menu_option = ""; // NOSONAR - GLPI compatibility API requires this exact identifier.
         // ------------------------------------------------------------
 
         /**
@@ -162,7 +162,7 @@ namespace GlpiPlugin\Samlsso\Compat {
             abstract class RuleSamlCollectionCompat extends RuleCollection
             {
                 public static string $rightname = 'rule_import';
-                public string $menu_option = "Saml";
+                public string $menu_option = "Saml"; // NOSONAR - GLPI compatibility API requires this exact identifier.
             }
         }
     } else {
@@ -176,7 +176,7 @@ namespace GlpiPlugin\Samlsso\Compat {
         //   CommonDropdown :: public static $rightname = 'dropdown';
         //   Rule           :: public static $rightname = 'config';
         //   RuleCollection :: public static $rightname = 'config';
-        //   RuleCollection :: public $menu_option = "";
+        //   RuleCollection :: public $menu_option = ""; // NOSONAR - GLPI compatibility API requires this exact identifier.
         // ------------------------------------------------------------
 
         /**
@@ -225,10 +225,8 @@ namespace GlpiPlugin\Samlsso\Compat {
             abstract class RuleSamlCollectionCompat extends RuleCollection
             {
                 public static $rightname = 'rule_import';
-                public $menu_option = "Saml";
+                public $menu_option = "Saml"; // NOSONAR - GLPI compatibility API requires this exact identifier.
             }
         }
-
     }
-
 }

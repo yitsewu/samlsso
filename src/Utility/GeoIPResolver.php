@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /**
  *  ------------------------------------------------------------------------
@@ -87,16 +88,8 @@ class GeoIPResolver
      */
     public static function resolveCountry(?string $ip): string
     {
-        if (empty($ip)) {
-            return '??';
-        }
-
-        // Only support IPv4 for now
-        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false) {
-            return '??';
-        }
-
-        $ipLong = ip2long($ip);
+        $ipLong = !empty($ip) && filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false
+            ? ip2long($ip) : false;
         if ($ipLong === false) {
             return '??';
         }
@@ -105,21 +98,27 @@ class GeoIPResolver
         $targetIp = (float) sprintf('%u', $ipLong);
 
         $dbFile = self::getDatabasePath();
-        if (!file_exists($dbFile)) {
-            return '??';
-        }
-
-        $handle = @fopen($dbFile, 'rb');
+        $handle = file_exists($dbFile) ? @fopen($dbFile, 'rb') : false;
         if (!$handle) {
             return '??';
         }
+        try {
+            return self::searchDatabase($handle, $targetIp, (int) filesize($dbFile));
+        } finally {
+            fclose($handle);
+        }
+    }
 
-        $fileSize = filesize($dbFile);
+    /**
+     * Search fixed-width IPv4 records in an already opened database.
+     * @param resource $handle
+     */
+    private static function searchDatabase($handle, float $targetIp, int $fileSize): string
+    {
         $recordSize = 10; // 4 bytes start IP, 4 bytes end IP, 2 bytes country code
         $numRecords = intval($fileSize / $recordSize);
 
         if ($numRecords === 0) {
-            fclose($handle);
             return '??';
         }
 
@@ -147,7 +146,7 @@ class GeoIPResolver
             $endVal = (float) sprintf('%u', $unpacked['end']);
             $recordCountry = $unpacked['country'];
             if ($targetIp >= $startVal && $targetIp <= $endVal) {
-                $country = $recordCountry === 'ZZ' ? '??' : $recordCountry;
+                $country = $recordCountry;
                 break;
             } elseif ($targetIp < $startVal) {
                 $high = $mid - 1;
@@ -156,8 +155,7 @@ class GeoIPResolver
             }
         }
 
-        fclose($handle);
-        return $country;
+        return str_replace('ZZ', '??', $country);
     }
 
     /**

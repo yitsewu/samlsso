@@ -132,6 +132,26 @@ namespace GlpiPlugin\Samlsso\Tests {
         }
 
         /**
+         * Reject non-string mapping fields through validation rather than a helper type error.
+         *
+         * @throws \UnexpectedValueException If invalid field types are accepted or lose their row error.
+         */
+        public function testInvalidMappingFieldTypes(): void
+        {
+            $invalidMappings = [
+                ['target_type' => 1, 'glpi_field' => 'realname', 'saml_claim' => 'family_name'],
+                ['target_type' => 'user_field', 'glpi_field' => false, 'saml_claim' => 'family_name'],
+            ];
+            foreach ($invalidMappings as $mapping) {
+                $entity = new ClaimMapEntity(-1);
+                if ($entity->validate([$mapping]) || !isset($entity->getErrors()['mapping_0'])) {
+                    throw new \UnexpectedValueException('Invalid mapping field type did not produce a row error.');
+                }
+            }
+            echo "✅ Non-string mapping fields return validation errors\n";
+        }
+
+        /**
          * Test ClaimMapEntity validation rules.
          *
          * @throws \Exception If validations fail
@@ -497,6 +517,7 @@ XML;
             echo "✅ Dynamic rule_field criteria registration verified\n";
         }
 
+
         /**
          * Test bulk JSON export payload structure and restore round-trip via DB mock.
          *
@@ -815,6 +836,7 @@ namespace {
     try {
         $test->testPresets();
         $test->testClaimMapEntityValidation();
+        $test->testInvalidMappingFieldTypes();
         $test->testFallbackMapping();
         $test->testCustomMapping();
         $test->testObservedClaimsTracking();

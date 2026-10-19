@@ -1,4 +1,5 @@
 <?php
+
 /**
  *  ------------------------------------------------------------------------
  *  samlSSO
@@ -163,4 +164,3 @@ if ($allPassed) {
     echo "Overall Status: SOME TESTS FAILED! 🛑\n";
     exit(1);
 }
-

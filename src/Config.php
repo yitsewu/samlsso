@@ -140,7 +140,6 @@ class Config extends ConfigCompat
      **/
     public static function getAdditionalMenuLinks()
     {
-        global $CFG_GLPI;
         // Using fancy URLs hides the add button for CommonDropDowns so we add .php as a workaround.
         $links[__('Excluded paths', PLUGIN_NAME)] = '/plugins/' . PLUGIN_NAME . '/' . SamlSsoController::EXCLUDE_ROUTE . '.php';
         // Fancy urls can be used with rules for some weird reason.
@@ -293,7 +292,7 @@ class Config extends ConfigCompat
     /**
      * Returns the configId if there is only 1 configuration present.
      *
-     * @return  bool
+     * @return  int
      * @see             src/LoginFlow/doAuth()
      * @since           1.1.5
      */
@@ -356,12 +355,9 @@ class Config extends ConfigCompat
         // VALIDATE DATABASE REQUEST
         // In strict mode, we can't assume $DB->request() always returns an iterable object.
         // If the query fails, it might return false or null.
-        if (!$req) {
-            return 0;
-        }
         // PROCESS ROWS
         // If $req is an empty iterator, this loop is safely skipped.
-        foreach ($req as $row) {
+        foreach ($req ?: [] as $row) {
             // VALIDATION: Ensure the row data is a valid string before exploding.
             // This prevents errors if the row or field is malformed.
             if (!empty($row[ConfigEntity::CONF_DOMAIN]) && is_string($row[ConfigEntity::CONF_DOMAIN])) {
@@ -427,6 +423,60 @@ class Config extends ConfigCompat
         }
     }
 
+
+    /** Apply incremental fields to an already installed configuration table. */
+    private static function updateSchema(Migration $migration, string $table): void
+    {
+        global $DB;
+        // Alter column width for conf_domain
+        if (!$DB->tableExists($table)) {
+            return;
+        }
+        $migration->displayMessage("Updating table layout for $table");
+        $query = <<<SQL
+            ALTER TABLE $table
+            MODIFY COLUMN `conf_domain` varchar(255) null;
+        SQL;
+        $DB->doQuery($query) or die($DB->error());
+
+        if (!$DB->fieldExists($table, 'saml_xml_structure', false)) {
+            $migration->addField($table, 'saml_xml_structure', 'text', ['null' => true, 'update' => true]);
+        }
+
+        if (!$DB->fieldExists($table, 'request_timeout', false)) {
+            $migration->addField($table, 'request_timeout', 'int', ['null' => false, 'default' => '15', 'update' => true]);
+        }
+
+        if (!$DB->fieldExists($table, 'inactivity_timeout', false)) {
+            $migration->addField($table, 'inactivity_timeout', 'int', ['null' => false, 'default' => '0', 'update' => true]);
+        }
+
+        if (!$DB->fieldExists($table, 'sync_on_login', false)) {
+            $migration->addField($table, 'sync_on_login', 'tinyint', ['null' => false, 'default' => '0', 'update' => true]);
+        }
+
+        if (!$DB->fieldExists($table, 'security_wantmessagessigned', false)) {
+            $migration->addField($table, 'security_wantmessagessigned', 'tinyint', ['null' => false, 'default' => '0', 'update' => true]);
+        }
+
+        if (!$DB->fieldExists($table, 'security_wantassertionssigned', false)) {
+            $migration->addField($table, 'security_wantassertionssigned', 'tinyint', ['null' => false, 'default' => '0', 'update' => true]);
+        }
+
+        if (!$DB->fieldExists($table, 'security_wantassertionsencrypted', false)) {
+            $migration->addField($table, 'security_wantassertionsencrypted', 'tinyint', ['null' => false, 'default' => '0', 'update' => true]);
+        }
+
+        if (!$DB->fieldExists($table, 'security_signmetadata', false)) {
+            $migration->addField($table, 'security_signmetadata', 'tinyint', ['null' => false, 'default' => '0', 'update' => true]);
+        }
+
+        if (!$DB->fieldExists($table, 'security_wantnameid', false)) {
+            $migration->addField($table, 'security_wantnameid', 'tinyint', ['null' => false, 'default' => '0', 'update' => true]);
+        }
+
+        Session::addMessageAfterRedirect("🆗 Updated: $table layout.");
+    }
 
     /**
      * Install table needed for Ticket Filter configuration dropdowns.
@@ -502,53 +552,7 @@ class Config extends ConfigCompat
             Session::addMessageAfterRedirect("🆗 Installed: $table.");
         }
 
-        // Alter column width for conf_domain
-        if ($DB->tableExists($table)) {
-            $migration->displayMessage("Updating table layout for $table");
-            $query = <<<SQL
-                ALTER TABLE $table
-                MODIFY COLUMN `conf_domain` varchar(255) null;
-            SQL;
-            $DB->doQuery($query) or die($DB->error());
-
-            if (!$DB->fieldExists($table, 'saml_xml_structure', false)) {
-                $migration->addField($table, 'saml_xml_structure', 'text', ['null' => true, 'update' => true]);
-            }
-
-            if (!$DB->fieldExists($table, 'request_timeout', false)) {
-                $migration->addField($table, 'request_timeout', 'int', ['null' => false, 'default' => '15', 'update' => true]);
-            }
-
-            if (!$DB->fieldExists($table, 'inactivity_timeout', false)) {
-                $migration->addField($table, 'inactivity_timeout', 'int', ['null' => false, 'default' => '0', 'update' => true]);
-            }
-
-            if (!$DB->fieldExists($table, 'sync_on_login', false)) {
-                $migration->addField($table, 'sync_on_login', 'tinyint', ['null' => false, 'default' => '0', 'update' => true]);
-            }
-
-            if (!$DB->fieldExists($table, 'security_wantmessagessigned', false)) {
-                $migration->addField($table, 'security_wantmessagessigned', 'tinyint', ['null' => false, 'default' => '0', 'update' => true]);
-            }
-
-            if (!$DB->fieldExists($table, 'security_wantassertionssigned', false)) {
-                $migration->addField($table, 'security_wantassertionssigned', 'tinyint', ['null' => false, 'default' => '0', 'update' => true]);
-            }
-
-            if (!$DB->fieldExists($table, 'security_wantassertionsencrypted', false)) {
-                $migration->addField($table, 'security_wantassertionsencrypted', 'tinyint', ['null' => false, 'default' => '0', 'update' => true]);
-            }
-
-            if (!$DB->fieldExists($table, 'security_signmetadata', false)) {
-                $migration->addField($table, 'security_signmetadata', 'tinyint', ['null' => false, 'default' => '0', 'update' => true]);
-            }
-
-            if (!$DB->fieldExists($table, 'security_wantnameid', false)) {
-                $migration->addField($table, 'security_wantnameid', 'tinyint', ['null' => false, 'default' => '0', 'update' => true]);
-            }
-
-            Session::addMessageAfterRedirect("🆗 Updated: $table layout.");
-        }
+        self::updateSchema($migration, $table);
     }
 
     /**

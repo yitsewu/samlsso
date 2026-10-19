@@ -81,6 +81,9 @@ require_once __DIR__ . '/compat.php';
  */
 class LoginFlow extends LoginFlowCompat
 {
+    private const LOCATION_HEADER = "Location: ";
+    private const ERROR_LOG_SUFFIX = "-errors";
+
     // Database fields
     public const ID                 =   'id';
     public const DEBUG              =   'debug';
@@ -214,8 +217,8 @@ class LoginFlow extends LoginFlowCompat
             $requestPath = '';
         }
         $isLogout = (strpos($requestPath, 'front/logout') !== false) ||
-                    isset($_GET[self::SLOLOGOUT]) ||
-                    isset($_GET[self::LOCALLOGOUT]);
+            isset($_GET[self::SLOLOGOUT]) ||
+            isset($_GET[self::LOCALLOGOUT]);
 
 
         // Dont process anything if we are handling an ACS call.
@@ -270,7 +273,7 @@ class LoginFlow extends LoginFlowCompat
             $this->state->setPhase(LoginState::PHASE_LOGOFF);
             Session::cleanOnLogout();
             Session::addMessageAfterRedirect(__('You have been forcefully logged out by an administrator.', PLUGIN_NAME), false, ERROR);
-            header('Location: ' . $CFG_GLPI['url_base'] . '/index.php?noAuto=1');
+            header(self::LOCATION_HEADER . $CFG_GLPI['url_base'] . '/index.php?noAuto=1');
             exit;
         }
 
@@ -278,7 +281,7 @@ class LoginFlow extends LoginFlowCompat
             $this->state->setPhase(LoginState::PHASE_LOGOFF);
             Session::cleanOnLogout();
             Session::addMessageAfterRedirect(__('Your session has timed out due to inactivity.', PLUGIN_NAME), false, ERROR);
-            header('Location: ' . $CFG_GLPI['url_base'] . '/index.php?noAuto=1');
+            header(self::LOCATION_HEADER . $CFG_GLPI['url_base'] . '/index.php?noAuto=1');
             exit;
         }
 
@@ -314,7 +317,7 @@ class LoginFlow extends LoginFlowCompat
             // Fallback: if SLO configuration is not valid/active, clear local session and redirect to home
             $this->state->setPhase(LoginState::PHASE_LOGOFF);
             Session::cleanOnLogout();
-            header('Location: ' . $CFG_GLPI['url_base'] . '/');
+            header(self::LOCATION_HEADER . $CFG_GLPI['url_base'] . '/');
             exit;
         }
 
@@ -356,7 +359,7 @@ class LoginFlow extends LoginFlowCompat
         // CAPTURE LOGIN FIELD
         // https://codeberg.org/QuinQuies/glpisaml/issues/3
         // https://github.com/DonutsNL/samlsso/issues/16
-        if (($id = $this->resolveIdpFromLoginForm())) {
+        if ($id = $this->resolveIdpFromLoginForm()) {
             $_POST[LoginFlow::POSTFIELD] = $id;
         }
 
@@ -424,13 +427,11 @@ class LoginFlow extends LoginFlowCompat
         $noAutoRequested = isset($_GET['noAuto']);
         $noAutoUpperSet = isset($_GET['noAUTO']);
 
-        if ($bypassRequested || $noAutoRequested) {
-            if (!$bypassRequested || !$noAutoUpperSet) {
-                $this->state->addLoginFlowTrace(['bypassUsed' => true]);
-                $url = $CFG_GLPI['url_base'] . '/?' . LoginFlow::SAMLBYPASS . '=1&noAUTO=1';
-                header('Location:' . $url);
-                exit();
-            }
+        if (($bypassRequested || $noAutoRequested) && (!$bypassRequested || !$noAutoUpperSet)) {
+            $this->state->addLoginFlowTrace(['bypassUsed' => true]);
+            $url = $CFG_GLPI['url_base'] . '/?' . LoginFlow::SAMLBYPASS . '=1&noAUTO=1';
+            header('Location:' . $url);
+            exit();
         }
         return false;
     }
@@ -442,7 +443,7 @@ class LoginFlow extends LoginFlowCompat
      */
     private function resolveIdpFromLoginForm(): ?int
     {
-        foreach ($_POST as $key => $value) {
+        foreach (array_keys($_POST) as $key) {
             if (strstr($key, 'login_name') && !empty($_POST[$key])) {
                 $id = Config::getConfigIdByEmailDomain($_POST[$key]);
                 if ($id) {
@@ -473,7 +474,7 @@ class LoginFlow extends LoginFlowCompat
         $ssoBuiltUrl = '';
 
         // Fetch the correct configEntity GLPI
-        if (($configEntity = new ConfigEntity($this->state->getIdpId()))) { // Get the configEntity object using our stored ID
+        if ($configEntity = new ConfigEntity($this->state->getIdpId())) { // Get the configEntity object using our stored ID
             $samlConfig = $configEntity->getPhpSamlConfig();      // Get the correctly formatted SamlConfig array
         }
 
@@ -525,7 +526,7 @@ class LoginFlow extends LoginFlowCompat
             // Perform redirect to Idp using HTTP-GET
             header('Pragma: no-cache');
             header('Cache-Control: no-cache, must-revalidate');
-            header('Location: ' . $ssoBuiltUrl);
+            header(self::LOCATION_HEADER . $ssoBuiltUrl);
             exit();
         } // Do nothing, ignore the samlSSORequest.
     }
@@ -536,14 +537,14 @@ class LoginFlow extends LoginFlowCompat
      * to handle the samlLogin or invalidate the login if there are deeper issues
      * with the response, for instance important claims are missing.
      *
-     * @param   Response    SamlResponse from Acs.
-     * @param   LoginState  The correct state loaded with the samlRequestId passed by ACS
+     * @param   Response $response Validated SAML response from ACS.
+     * @param   LoginState $state The correct state loaded with the samlRequestId passed by ACS
      * @return  void
      * @since               1.0.0
      */
     protected function performGlpiLogin(Response $response, LoginState $state): void
     {
-        global $CFG_GLPI;
+
         $auth = null;
 
         // Push the state into this objects property just in case.
@@ -690,7 +691,7 @@ class LoginFlow extends LoginFlowCompat
      * buttons to show. Else it will skip.
      *
      * @see https://github.com/DonutsNL/glpisaml/issues/7
-     * @return  string  html form for the login screen
+     * @return  void
      * @since           1.0.0
      */
     public function showLoginScreen(): void
@@ -736,20 +737,19 @@ class LoginFlow extends LoginFlowCompat
      * to correct configuration issues.
      *
      * @see https://github.com/DonutsNL/glpisaml/issues/7
-     * @param string   error message to show
+     * @param string $errorMsg Error message to show
      * @since 1.0.0
      */
-    public static function PrintFatalLoginError($errorMsg): never
+    public static function PrintFatalLoginError(string $errorMsg): never
     {
         global $CFG_GLPI;
 
-        $ip = getenv("HTTP_X_FORWARDED_FOR") ?: getenv("REMOTE_ADDR");
 
         /* Log in file */
-        Toolbox::logInFile(PLUGIN_NAME . "-errors", 'FATAL SAML LOGIN ERROR:' . $errorMsg . "\n", true);
+        Toolbox::logInFile(PLUGIN_NAME . self::ERROR_LOG_SUFFIX, 'FATAL SAML LOGIN ERROR:' . $errorMsg . "\n", true);
 
         if (self::$throwOnError) {
-            throw new \Exception((string)$errorMsg);
+            throw new \UnexpectedValueException((string)$errorMsg);
         }
 
         $debug = false;
@@ -766,7 +766,7 @@ class LoginFlow extends LoginFlowCompat
                     $debug = (bool)$configEntity->getField(ConfigEntity::DEBUG);
                 }
             }
-        } catch (\Throwable $t) {
+        } catch (\Throwable) {
             /* ignore */
         }
 
@@ -798,9 +798,9 @@ class LoginFlow extends LoginFlowCompat
      * Prints and logs error message with 'back' button
      *
      * @see https://github.com/DonutsNL/glpisaml/issues/7
-     * @param string errorMsg   string with raw error message to be printed
-     * @param string action     optionally add 'action' that was performed to error message
-     * @param string extended   optionally add 'extended' information about the error in the log file.
+     * @param string $errorMsg   string with raw error message to be printed
+     * @param string $action     optionally add 'action' that was performed to error message
+     * @param string $extended   optionally add 'extended' information about the error in the log file.
      * @return void             no return, PHP execution is terminated by this method.
      * @since 1.0.0
      */
@@ -810,13 +810,13 @@ class LoginFlow extends LoginFlowCompat
         global $CFG_GLPI;
 
         /* Log in file */
-        Toolbox::logInFile(PLUGIN_NAME . "-errors", $errorMsg . "\n", true);
+        Toolbox::logInFile(PLUGIN_NAME . self::ERROR_LOG_SUFFIX, ($action !== '' ? $action . ": " : '') . $errorMsg . "\n", true);
         if ($extended) {
-            Toolbox::logInFile(PLUGIN_NAME . "-errors", $extended . "\n", true);
+            Toolbox::logInFile(PLUGIN_NAME . self::ERROR_LOG_SUFFIX, $extended . "\n", true);
         }
 
         if (self::$throwOnError) {
-            throw new \Exception($errorMsg);
+            throw new \UnexpectedValueException($errorMsg);
         }
 
         $debug = false;
@@ -833,7 +833,7 @@ class LoginFlow extends LoginFlowCompat
                     $debug = (bool)$configEntity->getField(ConfigEntity::DEBUG);
                 }
             }
-        } catch (\Throwable $t) {
+        } catch (\Throwable) {
             /* ignore */
         }
 

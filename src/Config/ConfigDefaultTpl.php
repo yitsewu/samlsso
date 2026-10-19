@@ -53,7 +53,7 @@ use GlpiPlugin\Samlsso\Config\ConfigEntity;
  * Future: use ConfigEntities database to store additional templates
  */
 class ConfigDefaultTpl {
-    public static function template(): array
+    public static function template(): array // NOSONAR - Declarative defaults include multiline public example certificates, not a long algorithm.
     {
         // Do not define the 'id' field, this will break the ConfigEntity logic.
         // DONT USE THE PROVIDED CERTIFICATES ANYWHERE, THESE ARE JUST EXAMPLES

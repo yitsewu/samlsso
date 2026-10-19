@@ -120,7 +120,6 @@ namespace OneLogin\Saml2 {
              *
              * @return string Mock name ID.
              */
-
             public function getNameId(): string
             {
                 return 'testuser';
@@ -626,23 +625,12 @@ namespace GlpiPlugin\Samlsso\Config {
                 }
 
                 $dom = new \DOMDocument();
-                $old_entity_loader = null;
-                if (\PHP_VERSION_ID < 80000) {
-                    $old_entity_loader = libxml_disable_entity_loader(true);
-                }
-                
+                $dom->resolveExternals = false;
+                $dom->substituteEntities = false;
                 $dom->preserveWhiteSpace = false;
                 $dom->formatOutput = true;
-
-                if (!@$dom->loadXML($xml, LIBXML_NOENT | LIBXML_DTDLOAD | LIBXML_DTDATTR | LIBXML_NOCDATA)) {
-                    if (\PHP_VERSION_ID < 80000 && $old_entity_loader !== null) {
-                        libxml_disable_entity_loader($old_entity_loader);
-                    }
+                if (stripos($xml, '<!DOCTYPE') !== false || !@$dom->loadXML($xml, LIBXML_NONET | LIBXML_NOCDATA)) {
                     return 'Invalid XML response';
-                }
-                
-                if (\PHP_VERSION_ID < 80000 && $old_entity_loader !== null) {
-                    libxml_disable_entity_loader($old_entity_loader);
                 }
 
                 self::anonymizeNode($dom->documentElement);

@@ -2249,7 +2249,7 @@ msgid ""
 "UPDATED: %3$s"
 msgstr "⚠️ Waarschuwing SP-metadata zichtbaar! - ROWID: %1$s | AANGEMAAKDATUM: %2$s | LAATSTE BIJGEWERKT: %3$s"
 
-#: src/LoginFlow.php:638
+#: src/LoginFlow.php:639
 msgid "Request identity provider logout"
 msgstr "Afmelden bij identiteitsprovider aanvragen"
 
@@ -2273,7 +2273,7 @@ msgstr ""
 "U bent afgemeld bij GLPI. Bij uw identiteitsprovider en in andere "
 "toepassingen kunnen nog sessies actief zijn."
 
-#: src/LoginFlow.php:642
+#: src/LoginFlow.php:643
 #, php-format
 msgid ""
 "You signed in through the identity provider: <b>%1$s</b>.<br><br>Because "
@@ -2293,7 +2293,7 @@ msgstr ""
 "beëindigd.<br><br>U kunt ook teruggaan naar GLPI of dit browsertabblad "
 "sluiten."
 
-#: src/LoginFlow.php:648
+#: src/LoginFlow.php:649
 #, php-format
 msgid ""
 "You signed in through the identity provider: <b>%1$s</b>.<br><br>Select "

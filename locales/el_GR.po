@@ -2286,7 +2286,7 @@ msgid ""
 "UPDATED: %3$s"
 msgstr "⚠️ Προειδοποίηση SP μεταδεδομένα εκτεθειμένα! - ROWID: %1$s | ΗΜΕΡΟΜΗΝΙΑ ΔΗΜΙΟΥΡΓΙΑΣ: %2$s | ΤΕΛΕΥΤΑΙΑ ΕΝΗΜΕΡΩΣΗ: %3$s"
 
-#: src/LoginFlow.php:638
+#: src/LoginFlow.php:639
 msgid "Request identity provider logout"
 msgstr "Αίτημα αποσύνδεσης από τον πάροχο ταυτότητας"
 
@@ -2310,7 +2310,7 @@ msgstr ""
 "Έχετε αποσυνδεθεί από το GLPI. Ενδέχεται να παραμένουν ενεργές συνεδρίες "
 "στον πάροχο ταυτότητάς σας και σε άλλες εφαρμογές."
 
-#: src/LoginFlow.php:642
+#: src/LoginFlow.php:643
 #, php-format
 msgid ""
 "You signed in through the identity provider: <b>%1$s</b>.<br><br>Because "
@@ -2330,7 +2330,7 @@ msgstr ""
 "άλλες εφαρμογές.<br><br>Μπορείτε επίσης να επιστρέψετε στο GLPI ή να "
 "κλείσετε αυτή την καρτέλα του προγράμματος περιήγησης."
 
-#: src/LoginFlow.php:648
+#: src/LoginFlow.php:649
 #, php-format
 msgid ""
 "You signed in through the identity provider: <b>%1$s</b>.<br><br>Select "

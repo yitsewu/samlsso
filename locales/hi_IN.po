@@ -2168,7 +2168,7 @@ msgid ""
 "UPDATED: %3$s"
 msgstr "⚠️ चेतावनी एसपी मेटाडेटा उजागर! - रोविड: %1$s | निर्मित तिथि: %2$s | अंतिम अद्यतन: %3$s"
 
-#: src/LoginFlow.php:638
+#: src/LoginFlow.php:639
 msgid "Request identity provider logout"
 msgstr "पहचान प्रदाता से साइन आउट करने का अनुरोध करें"
 
@@ -2192,7 +2192,7 @@ msgstr ""
 "आप GLPI से साइन आउट हो गए हैं। आपके पहचान प्रदाता और अन्य अनुप्रयोगों में "
 "सत्र अब भी सक्रिय हो सकते हैं।"
 
-#: src/LoginFlow.php:642
+#: src/LoginFlow.php:643
 #, php-format
 msgid ""
 "You signed in through the identity provider: <b>%1$s</b>.<br><br>Because "
@@ -2212,7 +2212,7 @@ msgstr ""
 "नहीं।<br><br>आप GLPI पर वापस भी जा सकते हैं या ब्राउज़र का यह टैब बंद कर "
 "सकते हैं।"
 
-#: src/LoginFlow.php:648
+#: src/LoginFlow.php:649
 #, php-format
 msgid ""
 "You signed in through the identity provider: <b>%1$s</b>.<br><br>Select "

@@ -55,6 +55,7 @@ namespace GlpiPlugin\Samlsso\Tests {
 
     require_once __DIR__ . '/Shims.php';
     require_once __DIR__ . '/../src/Exception/LoginStateException.php';
+    require_once __DIR__ . '/../src/Utility/LoginTraceRenderer.php';
     require_once __DIR__ . '/../src/LoginState.php';
     require_once __DIR__ . '/TestHarness.php';
 
@@ -64,6 +65,37 @@ namespace GlpiPlugin\Samlsso\Tests {
      * LoginStateTest class.
      */
     class LoginStateTest {
+
+        /**
+         * Test that LoginState::getLoggingEntries correctly formats database raw UTC timestamps.
+         */
+        public function testTraceEscapesIdentityValues(): void {
+            $trace = serialize(['<fixture>' => '<b>identity</b>', 'rulesEngineInput' => json_encode(['name' => '<fixture-user>', 'groups' => ['one', ['two']]])]);
+            $html = \GlpiPlugin\Samlsso\Utility\LoginTraceRenderer::render($trace);
+            if (str_contains($html, '<fixture>') || str_contains($html, '<b>identity</b>') || str_contains($html, '<fixture-user>')) {
+                throw new \UnexpectedValueException('Trace values were interpreted as HTML');
+            }
+            if (!str_contains($html, '&lt;fixture-user&gt;') || !str_contains($html, 'one, two')) {
+                throw new \UnexpectedValueException('Trace values were lost during formatting');
+            }
+            echo "✅ Trace rendering escapes identity values and handles nested arrays\n";
+        }
+
+        public function testDuplicateStateRejected(): void {
+            global $DB;
+            $DB = new MockDB();
+            $DB->setResponse(LoginState::getTable(), [[], []]);
+            try {
+                new LoginState('duplicate-request');
+            } catch (\GlpiPlugin\Samlsso\Exception\LoginStateException $error) {
+                if (str_contains($error->getMessage(), 'duplicated states')) {
+                    echo "✅ Duplicate authentication state rejected before hydration\n";
+                    return;
+                }
+                throw $error;
+            }
+            throw new \UnexpectedValueException('Duplicate authentication states were accepted');
+        }
 
         public function testLoginStateLoggingTimezones(): void {
             global $DB;
@@ -341,6 +373,8 @@ namespace GlpiPlugin\Samlsso\Tests {
 namespace {
     $test = new GlpiPlugin\Samlsso\Tests\LoginStateTest();
     try {
+        $test->testTraceEscapesIdentityValues();
+        $test->testDuplicateStateRejected();
         $test->testLoginStateLoggingTimezones();
         $test->testTwigTemplateFormatting();
         $test->testLoginStateRequestTimeout();

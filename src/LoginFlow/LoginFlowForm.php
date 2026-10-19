@@ -81,9 +81,8 @@ class LoginFlowForm    //NOSONAR complexity by design.
     /**
      * Update phpSaml configuration
      *
-     * @param int   $id of configuration to update
      * @param array $postData $_POST data from form
-     * @return void -
+     * @return string Rendered form when validation fails.
      */
     public function updateSamlConfig(array $postData): string
     {
@@ -144,7 +143,7 @@ class LoginFlowForm    //NOSONAR complexity by design.
      * Generates the HTML for the config form using the GLPI
      * template renderer.
      *
-     * @param ConfigEntity $configEntity    Field values to populate in form
+     * @param LoginFlowEntity $loginFlowEntity    Field values to populate in form
      * @return string ConfigForm            HTML
      * @since                               1.0.0
      * @see https://codeberg.org/QuinQuies/glpisaml/issues/17

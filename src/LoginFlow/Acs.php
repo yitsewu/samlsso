@@ -69,6 +69,8 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class Acs extends LoginFlow
 {
+    private const UNSIGNED_ERROR = 'not signed';
+
 
     // Define some error headers we use allot, not the best place but ok for now.
     public const EXTENDED_HEADER = "================ BEGIN EXTENDED =================\n\n";
@@ -135,7 +137,7 @@ class Acs extends LoginFlow
         if (!empty($samlResponse) && is_numeric($this->idpId)) {
             try {
                 $this->configEntity = new ConfigEntity($this->idpId);
-            } catch (Throwable $e) {
+            } catch (Throwable) {
                 $this->printError(
                     sprintf(__("Unable to fetch idp configuration with id: %s from database", PLUGIN_NAME), $this->idpId),
                     __('Samlsso->acs->init->FetchConfig', PLUGIN_NAME)
@@ -145,7 +147,7 @@ class Acs extends LoginFlow
             $this->debug = ($this->configEntity->getField(ConfigEntity::DEBUG)) ? true : false;
 
             $this->configureProxyVars();
-            
+
             /**
              * Detect LogoutResponse (SLO return from IDP) and redirect silently.
              * Without this, the LogoutResponse is incorrectly processed as an AuthnResponse
@@ -157,7 +159,7 @@ class Acs extends LoginFlow
             if (strpos($decoded, 'LogoutResponse') !== false) {
                 \Html::redirect(samlsso_webdir() . \GlpiPlugin\Samlsso\Controller\SamlSsoController::SLO_ROUTE);
             }
-            
+
             $this->setupSamlResponse($samlResponse);
             $this->fetchRequestState();
 
@@ -254,50 +256,7 @@ class Acs extends LoginFlow
      */
     public function assertSaml(): void
     {
-        // Perform validation by phpSaml library
-        // This MUST be the first thing we do to prevent DoS attacks where an attacker
-        // triggers phase changes or response registrations without a valid signature.
-        // We pass the expected RequestID to allow phpSaml to validate the InResponseTo attribute.
-        // https://github.com/DonutsNL/samlsso/issues/104
-        try {
-            if (!$this->samlResponse->isValid($this->state->getSamlRequestId())) {
-                $errorStr = $this->samlResponse->getError(false) ?: '';
-                $suggestion = '';
-                if ($errorStr !== '') {
-                    if (stripos($errorStr, 'not encrypted') !== false) {
-                        $suggestion = __(" (Suggestion: check 'Want Assertions Encrypted' under Inbound Security in the Security tab)", PLUGIN_NAME);
-                    } elseif (stripos($errorStr, 'not signed') !== false && stripos($errorStr, 'Message') !== false) {
-                        $suggestion = __(" (Suggestion: check 'Want Messages Signed' under Inbound Security in the Security tab)", PLUGIN_NAME);
-                    } elseif (stripos($errorStr, 'not signed') !== false && stripos($errorStr, 'assertion') !== false) {
-                        $suggestion = __(" (Suggestion: check 'Want Assertions Signed' under Inbound Security in the Security tab)", PLUGIN_NAME);
-                    } elseif (stripos($errorStr, 'not signed') !== false && stripos($errorStr, 'NameID') !== false) {
-                        $suggestion = __(" (Suggestion: check 'Want NameID Signed' under Inbound Security in the Security tab)", PLUGIN_NAME);
-                    } elseif (stripos($errorStr, 'Signature validation failed') !== false || stripos($errorStr, 'signature') !== false) {
-                        $suggestion = __(" (Suggestion: verify the Identity Provider Certificates configuration)", PLUGIN_NAME);
-                    } elseif (stripos($errorStr, 'InResponseTo') !== false) {
-                        $suggestion = __(" (Suggestion: check proxy settings or ensure request timeout has not expired)", PLUGIN_NAME);
-                    }
-                }
-                $this->printError(
-                    __("Validation of the samlResponse document failed", PLUGIN_NAME),
-                    __('Samlsso->acs->assertSaml->SamlResponse::isValid', PLUGIN_NAME),
-                    $errorStr . $suggestion
-                );
-            }
-        } catch (Throwable $e) {
-            $errorMsg = $e->getMessage() ?: '';
-            $suggestion = '';
-            if ($errorMsg !== '') {
-                if (stripos($errorMsg, 'Signature validation failed') !== false || stripos($errorMsg, 'signature') !== false) {
-                    $suggestion = __(" (Suggestion: verify the Identity Provider Certificates configuration)", PLUGIN_NAME);
-                }
-            }
-            $this->printError(
-                __("Validation of the samlResponse document failed with a critical error", PLUGIN_NAME),
-                __('Samlsso->acs->assertSaml->SamlResponse::isValid', PLUGIN_NAME),
-                $errorMsg . $suggestion
-            );
-        }
+        $this->validateSamlResponse();
 
         if ($this->state->getPhase() == LoginState::PHASE_TIMED_OUT) {
             $this->printError(
@@ -309,7 +268,7 @@ class Acs extends LoginFlow
         // Prevent replay attacks, check if response_id is already used
         // The response_id is unique and should only be processed once.
         // This is checked by comparing the response_id from the incoming
-        // samlResponse with the response_id stored in the loginState. 
+        // samlResponse with the response_id stored in the loginState.
         // If the response_id is already set in the loginState, it means that
         // the samlResponse has already been processed and we are facing a replay attack.
         // We also check if the state is in the correct phase and that the response_id is not empty.
@@ -391,5 +350,54 @@ class Acs extends LoginFlow
         // and we cant trust the current sessionId to align because initial cookies are tainted and
         // prob not passed back to GLPI after the IDP redirect causing GLPI to reset the PHP sessionId.
         $this->performGlpiLogin($this->samlResponse, $this->state);
+    }
+    /** Validate signatures and request binding before any authentication-state mutation. */
+    private function validateSamlResponse(): void
+    {
+        // Perform validation by phpSaml library
+        // This MUST be the first thing we do to prevent DoS attacks where an attacker
+        // triggers phase changes or response registrations without a valid signature.
+        // We pass the expected RequestID to allow phpSaml to validate the InResponseTo attribute.
+        // https://github.com/DonutsNL/samlsso/issues/104
+        try {
+            if (!$this->samlResponse->isValid($this->state->getSamlRequestId())) {
+                $errorStr = $this->samlResponse->getError(false) ?: '';
+                $suggestion = self::validationSuggestion($errorStr);
+                $this->printError(
+                    __("Validation of the samlResponse document failed", PLUGIN_NAME),
+                    __('Samlsso->acs->assertSaml->SamlResponse::isValid', PLUGIN_NAME),
+                    $errorStr . $suggestion
+                );
+            }
+        } catch (Throwable $e) {
+            $errorMsg = $e->getMessage() ?: '';
+            $suggestion = stripos($errorMsg, 'signature') !== false
+                ? __(" (Suggestion: verify the Identity Provider Certificates configuration)", PLUGIN_NAME) : '';
+            $this->printError(
+                __("Validation of the samlResponse document failed with a critical error", PLUGIN_NAME),
+                __('Samlsso->acs->assertSaml->SamlResponse::isValid', PLUGIN_NAME),
+                $errorMsg . $suggestion
+            );
+        }
+    }
+
+    /** Select diagnostic advice without changing the underlying validation outcome. */
+    private static function validationSuggestion(string $error): string
+    {
+        $suggestions = [
+            [['not encrypted'], __(" (Suggestion: check 'Want Assertions Encrypted' under Inbound Security in the Security tab)", PLUGIN_NAME)],
+            [[self::UNSIGNED_ERROR, 'Message'], __(" (Suggestion: check 'Want Messages Signed' under Inbound Security in the Security tab)", PLUGIN_NAME)],
+            [[self::UNSIGNED_ERROR, 'assertion'], __(" (Suggestion: check 'Want Assertions Signed' under Inbound Security in the Security tab)", PLUGIN_NAME)],
+            [[self::UNSIGNED_ERROR, 'NameID'], __(" (Suggestion: check 'Want NameID Signed' under Inbound Security in the Security tab)", PLUGIN_NAME)],
+            [['signature'], __(" (Suggestion: verify the Identity Provider Certificates configuration)", PLUGIN_NAME)],
+            [['InResponseTo'], __(" (Suggestion: check proxy settings or ensure request timeout has not expired)", PLUGIN_NAME)],
+        ];
+        foreach ($suggestions as [$terms, $suggestion]) {
+            $matches = array_filter($terms, static fn(string $term): bool => stripos($error, $term) !== false);
+            if (count($matches) === count($terms)) {
+                return $suggestion;
+            }
+        }
+        return '';
     }
 }

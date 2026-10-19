@@ -2281,7 +2281,7 @@ msgid ""
 "UPDATED: %3$s"
 msgstr "⚠️ ¡Advertencia sobre metadatos de SP expuestos! - ROWID: %1$s | FECHA DE CREACIÓN: %2$s | ÚLTIMA ACTUALIZACIÓN: %3$s"
 
-#: src/LoginFlow.php:638
+#: src/LoginFlow.php:639
 msgid "Request identity provider logout"
 msgstr "Solicitar cierre de sesión al proveedor de identidad"
 
@@ -2305,7 +2305,7 @@ msgstr ""
 "Su sesión en GLPI se ha cerrado. Todavía puede haber sesiones activas en su "
 "proveedor de identidad y en otras aplicaciones."
 
-#: src/LoginFlow.php:642
+#: src/LoginFlow.php:643
 #, php-format
 msgid ""
 "You signed in through the identity provider: <b>%1$s</b>.<br><br>Because "
@@ -2325,7 +2325,7 @@ msgstr ""
 "sesiones de otras aplicaciones.<br><br>También puede volver a GLPI o cerrar "
 "esta pestaña del navegador."
 
-#: src/LoginFlow.php:648
+#: src/LoginFlow.php:649
 #, php-format
 msgid ""
 "You signed in through the identity provider: <b>%1$s</b>.<br><br>Select "

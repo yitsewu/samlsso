@@ -337,7 +337,7 @@ final class SamlSsoController extends AbstractController
     #[SecurityStrategy(Firewall::STRATEGY_NO_CHECK)]                    // Decorator to disable authentication check
     #[Route(self::FLOWFORM_ROUTE, name: self::FLOWFORM_NAME)]           // Decorator to register route to controller
     #[Route(self::FLOWFORM_FILE, name: self::FLOWFORM_NAME . '_file')]
-    public function loginflow(Request $request): Response               // What to do if route is invoked.
+    public function loginflow(): Response               // What to do if route is invoked.
     {
         (new LoginFlowForm())->init();                                 // Call the ACS handler.
         return new Response();
@@ -375,7 +375,7 @@ final class SamlSsoController extends AbstractController
     #[SecurityStrategy(Firewall::STRATEGY_NO_CHECK)]                    // Decorator to disable authentication check
     #[Route(self::RULES_ROUTE, name: self::RULES_NAME)]                 // Decorator to register route to controller
     #[Route(self::RULES_FILE, name: self::RULES_NAME . '_file')]          // Decorator to register route to controller
-    public function __invoke(Request $request): Response                // What to do if route is invoked.
+    public function __invoke(): Response                // What to do if route is invoked.
     {
         (new RuleSaml())->invoke();                                    // Call the ACS handler.
         return new Response();
@@ -384,7 +384,7 @@ final class SamlSsoController extends AbstractController
     #[SecurityStrategy(Firewall::STRATEGY_NO_CHECK)]                    // Decorator to disable authentication check
     #[Route(self::RULESFORM_ROUTE, name: self::RULESFORM_NAME)]         // Decorator to register route to controller
     #[Route(self::RULESFORM_FILE, name: self::RULESFORM_NAME . '_file')]  // Decorator to register route to controller
-    public function itemform(Request $request): Response                // What to do if route is invoked.
+    public function itemform(): Response                // What to do if route is invoked.
     {
         (new RuleSaml())->invokeForm();                                // Call the ACS handler.
         return new Response();

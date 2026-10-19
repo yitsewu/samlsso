@@ -61,6 +61,10 @@ namespace GlpiPlugin\Samlsso\Tests {
     require_once __DIR__ . '/../src/Config/ConfigItem.php';
     require_once __DIR__ . '/../src/Config/ConfigEntity.php';
     require_once __DIR__ . '/../src/Config.php';
+    require_once __DIR__ . '/../src/Config/ConfigForm.php';
+    require_once __DIR__ . '/../src/Config/ConfigDefaultTpl.php';
+    require_once __DIR__ . '/../src/LoginFlow/LoginFlowItem.php';
+    require_once __DIR__ . '/../src/LoginFlow/LoginFlowEntity.php';
     require_once __DIR__ . '/TestHarness.php';
     require_once __DIR__ . '/../src/Controller/SamlSsoController.php';
 
@@ -75,6 +79,60 @@ namespace GlpiPlugin\Samlsso\Tests {
      * Evaluates configuration schemas, validator presence, and references.
      */
     class ConfigIntegrityTest extends TestHarness {
+
+        /** Restore keeps original IDs and cannot import unknown fields. */
+        public function testRestoreFieldBoundary(): void {
+            $method = new \ReflectionMethod(\GlpiPlugin\Samlsso\Config\ConfigForm::class, 'buildRestoreRow');
+            $row = $method->invoke(null, ['id' => 27, 'name' => 'Fixture', 'unexpected' => 'ignored'], 27, '2026-01-01 00:00:00', ['id', 'name', 'strict']);
+            if ($row['id'] !== 27 || $row['name'] !== 'Fixture' || $row['strict'] !== 0 || array_key_exists('unexpected', $row)) {
+                throw new \UnexpectedValueException('Restore field boundary changed');
+            }
+            echo "✅ Restore preserves IDs, defaults and known-field boundary\n";
+        }
+
+        /** POST options must be validated instead of silently loading an unrelated DB row. */
+        public function testLoginFlowPostValidation(): void {
+            $entity = new \GlpiPlugin\Samlsso\LoginFlow\LoginFlowEntity(1, [
+                'template' => 'post',
+                'postData' => ['debug' => '1', 'enforced' => '0', '_glpi_csrf_token' => 'fixture'],
+            ]);
+            if (!$entity->isValid() || !$entity->getField('debug') || $entity->getField('enforced')) {
+                throw new \UnexpectedValueException('Login flow submitted values were not normalized');
+            }
+            if ($entity->getField('_glpi_csrf_token') !== false) {
+                throw new \UnexpectedValueException('Login flow accepted an undeclared configuration field');
+            }
+            $invalid = new \GlpiPlugin\Samlsso\LoginFlow\LoginFlowEntity(1, [
+                'template' => 'post', 'postData' => ['forcedIdp' => 'not-an-id'],
+            ]);
+            if ($invalid->isValid()) {
+                throw new \UnexpectedValueException('Invalid login flow provider ID was accepted');
+            }
+            echo "✅ Login flow POST values are validated and normalized\n";
+        }
+
+        /** Diagnostic XML must not resolve entities and must remove identity material. */
+        public function testDiagnosticXmlIsolation(): void {
+            foreach ([
+                '<!DOCTYPE Response [<!ENTITY marker "fixture-value">]><Response>&marker;</Response>',
+                '<!DOCTYPE Response SYSTEM "https://invalid.example.test/fixture.dtd"><Response/>',
+                '<Response>',
+            ] as $xml) {
+                if (ConfigEntity::anonymizeXml($xml) !== 'Invalid XML response') {
+                    throw new \UnexpectedValueException('Unsafe or invalid diagnostic XML was accepted');
+                }
+            }
+            $safe = ConfigEntity::anonymizeXml('<Response ID="fixture-id"><NameID>fixture-user</NameID><Signature>fixture-signature</Signature></Response>');
+            foreach (['fixture-id', 'fixture-user', 'fixture-signature', '<Signature'] as $value) {
+                if (str_contains($safe, $value)) {
+                    throw new \UnexpectedValueException('Diagnostic XML retained identity or signature material');
+                }
+            }
+            if (!str_contains($safe, '[STRIPPED]') || ConfigEntity::anonymizeXml('') !== '') {
+                throw new \UnexpectedValueException('Diagnostic XML normalization changed');
+            }
+            echo "✅ Diagnostic XML rejects DTDs and strips identity material\n";
+        }
 
         /** Verify real configuration output selects the exact provider callback. */
         public function testProviderSpecificLogoutEndpoint(): void {
@@ -368,6 +426,9 @@ namespace {
      */
     $test = new GlpiPlugin\Samlsso\Tests\ConfigIntegrityTest();
     try {
+        $test->testRestoreFieldBoundary();
+        $test->testLoginFlowPostValidation();
+        $test->testDiagnosticXmlIsolation();
         $test->testProviderSpecificLogoutEndpoint();
         $test->testSchemaVsConstants();
         $test->testValidatorsExistence();

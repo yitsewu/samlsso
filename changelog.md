@@ -1,5 +1,6 @@
 
 **V1.3.3**
+- Refactor: Extract state, configuration, claim mapping, provisioning and diagnostic helpers; reject duplicate authentication-state rows and malformed options, isolate diagnostic XML parsing, and escape rendered diagnostic values. Preserve GLPI rule-page include contracts and lifecycle method order.
 - Compatibility: Use canonical GLPI 11+ plugin routes without duplicating installation subdirectories, pass raw user values to native persistence APIs, and resolve query expressions through the native DBAL namespace.
 - Tests: Cover root/subdirectory URLs and raw user-update values with a deliberately encoding legacy sanitizer fixture.
 - SLO: Handle signed provider-specific IdP logout requests, retain local completion behavior, and clarify logout scope in all supported translations.
