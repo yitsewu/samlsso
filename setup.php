@@ -85,44 +85,13 @@ define('PLUGIN_SAMLSSO_CLASSES', [
 ]);
 
 
-/**
- * Returns the web path of the plugin, relative to the GLPI base URI.
- *
- * GLPI 12 removed Plugin::getWebDir() (see GLPI CHANGELOG) and mandates that
- * all plugin URLs start with '/plugins', for plugins installed in 'plugins'
- * as well as in 'marketplace'. On GLPI 11 the core method still exists and
- * handles both install locations, so it is preferred when available.
- *
- * @return string Web path without trailing slash, e.g. "/glpi/plugins/samlsso".
- */
-function samlsso_plugin_web_dir(): string                                                      // NOSONAR - GLPI default naming.
+/** Return the canonical plugin URL used by GLPI 11 and later, including marketplace installs. */
+function samlsso_plugin_web_dir(): string // NOSONAR - Existing public GLPI plugin helper name.
 {
     global $CFG_GLPI;
-
-    if (method_exists('Plugin', 'getWebDir')) {
-        // GLPI <= 11: core resolves the correct location (plugins/ or marketplace/).
-        $webDir = Plugin::getWebDir(PLUGIN_NAME);
-        if (is_string($webDir) && $webDir !== '') {
-            return $webDir;
-        }
-    }
-
-    // GLPI >= 12: Plugin::getWebDir() no longer exists. Every plugin, whatever
-    // its install directory, is served from the '/plugins' path under root_doc.
-    $rootDoc = (isset($CFG_GLPI['root_doc'])) ? (string) $CFG_GLPI['root_doc'] : '';
-    return $rootDoc . '/plugins/' . PLUGIN_NAME;
+    return (string) ($CFG_GLPI['root_doc'] ?? '') . '/plugins/' . PLUGIN_NAME;
 }
 
-// Deal with GLPI ability to place plugin in multiple locations.
-// https://github.com/DonutsNL/samlsso/issues/41
-//
-// Composed exactly as before the GLPI 12 migration: the constant is the
-// absolute base URL ('url_base') followed by the plugin web path, so every
-// consumer (ACS/SLO/metadata URLs exposed to the IdP, redirects) keeps the
-// same shape it had on GLPI 11. Only the 'Plugin::getWebDir()' call that
-// produced the web path had to be replaced; see samlsso_plugin_web_dir().
-$urlBase = (isset($CFG_GLPI) && is_array($CFG_GLPI) && isset($CFG_GLPI['url_base'])) ? $CFG_GLPI['url_base'] : '';
-define('PLUGIN_SAMLSSO_WEBDIR', $urlBase . samlsso_plugin_web_dir() . '/');
 
 /**
  * Returns the absolute plugin web base URL, computed at call time.
@@ -143,36 +112,34 @@ define('PLUGIN_SAMLSSO_WEBDIR', $urlBase . samlsso_plugin_web_dir() . '/');
  * @return string Absolute base URL of the plugin, with a trailing slash.
  * @see https://github.com/DonutsNL/samlsso/issues/41
  */
-function samlsso_webdir(): string
+function samlsso_webdir(): string // NOSONAR - Existing public helper / GLPI plugin hook name is a compatibility contract.
 {
     global $CFG_GLPI;
     $urlBase = (isset($CFG_GLPI['url_base'])) ? rtrim((string) $CFG_GLPI['url_base'], '/') : '';
-    return $urlBase . samlsso_plugin_web_dir() . '/';
+    return ($urlBase !== '' ? $urlBase . '/plugins/' . PLUGIN_NAME : samlsso_plugin_web_dir()) . '/';
 }
 
 
 // METHODS
 /**
  * Default GLPI Plugin bootstrap function.
- * @param void
  * @return void
  * @see https://github.com/glpi-project/glpi/issues/21414
  */
-function plugin_samlsso_boot(): void
+function plugin_samlsso_boot(): void // NOSONAR - Existing public helper / GLPI plugin hook name is a compatibility contract.
 {
     SessionManager::RegisterPluginStatelessPath(PLUGIN_NAME, '#^/front/acs/#');             // Register the assertion Service as stateless (prevent csrf checking)
     SessionManager::registerPluginStatelessPath(PLUGIN_NAME, '#^/front/slo/#');             // Register the logout service as stateless (prevent csrf checking)
 }
 
 /**
- * @param void
  * @return void
  * @see https://glpi-developer-documentation.readthedocs.io/en/master/plugins/requirements.html
  */
 function plugin_init_samlsso(): void                                                           // NOSONAR - GLPI default naming
 {
 
-    global $PLUGIN_HOOKS;                                                                       // NOSONAR - GLPI default naming. 
+    global $PLUGIN_HOOKS;                                                                       // NOSONAR - GLPI default naming.
     $plugin = new Plugin();
 
     // Include additional composer PSR4 autoloader
@@ -180,21 +147,19 @@ function plugin_init_samlsso(): void                                            
 
     // Backend block for local login when Enforced is enabled
     $is_login_post = isset($_POST['login_name']) && isset($_POST['login_password']);
-    
+
     // Check if bypass flag exists in the whitelisted plugin session namespace
     $is_bypassed = !empty($_SESSION['glpi_plugins']['samlsso']['bypass']);
 
-    if ($is_login_post && !$is_bypassed && Session::getLoginUserID() === false) {
-        if (Config::getIsEnforced()) {
-            // Log the blocked login attempt to the plugin events log
-            Toolbox::logInFile(
-                PLUGIN_NAME . PLUGIN_SAMLSSO_LOGEVENTS,
-                sprintf("SSO enforcement blocked local login attempt for user: %s\n", $_POST['login_name'])
-            );
-            // Nullify both username and password payloads to securely prevent native login
-            $_POST['login_name'] = null;
-            $_POST['login_password'] = null;
-        }
+    if ($is_login_post && !$is_bypassed && Session::getLoginUserID() === false && Config::getIsEnforced()) {
+        // Log the blocked login attempt to the plugin events log
+        Toolbox::logInFile(
+            PLUGIN_NAME . PLUGIN_SAMLSSO_LOGEVENTS,
+            sprintf("SSO enforcement blocked local login attempt for user: %s\n", $_POST['login_name'])
+        );
+        // Nullify both username and password payloads to securely prevent native login
+        $_POST['login_name'] = null;
+        $_POST['login_password'] = null;
     }
 
     // Do not show config buttons if plugin is not enabled.
@@ -202,7 +167,7 @@ function plugin_init_samlsso(): void                                            
 
         // Hook the configuration page
         if (Session::haveRight('config', UPDATE)) {
-            $PLUGIN_HOOKS['config_page'][PLUGIN_NAME]       = SamlSsoController::CONFIG_ROUTE;
+            $PLUGIN_HOOKS['config_page'][PLUGIN_NAME]       = SamlSsoController::CONFIG_ROUTE; // NOSONAR - GLPI global hook registry name.
         }
 
         // Add samlSSO configuration page to menu
@@ -228,7 +193,6 @@ function plugin_init_samlsso(): void                                            
 /**
  * Returns the name and the version of the plugin.
  *
- * @param void
  * @return array
  */
 function plugin_version_samlsso(): array                                                      // NOSONAR - GLPI default naming.
@@ -256,7 +220,6 @@ function plugin_version_samlsso(): array                                        
 /**
  * Check pre-requisites before install.
  *
- * @param void
  * @return boolean
  */
 function plugin_samlsso_check_prerequisites(): bool                                           // NOSONAR - GLPI default naming.

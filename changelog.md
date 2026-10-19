@@ -1,5 +1,7 @@
 
 **V1.3.3**
+- Compatibility: Use canonical GLPI 11+ plugin routes without duplicating installation subdirectories, pass raw user values to native persistence APIs, and resolve query expressions through the native DBAL namespace.
+- Tests: Cover root/subdirectory URLs and raw user-update values with a deliberately encoding legacy sanitizer fixture.
 - SLO: Handle signed provider-specific IdP logout requests, retain local completion behavior, and clarify logout scope in all supported translations.
 - Test Infrastructure: Make standalone tests portable, require normal suite completion without PHP diagnostics, strengthen ACS and provisioning assertions, and distinguish development validation from release packaging.
 - Feature: Added GLPI 12 compatibility while keeping GLPI 11 support unchanged - resolves https://github.com/DonutsNL/samlsso/issues/167.

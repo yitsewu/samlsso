@@ -49,7 +49,7 @@ use CommonDBTM;
 // https://glpi-developer-documentation.readthedocs.io/en/master/devapi/crontasks.html
 use CronTask as glpiCronTask;
 use Migration;
-use QueryExpression;
+use Glpi\DBAL\QueryExpression;
 use GlpiPlugin\Samlsso\LoginState;
 
 class CronTask extends CommonDBTM

@@ -379,6 +379,7 @@ namespace GlpiPlugin\Samlsso\Tests {
             \User::$mockObject->mockUpdateCalled = false;
 
             $userFields = $this->getFullUserData('existing_user', 'existing@example.com');
+            $userFields[SamlUser::REALNAME] = "O'Reilly & <Fixture>";
             $resUser = $samlUser->getOrCreateUser($userFields, $configEntity);
 
             if (\User::$mockObject->mockUpdateCalled) {
@@ -390,6 +391,11 @@ namespace GlpiPlugin\Samlsso\Tests {
             \User::$mockObject->mockUpdateCalled = false;
 
             $resUser = $samlUser->getOrCreateUser($userFields, $configEntity);
+            if (\User::$mockObject->updatedUserData[SamlUser::REALNAME] !== "O'Reilly & <Fixture>") {
+                throw new \UnexpectedValueException('GLPI 11+ update payload was HTML encoded instead of remaining raw');
+            }
+
+
             if (!\User::$mockObject->mockUpdateCalled) {
                 throw new \UnexpectedValueException("User update was NOT triggered on login even though sync_on_login is enabled.");
             }

@@ -177,8 +177,8 @@ namespace GlpiPlugin\Samlsso\Tests {
             $setup = $this->readPluginFile('setup.php');
             $errors = [];
 
-            if (!str_contains($setup, "method_exists('Plugin', 'getWebDir')")) {
-                $errors[] = 'setup.php does not guard Plugin::getWebDir() behind method_exists().';
+            if (str_contains($setup, 'Plugin::getWebDir(')) {
+                $errors[] = 'setup.php uses a deprecated plugin path resolver instead of the GLPI 11+ canonical route.';
             }
             if (!str_contains($setup, 'function samlsso_plugin_web_dir')) {
                 $errors[] = 'setup.php is missing the samlsso_plugin_web_dir() helper.';
@@ -195,7 +195,7 @@ namespace GlpiPlugin\Samlsso\Tests {
             }
 
             if (!empty($errors)) {
-                throw new \Exception("GLPI 12 web-dir / version support validation failed:\n" . implode("\n", $errors));
+                throw new \UnexpectedValueException("GLPI 12 web-dir / version support validation failed:\n" . implode("\n", $errors));
             }
 
             echo "✅ Validated web-dir helper and max GLPI version: absolute web dir resolved at call time, GLPI 12 supported.\n";

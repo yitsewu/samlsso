@@ -873,7 +873,7 @@ namespace Glpi\Toolbox {
              * @return array Sanitized input parameters.
              */
             public static function sanitize(array $input): array {
-                return $input;
+                return array_map(static fn($value) => is_string($value) ? htmlspecialchars($value, ENT_QUOTES, 'UTF-8') : $value, $input);
             }
         }
     }
