@@ -765,8 +765,27 @@ class ClaimMapEntity extends ClaimMapItem // NOSONAR - Preserve the existing pub
         }
         return $result;
     }
-    /** Username and email mappings must carry a claim and remain required. */
-    private function requireIdentityMapping(int $index, string $targetType, string $glpiField, mixed $samlClaim, mixed $isRequired, bool &$hasUsername, bool &$hasEmail): mixed
+    /**
+     * Mark identity mappings as required without coercing values before field validation.
+     *
+     * @param int $index Submitted mapping index used for validation messages.
+     * @param mixed $targetType Unvalidated mapping target type.
+     * @param mixed $glpiField Unvalidated GLPI field name.
+     * @param mixed $samlClaim Unvalidated claim name.
+     * @param mixed $isRequired Submitted required flag, normalized by the caller.
+     * @param bool $hasUsername Whether a username mapping has been encountered.
+     * @param bool $hasEmail Whether an email mapping has been encountered.
+     * @return mixed Required flag, forced to 1 for identity mappings.
+     */
+    private function requireIdentityMapping(
+        int $index,
+        mixed $targetType,
+        mixed $glpiField,
+        mixed $samlClaim,
+        mixed $isRequired,
+        bool &$hasUsername,
+        bool &$hasEmail
+    ): mixed
     {
         if ($targetType === self::TARGET_TYPE_USER_FIELD) {
             if ($glpiField === self::FIELD_USERNAME) {

@@ -54,6 +54,7 @@ namespace GlpiPlugin\Samlsso\Tests {
     require_once __DIR__ . '/../src/Config/ClaimMapEntity.php';
     require_once __DIR__ . '/../src/Config/ConfigItem.php';
     require_once __DIR__ . '/../src/Config/ConfigEntity.php';
+    require_once __DIR__ . '/../src/Config/ConfigDefaultTpl.php';
     require_once __DIR__ . '/../src/LoginFlow/User.php';
     require_once __DIR__ . '/../src/LoginFlow.php';
     require_once __DIR__ . '/../src/RuleSaml.php';
@@ -128,6 +129,26 @@ namespace GlpiPlugin\Samlsso\Tests {
             }
 
             echo "✅ Preset YAML mapping structures parsed successfully\n";
+        }
+
+        /**
+         * Reject non-string mapping fields through validation rather than a helper type error.
+         *
+         * @throws \UnexpectedValueException If invalid field types are accepted or lose their row error.
+         */
+        public function testInvalidMappingFieldTypes(): void
+        {
+            $invalidMappings = [
+                ['target_type' => 1, 'glpi_field' => 'realname', 'saml_claim' => 'family_name'],
+                ['target_type' => 'user_field', 'glpi_field' => false, 'saml_claim' => 'family_name'],
+            ];
+            foreach ($invalidMappings as $mapping) {
+                $entity = new ClaimMapEntity(-1);
+                if ($entity->validate([$mapping]) || !isset($entity->getErrors()['mapping_0'])) {
+                    throw new \UnexpectedValueException('Invalid mapping field type did not produce a row error.');
+                }
+            }
+            echo "✅ Non-string mapping fields return validation errors\n";
         }
 
         /**
@@ -313,12 +334,15 @@ namespace GlpiPlugin\Samlsso\Tests {
         {
             // Empty observed claims initially
             $this->db->setResponse('glpi_plugin_samlsso_observedclaims', []);
+            /** The preceding custom-mapping test must not supply this test's identity configuration. */
+            $this->db->setResponse('glpi_plugin_samlsso_claimmaps', []);
 
             $response = new TestResponse();
             $response->mockNameId = 'john.doe';
             $response->mockAttributes = [
                 'claim-one' => ['value1'],
-                'claim-two' => ['value2']
+                'claim-two' => ['value2'],
+                SamlUser::SCHEMA_EMAILADDRESS => ['john.doe@example.com'],
             ];
 
             // Trigger mapping logic which tracks observed claims
@@ -398,7 +422,7 @@ XML;
 
             $response = new TestResponse();
             $response->mockNameId = 'john.doe';
-            $response->mockAttributes = [];
+            $response->mockAttributes = [SamlUser::SCHEMA_EMAILADDRESS => ['john.doe@example.com']];
 
             $userFields = SamlUser::getUserInputFieldsFromSamlClaim($response, 1);
             if ($userFields[SamlUser::FIRSTNAME] !== 'DefaultFirstname') {
@@ -418,7 +442,8 @@ XML;
             $response = new TestResponse();
             $response->mockNameId = 'john.doe';
             $response->mockAttributes = [
-                'overlength-firstname-claim' => [str_repeat('A', 300)]
+                'overlength-firstname-claim' => [str_repeat('A', 300)],
+                SamlUser::SCHEMA_EMAILADDRESS => ['john.doe@example.com'],
             ];
             $userFields = SamlUser::getUserInputFieldsFromSamlClaim($response, 1);
             if ($userFields[SamlUser::FIRSTNAME] !== 'DefaultFirstname') {
@@ -446,6 +471,7 @@ XML;
             $response->mockNameId = 'john.doe';
             $response->mockAttributes = [];
 
+            $previousThrowOnError = \GlpiPlugin\Samlsso\LoginFlow::$throwOnError;
             \GlpiPlugin\Samlsso\LoginFlow::$throwOnError = true;
             $hasRaisedError = false;
             try {
@@ -457,7 +483,7 @@ XML;
                     throw $e;
                 }
             } finally {
-                \GlpiPlugin\Samlsso\LoginFlow::$throwOnError = false;
+                \GlpiPlugin\Samlsso\LoginFlow::$throwOnError = $previousThrowOnError;
             }
 
             if (!$hasRaisedError) {
@@ -775,12 +801,13 @@ XML;
          */
         public function testDynamicRuleFieldClaimMapping(): void
         {
-            $entity = new ClaimMapEntity(1);
-            $entity->save([
+            $mappings = [
                 ['target_type' => ClaimMapItem::TARGET_TYPE_USER_FIELD, 'glpi_field' => ClaimMapItem::FIELD_USERNAME, 'saml_claim' => 'custom-uid'],
                 ['target_type' => ClaimMapItem::TARGET_TYPE_USER_FIELD, 'glpi_field' => ClaimMapItem::FIELD_EMAIL, 'saml_claim' => 'custom-mail'],
                 ['target_type' => ClaimMapItem::TARGET_TYPE_RULE_FIELD, 'glpi_field' => ClaimMapItem::FIELD_EMAIL, 'saml_claim' => 'custom-mail-rule']
-            ]);
+            ];
+            /** The CommonDBTM shim does not persist add(); configure the rows this resolution test reads. */
+            $this->db->setResponse('glpi_plugin_samlsso_claimmaps', $mappings);
 
             $response = new TestResponse();
             $response->mockNameId = 'john.doe';
@@ -803,9 +830,13 @@ XML;
 
 namespace {
     $test = new GlpiPlugin\Samlsso\Tests\ClaimMappingTest();
+    /** Unexpected login failures must fail the suite rather than terminate it with exit status zero. */
+    $previousThrowOnError = GlpiPlugin\Samlsso\LoginFlow::$throwOnError;
+    GlpiPlugin\Samlsso\LoginFlow::$throwOnError = true;
     try {
         $test->testPresets();
         $test->testClaimMapEntityValidation();
+        $test->testInvalidMappingFieldTypes();
         $test->testFallbackMapping();
         $test->testCustomMapping();
         $test->testObservedClaimsTracking();
@@ -815,8 +846,10 @@ namespace {
         $test->testBulkExportImport();
         $test->testDynamicRuleFieldClaimMapping();
         $test = null;
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
         echo "\n❌ Test Failed: " . $e->getMessage() . "\n";
         exit(1);
+    } finally {
+        GlpiPlugin\Samlsso\LoginFlow::$throwOnError = $previousThrowOnError;
     }
 }

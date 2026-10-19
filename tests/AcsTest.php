@@ -95,6 +95,11 @@ namespace OneLogin\Saml2 {
 }
 
 namespace GlpiPlugin\Samlsso\LoginFlow {
+    /** Signals that ACS reached the terminal browser-redirect boundary during a test. */
+    class AcsRedirectObserved extends \RuntimeException
+    {
+    }
+
     /**
      * Testable subclass of Acs.
      * Overrides printError to capture execution failures instead of calling exit.
@@ -102,6 +107,20 @@ namespace GlpiPlugin\Samlsso\LoginFlow {
     class TestableAcs extends Acs {
         /** @var array Captures parameters of the last reported error. */
         public static array $lastError = [];
+
+        /**
+         * Replace only the terminal HTTP boundary so successful-login assertions can run.
+         *
+         * The production method emits an HTML redirect and exits, which would otherwise
+         * end this test process before its success assertions and runner sentinel.
+         *
+         * @return never
+         * @throws AcsRedirectObserved When login reaches the browser redirect.
+         */
+        public static function performBrowserRedirect(): never
+        {
+            throw new AcsRedirectObserved('ACS reached the browser redirect boundary');
+        }
 
         /**
          * Overrides printError to store error details and throw an exception to halt flow execution.
@@ -135,6 +154,7 @@ namespace GlpiPlugin\Samlsso\LoginFlow {
 namespace GlpiPlugin\Samlsso\Tests {
 
     use GlpiPlugin\Samlsso\LoginFlow\TestableAcs;
+    use GlpiPlugin\Samlsso\LoginFlow\AcsRedirectObserved;
     use GlpiPlugin\Samlsso\Loginstate;
     use OneLogin\Saml2\Response;
     use Symfony\Component\HttpFoundation\Request;
@@ -172,13 +192,20 @@ namespace GlpiPlugin\Samlsso\Tests {
             $acs = new TestableAcs();
             TestableAcs::$lastError = [];
 
+            $replayRejected = false;
             try {
                 $acs->init($request);
-                throw new \UnexpectedValueException("Acs should have blocked replayed SAML response ID.");
             } catch (\Exception $e) {
-                if (!str_contains($e->getMessage(), 'already been used') && !str_contains($e->getMessage(), 'replayed')) {
+                if (!str_contains($e->getMessage(), 'already been used')) {
                     throw new \UnexpectedValueException("Unexpected failure message on replay check: " . $e->getMessage());
                 }
+                $replayRejected = true;
+            }
+            if (
+                !$replayRejected
+                || !str_contains(TestableAcs::$lastError['message'] ?? '', 'already been used')
+            ) {
+                throw new \UnexpectedValueException('ACS did not reject the replay through its error handler.');
             }
 
             echo "✅ ACS: SAML response replay protection\n";
@@ -212,9 +239,11 @@ namespace GlpiPlugin\Samlsso\Tests {
                 $acs->init($request);
                 throw new \UnexpectedValueException("Acs should have blocked request with invalid state phase.");
             } catch (\Exception $e) {
-                /**
-                 * Expected to fail because the state phase is PHASE_INITIAL (1) instead of PHASE_SAML_ACS (2).
-                 */
+                if (!str_contains($e->getMessage(), 'already been used')) {
+                    throw new \UnexpectedValueException(
+                        'Unexpected failure on invalid phase check: ' . $e->getMessage()
+                    );
+                }
             }
 
             echo "✅ ACS: invalid login state phase validation\n";
@@ -540,7 +569,7 @@ namespace GlpiPlugin\Samlsso\Tests {
         }
 
         /**
-         * Test Happy Path: Successful ACS login triggers browser redirection.
+         * Verify successful ACS state and logout context before the browser redirect boundary.
          */
         public function testSuccessfulAcsLogin(): void {
             $request = Request::create('/plugins/samlsso/front/acs.php', 'POST', [
@@ -559,15 +588,34 @@ namespace GlpiPlugin\Samlsso\Tests {
 
             $acs = new TestableAcs();
             TestableAcs::$lastError = [];
+            $_SESSION['samlsso_slo_context'] = ['stale' => true];
+            $redirected = false;
             try {
                 $acs->init($request);
-                throw new \UnexpectedValueException("Acs should have redirected the user upon successful login.");
-            } catch (\Exception $e) {
-                if (!str_contains($e->getMessage(), 'Redirect to:')) {
-                    throw new \UnexpectedValueException("Successful login did not initiate redirect. Instead failed with: " . $e->getMessage());
-                }
+            } catch (AcsRedirectObserved) {
+                $redirected = true;
             }
-            echo "✅ ACS: Successful auth data path with redirection\n";
+            if (!$redirected || TestableAcs::$lastError !== []) {
+                throw new \UnexpectedValueException('Successful ACS login did not reach the browser redirect.');
+            }
+
+            $activeState = \GlpiPlugin\Samlsso\LoginFlow::$activeState;
+            if (
+                !$activeState instanceof Loginstate
+                || $activeState->getPhase() !== Loginstate::PHASE_SAML_AUTH
+                || !$activeState->isSamlAuthed()
+                || $activeState->getSamlResponseId() !== 'UNIQUE_RESPONSE_ID_888'
+            ) {
+                throw new \UnexpectedValueException('Successful ACS login did not persist its authentication state.');
+            }
+            if (($_SESSION['samlsso_slo_context'] ?? null) !== [
+                'idp' => 5,
+                'name_id' => 'testuser',
+                'session_index' => 'MOCK_SESSION_INDEX',
+            ]) {
+                throw new \UnexpectedValueException('Successful ACS login did not replace the stale logout context.');
+            }
+            echo "✅ ACS: successful authentication state, fresh logout context, and redirect boundary\n";
         }
 
         /**

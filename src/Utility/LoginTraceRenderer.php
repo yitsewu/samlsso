@@ -1,11 +1,10 @@
 <?php
 
-declare(strict_types=1);
 /**
  * ------------------------------------------------------------------------
- * GLPISaml
+ * samlSSO
  *
- * GLPISaml is heavily influenced by the initial work of Derrick Smith's
+ * samlSSO is heavily influenced by the initial work of Derrick Smith's
  * PhpSaml. This project's intent is to address some structural issues and
  * changes made by the gradual development of GLPI and provide a free, safe
  * and functional way of implementing SAML authentication in GLPI.
@@ -15,49 +14,55 @@ declare(strict_types=1);
  *
  * LICENSE
  *
- * This file is part of GLPISaml project.
+ * This file is part of the samlSSO plugin for GLPI.
  *
- * GLPISaml plugin is free software: you can redistribute it and/or modify
+ * samlSSO is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * GLPISaml is distributed in the hope that it will be useful,
+ * samlSSO is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with GLPISaml. If not, see <http://www.gnu.org/licenses/> or
+ * along with samlSSO. If not, see <http://www.gnu.org/licenses/> or
  * https://choosealicense.com/licenses/gpl-3.0/
  *
  * ------------------------------------------------------------------------
  *
- *  @package    GLPISaml
+ *  @package    samlSSO
  *  @version    1.3.2
  *  @author     Chris Gralike
  *  @copyright  Copyright (c) 2024 by Chris Gralike
  *  @license    GPLv3+
- *  @see        https://github.com/DonutsNL/GLPISaml/readme.md
- *  @link       https://github.com/DonutsNL/GLPISaml
- *  @since      1.0.0
+ *  @see        https://github.com/DonutsNL/samlsso/readme.md
+ *  @link       https://github.com/DonutsNL/samlsso
+ *  @since      1.3.2
  * ------------------------------------------------------------------------
- *
- * We have a GLPI state and a SAML state. This class is intended to manage
- * and validate both states and their validity at all times. It should for
- * instance allow the the plugin to invalidate a session for what ever reason
- * and force a user to login again. It also allows future SIEM integration
- * to forcefully invalidate any active sessions.
- *
- **/
+ */
+
+declare(strict_types=1);
 
 namespace GlpiPlugin\Samlsso\Utility;
 
-/** Render stored diagnostic traces as HTML without interpreting identity values as markup. */
+/**
+ * Render stored login diagnostics without interpreting identity values as HTML.
+ *
+ * This presentation helper does not alter authentication or session state.
+ */
 final class LoginTraceRenderer
 {
+    /**
+     * Format serialized trace steps in their stored order.
+     *
+     * @param string $serialized Serialized array produced by the login-state trace writer.
+     * @return string Escaped HTML, or an empty string if the decoded value is not an array.
+     */
     public static function render(string $serialized): string
     {
+        /** Diagnostic data must not instantiate objects while being decoded for display. */
         $steps = $serialized === '' ? [] : unserialize($serialized, ['allowed_classes' => false]);
         if (!is_array($steps)) {
             return '';
@@ -73,6 +78,12 @@ final class LoginTraceRenderer
         return $html;
     }
 
+    /**
+     * Expand JSON object or array fields while preserving ordinary values as text.
+     *
+     * @param mixed $value Stored trace value, optionally containing JSON field details.
+     * @return string Escaped HTML for the value or its individual fields.
+     */
     private static function renderValue(mixed $value): string
     {
         if (!is_string($value) || (!str_starts_with($value, '{') && !str_starts_with($value, '['))) {
@@ -90,6 +101,12 @@ final class LoginTraceRenderer
         return implode('<br/>&nbsp;&nbsp;↳ ', $parts);
     }
 
+    /**
+     * Flatten nested diagnostic values before applying HTML escaping.
+     *
+     * @param mixed $value A scalar, array, or unsupported stored value.
+     * @return string Readable scalar text; unsupported values become an empty string.
+     */
     private static function plainValue(mixed $value): string
     {
         if (is_array($value)) {
@@ -101,11 +118,23 @@ final class LoginTraceRenderer
         return is_scalar($value) ? (string) $value : '';
     }
 
+    /**
+     * Encode text for insertion into the trace HTML.
+     *
+     * @param string $value Untrusted diagnostic text.
+     * @return string HTML-escaped text with invalid UTF-8 replaced.
+     */
     private static function escape(string $value): string
     {
         return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
 
+    /**
+     * Resolve a known field label or derive a readable label for an unknown key.
+     *
+     * @param string $key Stored diagnostic field name.
+     * @return string Plain-text field label, escaped by the caller.
+     */
     private static function fieldLabel(string $key): string
     {
         $labels = self::fieldLabels();
@@ -114,6 +143,11 @@ final class LoginTraceRenderer
         return $labels[$key] ?? $fallback;
     }
 
+    /**
+     * Provide display names for the login steps recorded by the state machine.
+     *
+     * @return array<string, string> Stored step keys mapped to plain-text labels.
+     */
     private static function stepLabels(): array
     {
         return [
@@ -135,6 +169,11 @@ final class LoginTraceRenderer
         ];
     }
 
+    /**
+     * Provide display names for user fields and rule-engine results.
+     *
+     * @return array<string, string> Stored field keys mapped to plain-text labels.
+     */
     private static function fieldLabels(): array
     {
         return [

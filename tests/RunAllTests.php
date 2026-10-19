@@ -85,12 +85,25 @@ foreach ($files as $file) {
     $returnCode = 0;
 
     /**
-     * Run the test file using the current PHP binary and capture output and return code.
+     * Require the suite through a wrapper that confirms control returns normally.
+     * A production exit(0) must not silently mark a partially executed suite as passing.
      */
-    exec("php " . escapeshellarg($file) . " 2>&1", $output, $returnCode);
+    $completionMarker = 'SAMLSSO_SUITE_COMPLETED_' . bin2hex(random_bytes(16));
+    $wrapper = 'require $argv[1]; echo "\n", $argv[2], "\n";';
+    $command = escapeshellarg(PHP_BINARY)
+        . ' -d error_reporting=-1 -d display_errors=stderr -d log_errors=0 -d html_errors=0 '
+        . '-r ' . escapeshellarg($wrapper) . ' -- ' . escapeshellarg($file)
+        . ' ' . escapeshellarg($completionMarker) . ' 2>&1';
+    exec($command, $output, $returnCode);
 
-    // A zero exit status must not hide PHP runtime warnings emitted by a suite.
-    if ($returnCode === 0 && preg_match('/^(?:PHP )?(?:Warning|Notice|Deprecated|Fatal error|Parse error):/m', implode("\n", $output))) {
+    if ($returnCode === 0 && !in_array($completionMarker, $output, true)) {
+        $output[] = 'Suite exited before its completion marker; remaining assertions may not have run.';
+        $returnCode = 1;
+    }
+
+    /** A zero exit status must not hide diagnostics emitted under the pinned CLI error settings. */
+    $diagnosticPattern = '/^(?:PHP )?(?:Warning|Notice|Deprecated|Fatal error|Parse error):/m';
+    if ($returnCode === 0 && preg_match($diagnosticPattern, implode("\n", $output))) {
         $returnCode = 1;
     }
 

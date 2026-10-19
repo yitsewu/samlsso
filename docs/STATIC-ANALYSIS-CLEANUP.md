@@ -11,7 +11,7 @@ This separate branch addresses the owner's expanded cleanup request. It preserve
 - Reject DTD-bearing diagnostic XML and avoid external-resource/entity expansion. Real configuration-class regression tests cover this boundary.
 - Validate the existing login-flow form's POST options instead of silently ignoring an extra constructor argument. This does not enable the unfinished legacy flow-configuration feature or create its schema.
 - Split configuration, restoration, claim mapping, migration, GeoIP and user-provisioning helpers while preserving existing public interfaces and policies.
-- Correct PHPDoc types, unused bindings and deprecated query-expression imports. Runtime PHP warnings can no longer be hidden by an otherwise successful test-suite exit code.
+- Correct PHPDoc types, unused bindings and deprecated query-expression imports. The current runner fixes PHP diagnostic settings and requires normal suite completion; see the review correction below.
 
 ## Analyzer evidence
 
@@ -34,7 +34,7 @@ These are scoped analyzer results, not a claim that all possible defects or secu
 
 ## Regression evidence
 
-- `php tests/RunAllTests.php`: 19 independent suites passed, with runtime warnings treated as failure.
+- Historical runner result: 19 suites reported success. The review below found that early `exit(0)` could hide unexecuted assertions; this count alone did not establish complete execution.
 - PHP syntax: 53 files passed.
 - Added coverage: duplicate state rejection, diagnostic XML isolation, trace escaping/nested values, POST option validation, restore field boundaries, raw user-update values, and canonical root/subdirectory URLs.
 - GLPI 11.0.11 and 12.0.0 isolated copies: forced native plugin installation, activation and cache clearing passed.
@@ -46,12 +46,31 @@ These are scoped analyzer results, not a claim that all possible defects or secu
 
 ### Browser diagnostics and scope
 
-Follow-up fix validated on 2026-10-19: the SLO controller now confines libxml diagnostics to the request and restores the previous error mode in `finally`. Thirteen real-toolkit SLO cases cover malformed payload/truncated XML under both initial libxml modes, warning-free rejection, and unchanged signed-request validation. All 19 suites pass; development-version recognition also accepts CRLF changelogs while strict release checks remain enforced. Intelephense and SonarLint were rerun with zero diagnostics for the controller fix.
+Follow-up fix validated on 2026-10-19: the SLO controller now confines libxml diagnostics to the request and restores the previous error mode in `finally`. Thirteen real-toolkit SLO cases covered malformed payload/truncated XML under both initial libxml modes, warning-free rejection, and unchanged signed-request validation. The old runner reported 19 passing suites, subject to the completion limitation identified below. Development-version recognition also accepts CRLF changelogs while strict release checks remain enforced. Intelephense and SonarLint were rerun with zero diagnostics for the controller fix.
 
 Both versions passed fresh browser login (HTTP 200), malformed logout (400 with login preserved), and signed IdP logout (302 with both sessions expired); no new XML/PHP warnings occurred during these browser paths. GLPI 11's menu search successfully returned computer entries without a browser console error. The earlier FuzzySearch error was not reproduced; its cause remains unverified and no core patch was made. An initial GLPI 11 stale login timed out; a new native login request succeeded without relaxing validation. A test cache-clear CLI error predating the browser run is separate from these request paths; final cache clearing succeeded. Temporary settings and original plugin trees were restored, and test forwarding/guest were stopped.
 
 This acceptance covers signed IdP-initiated top-level navigation. It does not establish SP-initiated LogoutResponse support, general cross-origin iframe compatibility, subdirectory browser coverage, or a new MFA challenge.
 
+### Review corrections and current validation — 2026-10-19
+
+The review found and corrected five functional boundaries: explicit rejection of SHA-1/unknown/missing logout signature algorithms; provider-controlled proxy handling with restoration of the toolkit setting; an inert local completion page for an already logged-out browser; restoration of the local collection variable required by GLPI's included rule list/form pages; and validation of malformed claim-map fields before typed helper arguments can coerce them or throw a TypeError.
+
+The runner now uses the current PHP binary with `E_ALL` and plain diagnostic output, and requires a completion marker after each suite returns. This exposed premature `exit(0)` in ACS, claim-mapping and user-provisioning tests. Their fixtures now exercise expected failures through the existing test exception boundary, without weakening production validation. **All 20 suites complete and pass**, including the new `RulePageContractTest`. The SLO suite has **37 real-toolkit cases** covering state-before-cleanup ordering, untouched rejected sessions, returned response correlation and signature, proxy trust, algorithm restrictions, parser-state restoration and inert completion.
+
+The final 20-suite rerun also passes after the chooser-text and ACS fixture corrections: all 85 tracked PHP files (including tooling) pass syntax checks, and normalized hashes match for 105 PHP/template files across the local tree, scratch tree and both deployed test copies. All 15 ACS cases pass normally; a no-op `init()` mutation exits with failure at the replay-handler assertion, proving the negative test no longer catches its own failed assertion as success.
+
+Intelephense and SonarLint returned zero diagnostics for the revised 54-file PHP tree under the documented configurations; test doubles remain outside the production Intelephense symbol index. PHP_CodeSniffer 4 checked PSR-12 with zero diagnostics for **only** `SamlSsoController.php`, `LoginTraceRenderer.php`, `IdpSloTest.php` and `RulePageContractTest.php`. The standalone tests document narrow class/side-effect exceptions. This is not a whole-repository PSR-12 certification.
+
+| Current review candidate | Browser result |
+| --- | --- |
+| GLPI 11.0.11 | Passed fresh login, rule list and existing rule form; bare and malformed logout returned 400 with the login preserved; the SP return rendered a 200 local completion page and GLPI access was expired; a separately scoped signed IdP logout expired the dedicated session while unrelated IdP sessions remained. |
+| GLPI 12.0.0 | Passed the same fresh browser matrix: SAML login, rule list and existing rule form, bare/malformed logout rejection with the session preserved, 200 local-only SP completion with the old GLPI session expired, and separately scoped IdP logout with the target core session removed and unrelated sessions retained. |
+
+The SP return page confirms **local GLPI logout only**. It does not validate or correlate LogoutResponse, and the tested Authentik core session remained active while the SAML application dependency was removed. The separate IdP-initiated test removed its scoped master session and preserved unrelated sessions. `PROXIED` coverage uses the real toolkit with forwarded-header fixtures; an actual reverse-proxy browser deployment has not been validated. General iframe behavior remains unverified.
+
+The revised logout chooser was rendered in GLPI 12 and states that the identity provider determines whether other sessions end. The temporary provider configuration, original plugin trees, native settings and Apache configuration were restored and read back; both isolated guests and forwarding are stopped. An initial GLPI 11 cache ownership warning was confined to test preparation and the first completion-page load; correcting the test cache ownership allowed both native cache-clear commands to finish. No further PHP log entries appeared during the subsequent login, rule-page and logout matrix.
+
 ## Suggested review order
 
-Review the original SLO fix first, then the compatibility corrections and their tests, then the behavior-preserving helper extraction and diagnostic formatting. Keep this larger cleanup separate if maintainers prefer a narrow protocol fix. No release catalogue entry or upstream PR has been invented or submitted.
+Split the contribution into standalone test infrastructure/release-policy changes, the protocol fix and its ADR, GLPI compatibility/rule-page/validation corrections, then behavior-preserving helper extraction. Obtain issue scope for the broader changes instead of treating the SLO preparation issue as covering every refactor. Revalidate each resulting PR head. No release catalogue entry or upstream PR has been invented or submitted.
