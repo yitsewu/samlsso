@@ -76,12 +76,12 @@ namespace GlpiPlugin\Samlsso\Tests {
         {
             $base = realpath(__DIR__ . '/..');
             if ($base === false) {
-                throw new \Exception('Could not resolve plugin base path.');
+                throw new \UnexpectedValueException('Could not resolve plugin base path.');
             }
             $path = $base . '/' . $relative;
             $content = file_exists($path) ? file_get_contents($path) : false;
             if ($content === false) {
-                throw new \Exception("Unable to read plugin file: $relative");
+                throw new \UnexpectedValueException("Unable to read plugin file: $relative");
             }
             return $content;
         }
@@ -120,7 +120,7 @@ namespace GlpiPlugin\Samlsso\Tests {
             }
 
             if (!empty($errors)) {
-                throw new \Exception("GLPI 12 compatibility layer validation failed:\n" . implode("\n", $errors));
+                throw new \UnexpectedValueException("GLPI 12 compatibility layer validation failed:\n" . implode("\n", $errors));
             }
 
             echo "✅ Validated compatibility layer: src/compat.php defines the GLPI version gate and typed + untyped intermediates.\n";
@@ -158,7 +158,7 @@ namespace GlpiPlugin\Samlsso\Tests {
             }
 
             if (!empty($errors)) {
-                throw new \Exception("GLPI 12 version-typed class wiring failed:\n" . implode("\n", $errors));
+                throw new \UnexpectedValueException("GLPI 12 version-typed class wiring failed:\n" . implode("\n", $errors));
             }
 
             echo "✅ Validated class wiring: Config, Exclude, LoginFlow, RuleSaml and RuleSamlCollection extend their version-typed base.\n";
@@ -220,7 +220,7 @@ namespace GlpiPlugin\Samlsso\Tests {
             }
 
             if (!empty($errors)) {
-                throw new \Exception("Compatibility layer obfuscation check failed:\n" . implode("\n", $errors));
+                throw new \UnexpectedValueException("Compatibility layer obfuscation check failed:\n" . implode("\n", $errors));
             }
 
             echo "✅ Validated compatibility layer: no obfuscation or dynamic code execution in src/compat.php.\n";

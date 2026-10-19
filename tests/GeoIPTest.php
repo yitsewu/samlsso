@@ -68,25 +68,25 @@ namespace GlpiPlugin\Samlsso\Tests {
             // Test NL range
             $countryNL = GeoIPResolver::resolveCountry('81.204.2.126');
             if ($countryNL !== 'NL') {
-                throw new \Exception("Failed to resolve 81.204.2.126 as NL, got: " . var_export($countryNL, true));
+                throw new \UnexpectedValueException("Failed to resolve 81.204.2.126 as NL, got: " . var_export($countryNL, true));
             }
 
             // Test US range
             $countryUS = GeoIPResolver::resolveCountry('8.8.8.8');
             if ($countryUS !== 'US') {
-                throw new \Exception("Failed to resolve 8.8.8.8 as US, got: " . var_export($countryUS, true));
+                throw new \UnexpectedValueException("Failed to resolve 8.8.8.8 as US, got: " . var_export($countryUS, true));
             }
 
             // Test AU range
             $countryAU = GeoIPResolver::resolveCountry('1.1.1.1');
             if ($countryAU !== 'AU') {
-                throw new \Exception("Failed to resolve 1.1.1.1 as AU, got: " . var_export($countryAU, true));
+                throw new \UnexpectedValueException("Failed to resolve 1.1.1.1 as AU, got: " . var_export($countryAU, true));
             }
 
             // Test local/private IP returns fallback '??'
             $countryLocal = GeoIPResolver::resolveCountry('127.0.0.1');
             if ($countryLocal !== '??') {
-                throw new \Exception("Expected '??' for local IP, got: " . var_export($countryLocal, true));
+                throw new \UnexpectedValueException("Expected '??' for local IP, got: " . var_export($countryLocal, true));
             }
 
             echo "✅ GeoIP: country code lookup from IP address verified\n";
@@ -102,21 +102,21 @@ namespace GlpiPlugin\Samlsso\Tests {
             // Test country name resolution
             $nameNL = GeoIPResolver::countryCodeToName('NL');
             if ($nameNL !== 'Netherlands') {
-                throw new \Exception("Expected 'Netherlands', got: " . var_export($nameNL, true));
+                throw new \UnexpectedValueException("Expected 'Netherlands', got: " . var_export($nameNL, true));
             }
 
             // Test flag mapping
             $flagNL = GeoIPResolver::countryCodeToFlag('NL');
             // 'NL' flag emoji consists of regional indicators N (U+1F1F3) and L (U+1F1F1)
-            $expectedFlagNL = "\xF0\x9F\x87\xB3\xF0\x9F\x87\xB1"; 
+            $expectedFlagNL = "\xF0\x9F\x87\xB3\xF0\x9F\x87\xB1";
             if ($flagNL !== $expectedFlagNL) {
-                throw new \Exception("Unexpected flag emoji for NL: " . bin2hex($flagNL));
+                throw new \UnexpectedValueException("Unexpected flag emoji for NL: " . bin2hex($flagNL));
             }
 
             // Test fallback/empty input
             $flagEmpty = GeoIPResolver::countryCodeToFlag('??');
             if ($flagEmpty !== '') {
-                throw new \Exception("Expected empty flag for '??', got: " . var_export($flagEmpty, true));
+                throw new \UnexpectedValueException("Expected empty flag for '??', got: " . var_export($flagEmpty, true));
             }
 
             echo "✅ GeoIP: flag emoji and country name translation verified\n";

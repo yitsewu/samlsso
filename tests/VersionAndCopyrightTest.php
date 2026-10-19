@@ -66,21 +66,21 @@ namespace GlpiPlugin\Samlsso\Tests {
         public function testPhpFilesCopyrightAndVersion(): void {
             $basePath = realpath(__DIR__ . '/..');
             if ($basePath === false) {
-                throw new \Exception("Could not resolve base path.");
+                throw new \UnexpectedValueException("Could not resolve base path.");
             }
 
             $setupPath = $basePath . '/setup.php';
             if (!file_exists($setupPath)) {
-                throw new \Exception("setup.php not found at $setupPath");
+                throw new \UnexpectedValueException("setup.php not found at $setupPath");
             }
 
             $setupContent = file_get_contents($setupPath);
             if ($setupContent === false) {
-                throw new \Exception("Failed to read setup.php");
+                throw new \UnexpectedValueException("Failed to read setup.php");
             }
 
             if (!preg_match("/define\('PLUGIN_SAMLSSO_VERSION',\s*'([^']+)'\)/", $setupContent, $matches)) {
-                throw new \Exception("PLUGIN_SAMLSSO_VERSION definition not found in setup.php");
+                throw new \UnexpectedValueException("PLUGIN_SAMLSSO_VERSION definition not found in setup.php");
             }
 
             $targetVersion = $matches[1];
@@ -91,8 +91,8 @@ namespace GlpiPlugin\Samlsso\Tests {
 
             foreach ($iterator as $file) {
                 if ($file->isFile() && $file->getExtension() === 'php') {
-                    $filePath = $file->getRealPath();
-                    if ($filePath === false) {
+                    $filePath = str_replace('\\', '/', $file->getRealPath() ?: '');
+                    if ($filePath === '') {
                         continue;
                     }
 
@@ -124,10 +124,86 @@ namespace GlpiPlugin\Samlsso\Tests {
             }
 
             if (!empty($errors)) {
-                throw new \Exception("Version/Copyright validation failed:\n" . implode("\n", $errors));
+                throw new \UnexpectedValueException("Version/Copyright validation failed:\n" . implode("\n", $errors));
             }
 
             echo "✅ Validated all PHP files: Copyright headers present and versions aligned.\n";
+        }
+
+        /**
+         * Validate every published entry without inventing an unreleased download.
+         * Release builds additionally require the exact packaged version in the catalog.
+         *
+         * @throws \UnexpectedValueException for malformed, duplicate, missing or inconsistent entries.
+         */
+        public static function validateReleaseCatalog(
+            \SimpleXMLElement $xml,
+            string $targetVersion,
+            string $changelog,
+            bool $release
+        ): void {
+            $versions = [];
+            foreach ($xml->versions->version as $entry) {
+                $version = (string) $entry->num;
+                $url = (string) $entry->download_url;
+                $expected = 'https://github.com/DonutsNL/samlsso/releases/download/v' . $version . '/samlsso.zip';
+                $legacy = 'https://github.com/DonutsNL/glpisaml/releases/download/v' . $version . '/glpisaml.zip';
+                $validUrl = $url === $expected || (version_compare($version, '1.2.0', '<') && $url === $legacy);
+                if (!preg_match('/^\d+\.\d+\.\d+$/D', $version) || isset($versions[$version]) || !$validUrl) {
+                    throw new \UnexpectedValueException('Invalid or duplicate release catalog entry.');
+                }
+                $versions[$version] = true;
+            }
+            if ($versions === []) {
+                throw new \UnexpectedValueException('Release catalog is empty.');
+            }
+            if (isset($versions[$targetVersion])) {
+                return;
+            }
+            $declared = preg_match('/^\*\*V' . preg_quote($targetVersion, '/') . '\*\*\r?$/m', $changelog) === 1;
+            foreach (array_keys($versions) as $version) {
+                if (version_compare($targetVersion, $version, '<=')) {
+                    throw new \UnexpectedValueException('Missing version is not newer than published releases.');
+                }
+            }
+            if ($release || !$declared) {
+                throw new \UnexpectedValueException('Packaged version must be listed, or explicitly declared as development.');
+            }
+        }
+
+        /** Exercise development acceptance and strict release rejection using local fixtures. */
+        public function testReleaseCatalogPolicy(): void
+        {
+            $publishedVersion = '1.0.0';
+            $developmentVersion = '1.1.0';
+            $developmentEntry = '**V1.1.0**';
+            $xml = simplexml_load_string('<root><versions><version><num>1.0.0</num>'
+                . '<download_url>https://github.com/DonutsNL/samlsso/releases/download/v1.0.0/samlsso.zip</download_url>'
+                . '</version></versions></root>');
+            self::validateReleaseCatalog($xml, $publishedVersion, '', true);
+            self::validateReleaseCatalog($xml, $developmentVersion, $developmentEntry, false);
+            self::validateReleaseCatalog($xml, $developmentVersion, $developmentEntry . "\r\n", false);
+            $cases = [
+                [$xml, $developmentVersion, $developmentEntry, true],
+                [$xml, $developmentVersion, '', false],
+                [$xml, '0.9.0', '**V0.9.0**', false],
+                [simplexml_load_string('<root><versions/></root>'), $developmentVersion, $developmentEntry, false],
+            ];
+            $badUrl = simplexml_load_string($xml->asXML());
+            $badUrl->versions->version->download_url = 'https://untrusted.example/download.zip';
+            $cases[] = [$badUrl, $publishedVersion, '', true];
+            $duplicate = simplexml_load_string(str_replace('</versions>',
+                $xml->versions->version->asXML() . '</versions>', $xml->asXML()));
+            $cases[] = [$duplicate, $publishedVersion, '', true];
+            foreach ($cases as $case) {
+                try {
+                    self::validateReleaseCatalog(...$case);
+                } catch (\UnexpectedValueException $expected) {
+                    continue;
+                }
+                throw new \UnexpectedValueException('Invalid release policy fixture was accepted.');
+            }
+            echo "✅ Development builds remain distinct from strict release validation.\n";
         }
 
         /**
@@ -138,28 +214,28 @@ namespace GlpiPlugin\Samlsso\Tests {
         public function testSamlSsoXmlValidityAndDownload(): void {
             $basePath = realpath(__DIR__ . '/..');
             if ($basePath === false) {
-                throw new \Exception("Could not resolve base path.");
+                throw new \UnexpectedValueException("Could not resolve base path.");
             }
 
             $setupPath = $basePath . '/setup.php';
             if (!file_exists($setupPath)) {
-                throw new \Exception("setup.php not found at $setupPath");
+                throw new \UnexpectedValueException("setup.php not found at $setupPath");
             }
 
             $setupContent = file_get_contents($setupPath);
             if ($setupContent === false) {
-                throw new \Exception("Failed to read setup.php");
+                throw new \UnexpectedValueException("Failed to read setup.php");
             }
 
             if (!preg_match("/define\('PLUGIN_SAMLSSO_VERSION',\s*'([^']+)'\)/", $setupContent, $matches)) {
-                throw new \Exception("PLUGIN_SAMLSSO_VERSION definition not found in setup.php");
+                throw new \UnexpectedValueException("PLUGIN_SAMLSSO_VERSION definition not found in setup.php");
             }
 
             $targetVersion = $matches[1];
 
             $xmlPath = $basePath . '/samlsso.xml';
             if (!file_exists($xmlPath)) {
-                throw new \Exception("samlsso.xml not found at $xmlPath");
+                throw new \UnexpectedValueException("samlsso.xml not found at $xmlPath");
             }
 
             libxml_use_internal_errors(true);
@@ -171,28 +247,12 @@ namespace GlpiPlugin\Samlsso\Tests {
                     $errMsgs[] = trim($err->message) . " on line " . $err->line;
                 }
                 libxml_clear_errors();
-                throw new \Exception("samlsso.xml is not valid XML:\n" . implode("\n", $errMsgs));
+                throw new \UnexpectedValueException("samlsso.xml is not valid XML:\n" . implode("\n", $errMsgs));
             }
 
-            $versionFound = false;
-            if (isset($xml->versions->version)) {
-                foreach ($xml->versions->version as $v) {
-                    if ((string)$v->num === $targetVersion) {
-                        $downloadUrl = (string)$v->download_url;
-                        if (!str_contains($downloadUrl, "v{$targetVersion}/samlsso.zip")) {
-                            throw new \Exception("samlsso.xml version $targetVersion listed, but download_url is invalid: $downloadUrl");
-                        }
-                        $versionFound = true;
-                        break;
-                    }
-                }
-            }
-
-            if (!$versionFound) {
-                throw new \Exception("samlsso.xml is missing a <version> block for version $targetVersion under <versions>.");
-            }
-
-            echo "✅ Validated samlsso.xml: Valid XML and version $targetVersion listed with download URL.\n";
+            $changelog = file_get_contents($basePath . '/changelog.md');
+            self::validateReleaseCatalog($xml, $targetVersion, $changelog, getenv('SAMLSSO_RELEASE_VALIDATION') === '1');
+            echo "✅ Validated release catalog and explicit development/release policy.\n";
         }
     }
 }
@@ -205,6 +265,7 @@ namespace {
     try {
         $test->testPhpFilesCopyrightAndVersion();
         $test->testSamlSsoXmlValidityAndDownload();
+        $test->testReleaseCatalogPolicy();
         $test = null;
     } catch (\Exception $e) {
         echo "\n❌ Test Failed: " . $e->getMessage() . "\n";

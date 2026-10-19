@@ -216,16 +216,16 @@ namespace GlpiPlugin\Samlsso\Tests {
 
             // Assertions
             if (empty($migration->addFieldCalls)) {
-                throw new \Exception("Expected addField calls to be intercepted, but none were captured.");
+                throw new \UnexpectedValueException("Expected addField calls to be intercepted, but none were captured.");
             }
 
             foreach ($migration->addFieldCalls as $call) {
                 $opts = $call['options'];
                 if (array_key_exists('after', $opts)) {
-                    throw new \Exception("Detected forbidden 'after' option in field addition: Table={$call['table']}, Field={$call['field']}, after={$opts['after']}");
+                    throw new \UnexpectedValueException("Detected forbidden 'after' option in field addition: Table={$call['table']}, Field={$call['field']}, after={$opts['after']}");
                 }
                 if (array_key_exists('before', $opts)) {
-                    throw new \Exception("Detected forbidden 'before' option in field addition: Table={$call['table']}, Field={$call['field']}, before={$opts['before']}");
+                    throw new \UnexpectedValueException("Detected forbidden 'before' option in field addition: Table={$call['table']}, Field={$call['field']}, before={$opts['before']}");
                 }
             }
 

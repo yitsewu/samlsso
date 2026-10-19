@@ -46,7 +46,7 @@ declare(strict_types=1);
 
 /**
  * RunAllTests.php
- * 
+ *
  * Central test runner that executes all test suites in isolated processes.
  * Ensures each test file runs in its own process space to prevent shim/class definition conflicts.
  */
@@ -80,18 +80,47 @@ echo "================================================\n\n";
  */
 foreach ($files as $file) {
     $filename = basename($file);
-    
+
     $output = [];
     $returnCode = 0;
-    
+
     /**
-     * Run the test file using the current PHP binary and capture output and return code.
+     * Require the suite through a wrapper that confirms control returns normally.
+     * A production exit(0) must not silently mark a partially executed suite as passing.
      */
-    exec("php " . escapeshellarg($file) . " 2>&1", $output, $returnCode);
-    
+    $completionMarker = 'SAMLSSO_SUITE_COMPLETED_' . bin2hex(random_bytes(16));
+    $wrapper = 'require $argv[1]; echo "\n", $argv[2], "\n";';
+    /** Pass arguments directly so Windows shell quoting cannot alter the PHP wrapper. */
+    $process = proc_open(
+        [PHP_BINARY, '-d', 'error_reporting=-1', '-d', 'display_errors=stderr',
+            '-d', 'log_errors=0', '-d', 'html_errors=0', '-r', $wrapper, '--', $file, $completionMarker],
+        [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['redirect', 1]],
+        $pipes
+    );
+    if (is_resource($process)) {
+        fclose($pipes[0]);
+        $output = preg_split('/\r?\n/', (string) stream_get_contents($pipes[1]));
+        fclose($pipes[1]);
+        $returnCode = proc_close($process);
+    } else {
+        $output = ['Unable to start the isolated test process.'];
+        $returnCode = 1;
+    }
+
+    if ($returnCode === 0 && !in_array($completionMarker, $output, true)) {
+        $output[] = 'Suite exited before its completion marker; remaining assertions may not have run.';
+        $returnCode = 1;
+    }
+
+    /** A zero exit status must not hide diagnostics emitted under the pinned CLI error settings. */
+    $diagnosticPattern = '/^(?:PHP )?(?:Warning|Notice|Deprecated|Fatal error|Parse error):/m';
+    if ($returnCode === 0 && preg_match($diagnosticPattern, implode("\n", $output))) {
+        $returnCode = 1;
+    }
+
     if ($returnCode === 0) {
         $results[$filename] = '✅ PASSED';
-        
+
         /**
          * Print individual success symbols/lines from the test output to show granular progress.
          */
@@ -104,7 +133,7 @@ foreach ($files as $file) {
     } else {
         $results[$filename] = '❌ FAILED';
         $allPassed = false;
-        
+
         /**
          * Output full details of the failure for debugging purposes.
          */

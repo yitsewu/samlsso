@@ -47,13 +47,14 @@ declare(strict_types=1);
 /**
  * LoginStateTest.php
  *
- * Validates LoginState database interaction, raw timestamp conversion into 
+ * Validates LoginState database interaction, raw timestamp conversion into
  * localized timezones for presentation, and state phase transitions (timeouts, session expiry).
  */
 
 namespace GlpiPlugin\Samlsso\Tests {
 
     require_once __DIR__ . '/Shims.php';
+    require_once __DIR__ . '/../src/Exception/LoginStateException.php';
     require_once __DIR__ . '/../src/LoginState.php';
     require_once __DIR__ . '/TestHarness.php';
 
@@ -64,9 +65,6 @@ namespace GlpiPlugin\Samlsso\Tests {
      */
     class LoginStateTest {
 
-        /**
-         * Test that LoginState::getLoggingEntries correctly formats database raw UTC timestamps.
-         */
         public function testLoginStateLoggingTimezones(): void {
             global $DB;
             $db = new MockDB();
@@ -78,6 +76,7 @@ namespace GlpiPlugin\Samlsso\Tests {
             $db->setResponse($table, [
                 [
                     LoginState::STATE_ID => 1,
+                    LoginState::USER_ID => 0,
                     LoginState::IDP_ID => 2,
                     LoginState::USER_NAME => 'test_user',
                     LoginState::SESSION_ID => 'abcdef123456',
@@ -96,7 +95,7 @@ namespace GlpiPlugin\Samlsso\Tests {
             $entries = LoginState::getLoggingEntries(2);
 
             if (empty($entries)) {
-                throw new \Exception("getLoggingEntries failed to return mocked database rows.");
+                throw new \UnexpectedValueException("getLoggingEntries failed to return mocked database rows.");
             }
 
             $firstEntry = reset($entries);
@@ -106,11 +105,11 @@ namespace GlpiPlugin\Samlsso\Tests {
             $expectedLastClick = '2026-05-30 14:31:00 (LOCAL)';
 
             if ($firstEntry[LoginState::LOGIN_DATETIME] !== $expectedLoginTime) {
-                throw new \Exception("loginTime was not formatted. Got: " . $firstEntry[LoginState::LOGIN_DATETIME]);
+                throw new \UnexpectedValueException("loginTime was not formatted. Got: " . $firstEntry[LoginState::LOGIN_DATETIME]);
             }
 
             if ($firstEntry[LoginState::LAST_ACTIVITY] !== $expectedLastClick) {
-                throw new \Exception("lastClickTime was not formatted. Got: " . $firstEntry[LoginState::LAST_ACTIVITY]);
+                throw new \UnexpectedValueException("lastClickTime was not formatted. Got: " . $firstEntry[LoginState::LAST_ACTIVITY]);
             }
 
             echo "✅ Timezones: LoginState logging entries conversion\n";
@@ -122,18 +121,18 @@ namespace GlpiPlugin\Samlsso\Tests {
         public function testTwigTemplateFormatting(): void {
             $templateFile = dirname(__DIR__) . '/templates/configForm.html.twig';
             if (!file_exists($templateFile)) {
-                throw new \Exception("Twig template file not found at path: $templateFile");
+                throw new \UnexpectedValueException("Twig template file not found at path: $templateFile");
             }
 
             $templateContent = file_get_contents($templateFile);
 
             // Check that we format the creation/mod dates in the warning bar at the bottom
             if (!str_contains($templateContent, 'date_creation.value|formatted_datetime')) {
-                throw new \Exception("Twig template does not apply formatted_datetime filter to date_creation.");
+                throw new \UnexpectedValueException("Twig template does not apply formatted_datetime filter to date_creation.");
             }
 
             if (!str_contains($templateContent, 'date_mod.value|formatted_datetime')) {
-                throw new \Exception("Twig template does not apply formatted_datetime filter to date_mod.");
+                throw new \UnexpectedValueException("Twig template does not apply formatted_datetime filter to date_mod.");
             }
 
             echo "✅ Timezones: Twig templates format config metadata\n";
@@ -155,6 +154,7 @@ namespace GlpiPlugin\Samlsso\Tests {
             $db->setResponse($table, [
                 [
                     LoginState::STATE_ID => 1,
+                    LoginState::USER_ID => 0,
                     LoginState::IDP_ID => 2,
                     LoginState::USER_NAME => 'test_user',
                     LoginState::SESSION_ID => 'abcdef123456',
@@ -183,7 +183,7 @@ namespace GlpiPlugin\Samlsso\Tests {
             $loginState = new LoginState('req_123');
 
             if ($loginState->getPhase() !== LoginState::PHASE_TIMED_OUT) {
-                throw new \Exception("Request awaiting ACS that is older than the timeout limit did not transition to PHASE_TIMED_OUT. Got: " . $loginState->getPhase());
+                throw new \UnexpectedValueException("Request awaiting ACS that is older than the timeout limit did not transition to PHASE_TIMED_OUT. Got: " . $loginState->getPhase());
             }
 
             echo "✅ LoginState: request timeout fallback verification\n";
@@ -206,6 +206,7 @@ namespace GlpiPlugin\Samlsso\Tests {
             $db->setResponse($table, [
                 [
                     LoginState::STATE_ID => 1,
+                    LoginState::USER_ID => 0,
                     LoginState::IDP_ID => 2,
                     LoginState::USER_NAME => 'test_user',
                     LoginState::SESSION_ID => session_id(),
@@ -233,7 +234,7 @@ namespace GlpiPlugin\Samlsso\Tests {
 
             $loginStateActive = new LoginState();
             if ($loginStateActive->getPhase() !== LoginState::PHASE_GLPI_AUTH) {
-                throw new \Exception("Active session incorrectly changed phase. Expected PHASE_GLPI_AUTH (4), got: " . $loginStateActive->getPhase());
+                throw new \UnexpectedValueException("Active session incorrectly changed phase. Expected PHASE_GLPI_AUTH (4), got: " . $loginStateActive->getPhase());
             }
 
             // --- NEGATIVE PATH: Session is expired (empty $_SESSION) ---
@@ -242,7 +243,7 @@ namespace GlpiPlugin\Samlsso\Tests {
 
             $loginStateExpired = new LoginState();
             if ($loginStateExpired->getPhase() !== LoginState::PHASE_INITIAL) {
-                throw new \Exception("Expired session failed to transition phase. Expected PHASE_INITIAL (1), got: " . $loginStateExpired->getPhase());
+                throw new \UnexpectedValueException("Expired session failed to transition phase. Expected PHASE_INITIAL (1), got: " . $loginStateExpired->getPhase());
             }
 
             echo "✅ LoginState: session expiration phase transition (positive & negative paths)\n";
@@ -268,7 +269,7 @@ namespace GlpiPlugin\Samlsso\Tests {
             $state = $refProp->getValue($loginState);
 
             if (($state[LoginState::LOCATION] ?? '') !== 'UNKNOWN') {
-                throw new \Exception("Expected location fallback to 'UNKNOWN' when parse_url fails, got: " . var_export($state[LoginState::LOCATION] ?? null, true));
+                throw new \UnexpectedValueException("Expected location fallback to 'UNKNOWN' when parse_url fails, got: " . var_export($state[LoginState::LOCATION] ?? null, true));
             }
 
             // Clean up
@@ -292,6 +293,7 @@ namespace GlpiPlugin\Samlsso\Tests {
             $db->setResponse($table, [
                 [
                     LoginState::STATE_ID => 1,
+                    LoginState::USER_ID => 0,
                     LoginState::IDP_ID => 2,
                     LoginState::USER_NAME => 'test_user',
                     LoginState::SESSION_ID => session_id(),
@@ -323,7 +325,7 @@ namespace GlpiPlugin\Samlsso\Tests {
             $loginState = new LoginState();
 
             if ($loginState->getPhase() !== LoginState::PHASE_TIMED_OUT) {
-                throw new \Exception("Inactivity timeout did not transition phase to PHASE_TIMED_OUT, or evalGlpiAuth incorrectly overwrote it. Got phase: " . $loginState->getPhase());
+                throw new \UnexpectedValueException("Inactivity timeout did not transition phase to PHASE_TIMED_OUT, or evalGlpiAuth incorrectly overwrote it. Got phase: " . $loginState->getPhase());
             }
 
             // Clean up

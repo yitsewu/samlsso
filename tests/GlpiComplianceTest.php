@@ -73,8 +73,8 @@ namespace GlpiPlugin\Samlsso\Tests {
 
             foreach ($iterator as $file) {
                 if ($file->isFile() && $file->getExtension() === 'php') {
-                    $filePath = $file->getRealPath();
-                    if ($filePath === false || str_contains($filePath, '/vendor/')) {
+                    $filePath = str_replace('\\', '/', $file->getRealPath() ?: '');
+                    if ($filePath === '' || str_contains($filePath, '/vendor/')) {
                         continue;
                     }
 
@@ -110,7 +110,7 @@ namespace GlpiPlugin\Samlsso\Tests {
             }
 
             if (!empty($errors)) {
-                throw new \Exception("Short PHP Tags Compliance Failure:\n" . implode("\n\n", $errors));
+                throw new \UnexpectedValueException("Short PHP Tags Compliance Failure:\n" . implode("\n\n", $errors));
             }
 
             echo "✅ Validated PHP tags: All PHP files use full <?php tags.\n";
@@ -132,9 +132,9 @@ namespace GlpiPlugin\Samlsso\Tests {
 
             foreach ($iterator as $file) {
                 if ($file->isFile() && $file->getExtension() === 'php') {
-                    $filePath = $file->getRealPath();
+                    $filePath = str_replace('\\', '/', $file->getRealPath() ?: '');
                     // Skip templates directory which might mix HTML and PHP, and vendor files
-                    if ($filePath === false || str_contains($filePath, '/vendor/') || str_contains($filePath, '/templates/')) {
+                    if ($filePath === '' || str_contains($filePath, '/vendor/') || str_contains($filePath, '/templates/')) {
                         continue;
                     }
 
@@ -151,7 +151,7 @@ namespace GlpiPlugin\Samlsso\Tests {
             }
 
             if (!empty($errors)) {
-                throw new \Exception("PHP Closing Tags Compliance Failure:\n" . implode("\n\n", $errors));
+                throw new \UnexpectedValueException("PHP Closing Tags Compliance Failure:\n" . implode("\n\n", $errors));
             }
 
             echo "✅ Validated closing tags: PHP-only files omit the closing '?>' tag.\n";
@@ -173,9 +173,9 @@ namespace GlpiPlugin\Samlsso\Tests {
 
             foreach ($iterator as $file) {
                 if ($file->isFile() && $file->getExtension() === 'php') {
-                    $filePath = $file->getRealPath();
+                    $filePath = str_replace('\\', '/', $file->getRealPath() ?: '');
                     // Skip vendor files and tests directory (test files don't need translation domains)
-                    if ($filePath === false || str_contains($filePath, '/vendor/') || str_contains($filePath, '/tests/')) {
+                    if ($filePath === '' || str_contains($filePath, '/vendor/') || str_contains($filePath, '/tests/')) {
                         continue;
                     }
 
@@ -198,19 +198,19 @@ namespace GlpiPlugin\Samlsso\Tests {
                             $funcName = $token[1];
                             if (in_array($funcName, ['__', '_n', '_x', '_sx'])) {
                                 $line = $token[2];
-                                
+
                                 // Find opening parenthesis
                                 $j = $i + 1;
-                                while ($j < $count && is_array($tokens[$j]) && 
+                                while ($j < $count && is_array($tokens[$j]) &&
                                        ($tokens[$j][0] === T_WHITESPACE || $tokens[$j][0] === T_COMMENT || $tokens[$j][0] === T_DOC_COMMENT)) {
                                     $j++;
                                 }
-                                
+
                                 if ($j < $count && $tokens[$j] === '(') {
                                     $commas = 0;
                                     $depth = 1;
                                     $k = $j + 1;
-                                    
+
                                     while ($k < $count && $depth > 0) {
                                         $t = $tokens[$k];
                                         if ($t === '(') {
@@ -222,7 +222,7 @@ namespace GlpiPlugin\Samlsso\Tests {
                                         }
                                         $k++;
                                     }
-                                    
+
                                     $numArgs = $commas + 1;
                                     $isViolating = false;
 
@@ -248,7 +248,7 @@ namespace GlpiPlugin\Samlsso\Tests {
             }
 
             if (!empty($errors)) {
-                throw new \Exception("Translation Text Domain Compliance Failure:\n" . implode("\n\n", $errors));
+                throw new \UnexpectedValueException("Translation Text Domain Compliance Failure:\n" . implode("\n\n", $errors));
             }
 
             echo "✅ Validated translation domains: All translation helper calls use correct text domains.\n";
@@ -270,9 +270,9 @@ namespace GlpiPlugin\Samlsso\Tests {
 
             foreach ($iterator as $file) {
                 if ($file->isFile() && $file->getExtension() === 'php') {
-                    $filePath = $file->getRealPath();
+                    $filePath = str_replace('\\', '/', $file->getRealPath() ?: '');
                     // Skip vendor files and tests directory
-                    if ($filePath === false || str_contains($filePath, '/vendor/') || str_contains($filePath, '/tests/')) {
+                    if ($filePath === '' || str_contains($filePath, '/vendor/') || str_contains($filePath, '/tests/')) {
                         continue;
                     }
 
@@ -302,7 +302,7 @@ namespace GlpiPlugin\Samlsso\Tests {
             }
 
             if (!empty($errors)) {
-                throw new \Exception("Error Handling (Die/Exit) Compliance Failure:\n" . implode("\n\n", $errors));
+                throw new \UnexpectedValueException("Error Handling (Die/Exit) Compliance Failure:\n" . implode("\n\n", $errors));
             }
 
             echo "✅ Validated error handling: Codebase contains no die() or exit() statements.\n";

@@ -172,13 +172,13 @@ namespace GlpiPlugin\Samlsso\Tests {
             /* A method name that is definitely not in this file or any other */
             $unreferencedElem = 'definitelyUnreferencedDummyMethod_xyz';
             if ($this->isElementReferenced($unreferencedElem, __FILE__, $allFiles)) {
-                throw new \Exception("Analyzer failed: flagged a non-existent method as referenced.");
+                throw new \UnexpectedValueException("Analyzer failed: flagged a non-existent method as referenced.");
             }
 
             /* A method name that is defined and called in this file */
             $referencedElem = 'testCodebaseReferences';
             if (!$this->isElementReferenced($referencedElem, __FILE__, $allFiles)) {
-                throw new \Exception("Analyzer failed: flagged a known referenced method as unreferenced.");
+                throw new \UnexpectedValueException("Analyzer failed: flagged a known referenced method as unreferenced.");
             }
 
             echo "✅ Validated warning detection logic: successfully detected mock dead code.\n";
@@ -198,8 +198,8 @@ namespace GlpiPlugin\Samlsso\Tests {
 
             foreach ($iterator as $file) {
                 if ($file->isFile()) {
-                    $filePath = $file->getRealPath();
-                    if ($filePath === false || str_contains($filePath, '/vendor/')) {
+                    $filePath = str_replace('\\', '/', $file->getRealPath() ?: '');
+                    if ($filePath === '' || str_contains($filePath, '/vendor/')) {
                         continue;
                     }
 

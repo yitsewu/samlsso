@@ -76,16 +76,24 @@ Execute the entire automated test runner from the root of the plugin directory t
 php tests/RunAllTests.php
 ```
 
+Tests run standalone from this checkout; no developer-specific GLPI installation is required.
+The runner uses the current PHP binary with full diagnostic reporting and verifies that every suite
+returns normally. A warning or premature `exit(0)` fails the suite; expected error paths must use
+the existing test exception boundary so later assertions still execute.
+The release-catalog suite accepts an explicitly declared development version newer than all published entries.
+For release packaging, run `SAMLSSO_RELEASE_VALIDATION=1 php tests/RunAllTests.php`;
+this additionally requires the packaged version's exact download entry. `tools/mkzip.sh` enables this gate automatically.
+
 ### 2. Creating a Release
 To package a new release zip using `tools/mkzip.sh`:
 1. Update the version constant `PLUGIN_SAMLSSO_VERSION` in `setup.php` (e.g. to `'1.2.7'`).
 2. Update the `OLDVERSION` and `NEWVERSION` variables in `tools/mkzip.sh` to match the version bump (e.g. `OLDVERSION='1.2.6'` and `NEWVERSION='1.2.7'`).
-3. Run the release packaging script:
+3. Update `samlsso.xml` with the intended release version and its download URL before packaging; the strict packaging gate requires this entry.
+4. Run the release packaging script:
    ```bash
    ./tools/mkzip.sh
    ```
    *Note: This script automatically bumps version docstrings in all PHP files (excluding `vendor/`), executes the automated test runner, and aborts the release packaging if any tests fail.*
-4. Manually update `samlsso.xml` to add a new `<version>` block listing the new version and its download URL.
 5. Run the test suite:
    ```bash
    php tests/RunAllTests.php

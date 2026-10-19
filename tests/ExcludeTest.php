@@ -46,7 +46,7 @@ declare(strict_types=1);
 
 /**
  * ExcludeTest.php
- * 
+ *
  * Unit tests validating Request and Agent exclusion rules from SSO authentication requirements.
  */
 
@@ -77,7 +77,7 @@ namespace GlpiPlugin\Samlsso\Tests {
              */
             $result = Exclude::isExcluded();
             if (!is_string($result) || !str_contains($result, 'Saml auth skipped')) {
-                throw new \Exception("CLI exclusion failed. Expected skip string, got: " . var_export($result, true));
+                throw new \UnexpectedValueException("CLI exclusion failed. Expected skip string, got: " . var_export($result, true));
             }
             echo "✅ Exclude: CLI bypass detection\n";
         }
@@ -97,7 +97,7 @@ namespace GlpiPlugin\Samlsso\Tests {
 
             $result = Exclude::ProcessExcludes();
             if ($result !== true) {
-                throw new \Exception("GLPI Agent bypass failed. Expected true, got: " . var_export($result, true));
+                throw new \UnexpectedValueException("GLPI Agent bypass failed. Expected true, got: " . var_export($result, true));
             }
             echo "✅ Exclude: GLPI Agent user-agent bypass\n";
         }
@@ -142,14 +142,14 @@ namespace GlpiPlugin\Samlsso\Tests {
              * 1. Validate ProcessExcludes match.
              */
             if (Exclude::ProcessExcludes() !== true) {
-                throw new \Exception("Database exclude path matching failed for /api.php");
+                throw new \UnexpectedValueException("Database exclude path matching failed for /api.php");
             }
 
             /**
              * 2. Validate GetExcludeAction checks.
              */
             if (Exclude::GetExcludeAction('/plugins/samlsso/api.php') !== true) {
-                throw new \Exception("GetExcludeAction failed for /api.php");
+                throw new \UnexpectedValueException("GetExcludeAction failed for /api.php");
             }
 
             /**
@@ -157,7 +157,7 @@ namespace GlpiPlugin\Samlsso\Tests {
              */
             $_SERVER['HTTP_USER_AGENT'] = 'Mozilla/5.0';
             if (Exclude::GetExcludeAction('/admin/', $_SERVER['HTTP_USER_AGENT']) !== false) {
-                throw new \Exception("GetExcludeAction should have failed for /admin/ with unmatched User-Agent");
+                throw new \UnexpectedValueException("GetExcludeAction should have failed for /admin/ with unmatched User-Agent");
             }
 
             /**
@@ -165,14 +165,14 @@ namespace GlpiPlugin\Samlsso\Tests {
              */
             $_SERVER['HTTP_USER_AGENT'] = 'AdminAgent';
             if (Exclude::GetExcludeAction('/admin/', $_SERVER['HTTP_USER_AGENT']) !== false) {
-                throw new \Exception("GetExcludeAction should return false (auth enforced) when action is 0 even if Agent matches");
+                throw new \UnexpectedValueException("GetExcludeAction should return false (auth enforced) when action is 0 even if Agent matches");
             }
 
             /**
              * 5. Unmatched path checks.
              */
             if (Exclude::GetExcludeAction('/front/home.php') !== false) {
-                throw new \Exception("GetExcludeAction should return false for unmatched path /front/home.php");
+                throw new \UnexpectedValueException("GetExcludeAction should return false for unmatched path /front/home.php");
             }
 
             echo "✅ Exclude: Database configured exclusion rules\n";

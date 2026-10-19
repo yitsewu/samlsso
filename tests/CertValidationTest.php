@@ -46,7 +46,7 @@ declare(strict_types=1);
 
 /**
  * CertValidationTest.php
- * 
+ *
  * Unit tests validating x509 certificate parsing, malformed certificate rejection,
  * and certificate/private key modulus matching logic.
  */
@@ -93,7 +93,7 @@ namespace GlpiPlugin\Samlsso\Tests {
      * Validates cryptographic and formatting checks on SAML certificates and keys.
      */
     class CertValidationTest extends TestHarness {
-        
+
         /**
          * Generates a valid temporary self-signed x509 certificate block for testing.
          *
@@ -151,12 +151,12 @@ CERT;
             $cert = $this->generateValidCert();
             $configItem = new TestableConfigItem();
             $result = $configItem->testParseX509Certificate($cert);
-            
+
             if ($result === false) {
-                throw new \Exception("Valid certificate rejected.\nInput: '$cert'\nResult: FALSE");
+                throw new \UnexpectedValueException("Valid certificate rejected.\nInput: '$cert'\nResult: FALSE");
             }
             if (!isset($result['validations']) || !is_array($result['validations'])) {
-                throw new \Exception("Valid certificate missing 'validations' array.");
+                throw new \UnexpectedValueException("Valid certificate missing 'validations' array.");
             }
             echo "✅ Valid X509 certificate parsing\n";
         }
@@ -171,13 +171,13 @@ CERT;
             $result = $configItem->testParseX509Certificate($this->getGeneralizedTimeCert());
 
             if ($result === false) {
-                throw new \Exception("GeneralizedTime certificate rejected.");
+                throw new \UnexpectedValueException("GeneralizedTime certificate rejected.");
             }
             if (($result['subject']['CN'] ?? '') !== 'idp.example.com') {
-                throw new \Exception("GeneralizedTime certificate subject was not parsed.");
+                throw new \UnexpectedValueException("GeneralizedTime certificate subject was not parsed.");
             }
             if (!empty($result['validations'])) {
-                throw new \Exception("GeneralizedTime certificate produced validation errors: " . print_r($result['validations'], true));
+                throw new \UnexpectedValueException("GeneralizedTime certificate produced validation errors: " . print_r($result['validations'], true));
             }
             echo "✅ GeneralizedTime X509 certificate parsing\n";
         }
@@ -191,9 +191,9 @@ CERT;
             $cert = "NOT A CERTIFICATE";
             $configItem = new TestableConfigItem();
             $result = $configItem->testParseX509Certificate($cert);
-            
+
             if (!isset($result['validations']) || !is_string($result['validations'])) {
-                throw new \Exception("Malformed certificate not identified.\nInput: '$cert'");
+                throw new \UnexpectedValueException("Malformed certificate not identified.\nInput: '$cert'");
             }
             echo "✅ Malformed certificate rejection\n";
         }
@@ -213,13 +213,13 @@ CERT;
 
             $configItem = new TestableConfigItem();
             if (!$configItem->testValidateCertKeyPairModulus($certStr, $privKey)) {
-                throw new \Exception("Matching modulus rejected.");
+                throw new \UnexpectedValueException("Matching modulus rejected.");
             }
-            
+
             $res2 = \openssl_pkey_new(["private_key_bits" => 2048]);
             \openssl_pkey_export($res2, $privKey2);
             if ($configItem->testValidateCertKeyPairModulus($certStr, $privKey2)) {
-                throw new \Exception("Mismatching modulus accepted.");
+                throw new \UnexpectedValueException("Mismatching modulus accepted.");
             }
             echo "✅ Certificate/Key modulus matching\n";
         }

@@ -1,5 +1,6 @@
 
 **V1.3.3**
+- Test Infrastructure: Make standalone tests portable, require normal suite completion without PHP diagnostics, strengthen ACS and provisioning assertions, and distinguish development validation from release packaging.
 - Feature: Added GLPI 12 compatibility while keeping GLPI 11 support unchanged - resolves https://github.com/DonutsNL/samlsso/issues/167.
 - Feature: Added `src/compat.php`, one abstract intermediate class per plugin class declaring the GLPI 12 core property types (`$rightname`, `$dohistory`, `$menu_option`) selected at load time from `GLPI_VERSION`, so `Config`, `Exclude`, `LoginFlow`, `RuleSaml` and `RuleSamlCollection` load on both GLPI 11 and GLPI 12.
 - Bugfix: Resolved the `Plugin::getWebDir()` removal on GLPI 12 by resolving the plugin web directory at call time with a `method_exists` fallback, keeping GLPI 11 behaviour identical.

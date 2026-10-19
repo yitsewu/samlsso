@@ -46,7 +46,7 @@ declare(strict_types=1);
 
 /**
  * RegressionTest.php
- * 
+ *
  * Unit/static analysis tests verifying code constraints to prevent future regressions.
  * Specifically checks that:
  * 1. Prohibited direct database query calls ($DB->query/queryOrDie) are not used.
@@ -96,7 +96,7 @@ namespace GlpiPlugin\Samlsso\Tests {
             foreach ($files as $file) {
                 $content = file_get_contents($file);
                 if (preg_match('/\$DB\s*->\s*(query|queryOrDie)\s*\(/', $content, $matches)) {
-                    throw new \Exception("Prohibited direct database query method '{$matches[1]}' used in $file");
+                    throw new \UnexpectedValueException("Prohibited direct database query method '{$matches[1]}' used in $file");
                 }
             }
 
@@ -121,7 +121,7 @@ namespace GlpiPlugin\Samlsso\Tests {
                 $count = count($tokens);
 
                 $imports = [];
-                
+
                 /**
                  * First pass: extract imports (use statements) from the file tokens.
                  */
@@ -140,7 +140,7 @@ namespace GlpiPlugin\Samlsso\Tests {
                                         $fullClass .= $token[1];
                                     }
                                 } elseif ($token[0] === T_AS) {
-                                    $alias = ''; 
+                                    $alias = '';
                                 }
                             }
                             $i++;
@@ -219,7 +219,7 @@ namespace GlpiPlugin\Samlsso\Tests {
                                     }
                                 }
                                 if ($j < $count && $tokens[$j] === ',') {
-                                    $j++; 
+                                    $j++;
                                 }
                             }
                         }
@@ -247,12 +247,12 @@ namespace GlpiPlugin\Samlsso\Tests {
                         if (!empty($classTokens)) {
                             $className = implode('', $classTokens);
                             $resolvedClass = $resolveClass($className);
-                            
+
                             if (str_starts_with($resolvedClass, 'OneLogin\\Saml2\\') || str_starts_with($resolvedClass, 'RobRichards\\XMLSecLibs\\')) {
                                 if (!class_exists($resolvedClass) && !interface_exists($resolvedClass)) {
-                                    throw new \Exception("Vendor class '$resolvedClass' does not exist (instantiated in $file).");
+                                    throw new \UnexpectedValueException("Vendor class '$resolvedClass' does not exist (instantiated in $file).");
                                 }
-                                
+
                                 /**
                                  * Look behind for the assignment variable.
                                  */
@@ -317,25 +317,25 @@ namespace GlpiPlugin\Samlsso\Tests {
                                          * Static Method Call validation.
                                          */
                                         if (!class_exists($resolvedClass) && !interface_exists($resolvedClass)) {
-                                            throw new \Exception("Vendor class '$resolvedClass' does not exist (static call in $file).");
+                                            throw new \UnexpectedValueException("Vendor class '$resolvedClass' does not exist (static call in $file).");
                                         }
                                         if (!method_exists($resolvedClass, $memberName)) {
-                                            throw new \Exception("Vendor static method '$resolvedClass::$memberName' does not exist (called in $file).");
+                                            throw new \UnexpectedValueException("Vendor static method '$resolvedClass::$memberName' does not exist (called in $file).");
                                         }
                                         $refMethod = new \ReflectionMethod($resolvedClass, $memberName);
                                         if ($refMethod->isDeprecated()) {
-                                            throw new \Exception("Vendor static method '$resolvedClass::$memberName' is deprecated (called in $file).");
+                                            throw new \UnexpectedValueException("Vendor static method '$resolvedClass::$memberName' is deprecated (called in $file).");
                                         }
                                     } else {
                                         /**
                                          * Constant Reference validation.
                                          */
                                         if (!class_exists($resolvedClass) && !interface_exists($resolvedClass)) {
-                                            throw new \Exception("Vendor class '$resolvedClass' does not exist (constant reference in $file).");
+                                            throw new \UnexpectedValueException("Vendor class '$resolvedClass' does not exist (constant reference in $file).");
                                         }
                                         $refClass = new \ReflectionClass($resolvedClass);
                                         if (!$refClass->hasConstant($memberName)) {
-                                            throw new \Exception("Vendor constant '$resolvedClass::$memberName' does not exist (referenced in $file).");
+                                            throw new \UnexpectedValueException("Vendor constant '$resolvedClass::$memberName' does not exist (referenced in $file).");
                                         }
                                     }
                                 }
@@ -390,14 +390,14 @@ namespace GlpiPlugin\Samlsso\Tests {
                                     }
                                     if ($k < $count && $tokens[$k] === '(') {
                                         if (!class_exists($resolvedClass) && !interface_exists($resolvedClass)) {
-                                            throw new \Exception("Vendor class '$resolvedClass' does not exist (method call in $file).");
+                                            throw new \UnexpectedValueException("Vendor class '$resolvedClass' does not exist (method call in $file).");
                                         }
                                         if (!method_exists($resolvedClass, $methodName)) {
-                                            throw new \Exception("Vendor method '$resolvedClass::$methodName' does not exist (called in $file).");
+                                            throw new \UnexpectedValueException("Vendor method '$resolvedClass::$methodName' does not exist (called in $file).");
                                         }
                                         $refMethod = new \ReflectionMethod($resolvedClass, $methodName);
                                         if ($refMethod->isDeprecated()) {
-                                            throw new \Exception("Vendor method '$resolvedClass::$methodName' is deprecated (called in $file).");
+                                            throw new \UnexpectedValueException("Vendor method '$resolvedClass::$methodName' is deprecated (called in $file).");
                                         }
                                     }
                                 }
