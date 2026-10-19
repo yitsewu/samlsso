@@ -3,7 +3,7 @@
 - Cleanup (separate fork candidate): Resolve project-wide Intelephense/SonarLint findings with documented framework-contract exceptions; split complex state, claim, configuration, migration and provisioning helpers.
 - Compatibility correction (fork candidate): GLPI 11 already requires raw persistence inputs and canonical `/plugins/` URLs. Replace the earlier version-specific sanitizer/web-directory fallback and avoid duplicated subdirectory prefixes.
 - Regression fixes (fork candidate): Reject duplicate authentication-state rows, validate login-flow POST options, isolate diagnostic XML parsing and escape rendered trace/header values.
-- Tests (fork candidate): Add URL/subdirectory coverage and configuration/trace/state regressions; fail suites on PHP runtime warnings. Expanded candidate browser acceptance is still pending; no release is published.
+- Tests (fork candidate): Add URL/subdirectory coverage and configuration/trace/state regressions; fail suites on PHP runtime warnings. Expanded candidate b01b1a0 passed GLPI 11/12 browser acceptance on 2026-10-19, with runtime diagnostic limits documented (yitsewu/samlsso#1); no release is published.
 - Static analysis (fork candidate): Use specific validation exceptions, remove unused catch bindings, and improve request doubles and regression fixtures; retain protocol validation behavior.
 - Bugfix (fork candidate): Include the provider ID in generated SLO metadata so signed callbacks match their configured destination; cover multiple IDs through the real configuration builder.
 - Tests (fork candidate): Remove developer-specific GLPI bootstrap paths, provide standalone ACS request/HTML-escaping doubles, and resolve plugin source paths relative to the tests (yitsewu/samlsso#1).

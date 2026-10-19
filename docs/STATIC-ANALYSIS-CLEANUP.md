@@ -39,7 +39,16 @@ These are scoped analyzer results, not a claim that all possible defects or secu
 - Added coverage: duplicate state rejection, diagnostic XML isolation, trace escaping/nested values, POST option validation, restore field boundaries, raw user-update values, and canonical root/subdirectory URLs.
 - GLPI 11.0.11 and 12.0.0 isolated copies: forced native plugin installation, activation and cache clearing passed.
 - SLO-only parent candidate: both versions passed real authenticated browser acceptance.
-- Expanded candidate: fresh browser acceptance remains pending. Temporary provider/application settings were restored and the isolated environment stopped after the browser-entry operation could not be completed.
+- Expanded candidate `b01b1a0f571b0caae89eb8a023f66b402be1bcac`: fresh browser acceptance completed on 2026-10-19 for GLPI 11.0.11 and 12.0.0. Both deployed trees matched all 216 tracked candidate files before acceptance.
+- Both versions passed fresh SAML login with the expected account/profile, canonical configuration list/form rendering, claim-mapping and logging tabs, and trace popover rendering. A malformed signed-query logout returned HTTP 400 without clearing the login. A real signed IdP-initiated callback returned HTTP 302; the dedicated IdP session disappeared and the old GLPI central page reported session expiration. Unrelated IdP sessions and the production provider were preserved.
+- GLPI 12 initially rejected a stale authentication state created three days earlier. Native local logout followed by a new request succeeded without changing timeout or signature validation.
+- Temporary test-provider/application settings, plugin copies and web-server configuration were restored and verified; forwarding was stopped and isolated guests were shut down.
+
+### Browser diagnostics and scope
+
+Malformed XML in each negative logout test produced one server-side `DOMDocument::loadXML()` warning in the bundled toolkit before the request was rejected. This is a remaining diagnostic-noise issue; the zero static-analysis result does not claim a warning-free runtime for malformed input. No new PHP log errors were observed during the successful login/configuration paths. The GLPI 11 browser also reported a core FuzzySearch component `fuzzy is not defined` error; the tested plugin pages and trace popover remained usable. Its cause and presence on an unchanged core baseline were not established in this acceptance run. The trace popover was verified using keyboard activation.
+
+This acceptance covers signed IdP-initiated top-level navigation. It does not establish SP-initiated LogoutResponse support, general cross-origin iframe compatibility, subdirectory browser coverage, or a new MFA challenge.
 
 ## Suggested review order
 

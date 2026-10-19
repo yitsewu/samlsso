@@ -29,14 +29,15 @@ This integration test caught a missing provider ID in the generated SLO endpoint
 
 The SLO-only candidate also passed a fresh GLPI 11.0.11 browser test on 2026-10-16: malformed signed-query rejection preserved the login, a real IdP-initiated logout removed the dedicated IdP session, and the GLPI session expired. The unrelated production session and provider remained unchanged.
 
-The owner subsequently requested a separate whole-project warning cleanup. That work is on `chore/project-static-analysis`, based on `fix/idp-initiated-slo`. See [the analysis and regression report](STATIC-ANALYSIS-CLEANUP.md). Its 19 suites and both isolated GLPI installation/activation checks pass. **The broader candidate still needs fresh GLPI 11 and 12 browser acceptance after its additional compatibility changes.** Earlier SLO-only browser results must not be used as proof for the expanded candidate.
+The owner subsequently requested a separate whole-project warning cleanup. That work is on `chore/project-static-analysis`, based on `fix/idp-initiated-slo`. See [the analysis and regression report](STATIC-ANALYSIS-CLEANUP.md). Its 19 suites and both isolated GLPI installation/activation checks pass. The broader candidate `b01b1a0` passed its own fresh GLPI 11.0.11 and 12.0.0 browser acceptance on 2026-10-19, including login, configuration rendering, negative logout and signed IdP-initiated logout. See the analysis report for exact scope and remaining runtime/browser diagnostics. Earlier SLO-only results are not used as proof for this expanded candidate.
 
 ## Before an upstream PR
 
 - Completed: standalone unit/regression suite is green (19/19); runtime PHP warnings now fail a suite.
 - Completed: Intelephense and SonarLint checks, with explicit framework-contract exceptions documented in the analysis report.
 - Completed: SLO-only GLPI 11 and GLPI 12 browser integration.
-- Pending: fresh browser acceptance for the expanded cleanup branch, including canonical callback URLs and configuration rendering.
+- Completed: fresh browser acceptance for expanded candidate `b01b1a0`, including canonical callbacks, configuration/claim/logging/trace rendering and both logout cases on GLPI 11.0.11 and 12.0.0.
+- Remaining diagnostics: malformed logout XML logs a toolkit parsing warning; GLPI 11 also emitted a core FuzzySearch browser error. See the analysis report; do not describe runtime execution as entirely warning-free.
 - Review localization and the strict signed-request requirement with maintainers.
 - Extend protocol coverage and agree on unsupported cases listed in ADR 0025; SP-initiated LogoutResponse and cross-browser iframe behavior are not claimed.
 - The contribution guide references SECURITY.md, but that file is absent in this checkout. ADR 0017 and the architectural Wiki were reviewed; obtain the intended security policy before submission.
