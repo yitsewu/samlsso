@@ -1118,31 +1118,31 @@ msgid "Continue with local logout"
 msgstr "Συνεχίστε με τοπική αποσύνδεση"
 
 #: src/LoginFlow.php:632
-msgid "Log out everywhere"
-msgstr "Αποσυνδεθείτε παντού"
+#~ msgid "Log out everywhere"
+#~ msgstr "Αποσυνδεθείτε παντού"
 
 #: src/LoginFlow.php:636
 #, php-format
-msgid ""
-""
-"You have been authenticated using the SAML2 identity provider: <b>%1$s</b>."
-"<br><br>Because SAML authentication is enforced, logging out of GLPI locally "
-"will automatically log you back in immediately.<br><br>To sign out "
-"completely, please select <b>'%2$s'</b>. Note that this will also terminate "
-"your active sessions in all other applications connected to this Identity "
-"Provider.<br><br>If you want to leave GLPI, just close this browser tab."
-msgstr "Πραγματοποιήσατε έλεγχο ταυτότητας χρησιμοποιώντας τον πάροχο ταυτότητας SAML2: <b>%1$s</b>.<br><br>Επειδή επιβάλλεται ο έλεγχος ταυτότητας SAML, η τοπική αποσύνδεση από το GLPI θα σας επανασυνδέσει αυτόματα αμέσως.<br><br>Για να αποσυνδεθείτε πλήρως, επιλέξτε <b>'Αποσύνδεση παντού'</b>. Λάβετε υπόψη ότι αυτό θα τερματίσει επίσης τις ενεργές περιόδους σύνδεσης σε όλες τις άλλες εφαρμογές που είναι συνδεδεμένες σε αυτόν τον Παροχέα Ταυτότητας.<br><br>IΑν θέλετε να αποχωρήσετε από το GLPI, απλώς κλείστε αυτήν την καρτέλα του προγράμματος περιήγησης."
+#~ msgid ""
+#~ ""
+#~ "You have been authenticated using the SAML2 identity provider: <b>%1$s</b>."
+#~ "<br><br>Because SAML authentication is enforced, logging out of GLPI locally "
+#~ "will automatically log you back in immediately.<br><br>To sign out "
+#~ "completely, please select <b>'%2$s'</b>. Note that this will also terminate "
+#~ "your active sessions in all other applications connected to this Identity "
+#~ "Provider.<br><br>If you want to leave GLPI, just close this browser tab."
+#~ msgstr "Πραγματοποιήσατε έλεγχο ταυτότητας χρησιμοποιώντας τον πάροχο ταυτότητας SAML2: <b>%1$s</b>.<br><br>Επειδή επιβάλλεται ο έλεγχος ταυτότητας SAML, η τοπική αποσύνδεση από το GLPI θα σας επανασυνδέσει αυτόματα αμέσως.<br><br>Για να αποσυνδεθείτε πλήρως, επιλέξτε <b>'Αποσύνδεση παντού'</b>. Λάβετε υπόψη ότι αυτό θα τερματίσει επίσης τις ενεργές περιόδους σύνδεσης σε όλες τις άλλες εφαρμογές που είναι συνδεδεμένες σε αυτόν τον Παροχέα Ταυτότητας.<br><br>IΑν θέλετε να αποχωρήσετε από το GLPI, απλώς κλείστε αυτήν την καρτέλα του προγράμματος περιήγησης."
 
 #: src/LoginFlow.php:642
 #, php-format
-msgid ""
-""
-"You have been authenticated using the SAML2 identity provider: <b>%1$s</b>."
-"<br><br>You can log out permanently by also logging out with the IDP by "
-"pressing <b>'%2$s'</b> (which terminates active sessions in all other "
-"applications depending on it), or perform a local logout from GLPI only by "
-"pressing <b>'%3$s'</b>."
-msgstr "Έχετε πιστοποιηθεί χρησιμοποιώντας τον πάροχο ταυτότητας SAML2: <b>%1$s</b>.<br><br>Μπορείτε να αποσυνδεθείτε μόνιμα αποσυνδεόμενοι επίσης με το IDP πατώντας <b>'Αποσύνδεση παντού'</b> (που τερματίζει τις ενεργές περιόδους σύνδεσης σε όλες τις άλλες εφαρμογές ανάλογα με αυτό) ή να εκτελέσετε μια τοπική αποσύνδεση μόνο με το πάτημα του GPHPILConL αποσύνδεση'</b>."
+#~ msgid ""
+#~ ""
+#~ "You have been authenticated using the SAML2 identity provider: <b>%1$s</b>."
+#~ "<br><br>You can log out permanently by also logging out with the IDP by "
+#~ "pressing <b>'%2$s'</b> (which terminates active sessions in all other "
+#~ "applications depending on it), or perform a local logout from GLPI only by "
+#~ "pressing <b>'%3$s'</b>."
+#~ msgstr "Έχετε πιστοποιηθεί χρησιμοποιώντας τον πάροχο ταυτότητας SAML2: <b>%1$s</b>.<br><br>Μπορείτε να αποσυνδεθείτε μόνιμα αποσυνδεόμενοι επίσης με το IDP πατώντας <b>'Αποσύνδεση παντού'</b> (που τερματίζει τις ενεργές περιόδους σύνδεσης σε όλες τις άλλες εφαρμογές ανάλογα με αυτό) ή να εκτελέσετε μια τοπική αποσύνδεση μόνο με το πάτημα του GPHPILConL αποσύνδεση'</b>."
 
 #: src/LoginFlow.php:651
 msgid "🤔 How would you like to proceed?"
@@ -1822,19 +1822,19 @@ msgid "To be excluded path"
 msgstr "Να αποκλειστεί διαδρομή"
 
 #: templates/loggedOut.html.twig:9
-msgid "Successfully Logged Out"
-msgstr "Έγινε επιτυχής αποσύνδεση"
+#~ msgid "Successfully Logged Out"
+#~ msgstr "Έγινε επιτυχής αποσύνδεση"
 
 #: templates/loggedOut.html.twig:12
-msgid ""
-""
-"You have been successfully logged out of your session. You can now safely "
-"close this browser window/tab, or log in again using the button below."
-msgstr ""
-""
-"Έχετε αποσυνδεθεί επιτυχώς από τη συνεδρία σας. Τώρα μπορείτε να κλείσετε με "
-"ασφάλεια αυτό το παράθυρο/καρτέλα του προγράμματος περιήγησης ή να "
-"συνδεθείτε ξανά χρησιμοποιώντας το παρακάτω κουμπί."
+#~ msgid ""
+#~ ""
+#~ "You have been successfully logged out of your session. You can now safely "
+#~ "close this browser window/tab, or log in again using the button below."
+#~ msgstr ""
+#~ ""
+#~ "Έχετε αποσυνδεθεί επιτυχώς από τη συνεδρία σας. Τώρα μπορείτε να κλείσετε με "
+#~ "ασφάλεια αυτό το παράθυρο/καρτέλα του προγράμματος περιήγησης ή να "
+#~ "συνδεθείτε ξανά χρησιμοποιώντας το παρακάτω κουμπί."
 
 #: templates/loggedOut.html.twig:17
 msgid "Log in again"
@@ -2285,3 +2285,63 @@ msgid ""
 "⚠️ Warning SP metadata exposed! - ROWID: %1$s | CREATED DATE: %2$s | LAST "
 "UPDATED: %3$s"
 msgstr "⚠️ Προειδοποίηση SP μεταδεδομένα εκτεθειμένα! - ROWID: %1$s | ΗΜΕΡΟΜΗΝΙΑ ΔΗΜΙΟΥΡΓΙΑΣ: %2$s | ΤΕΛΕΥΤΑΙΑ ΕΝΗΜΕΡΩΣΗ: %3$s"
+
+#: src/LoginFlow.php:638
+msgid "Request identity provider logout"
+msgstr "Αίτημα αποσύνδεσης από τον πάροχο ταυτότητας"
+
+#: src/Controller/SamlSsoController.php:271 templates/loggedOut.html.twig:9
+msgid "Signed out of GLPI"
+msgstr "Έχετε αποσυνδεθεί από το GLPI"
+
+#: src/Controller/SamlSsoController.php:131
+msgid ""
+"The logout request could not be verified. Sign in again or contact your "
+"administrator."
+msgstr ""
+"Δεν ήταν δυνατή η επαλήθευση του αιτήματος αποσύνδεσης. Συνδεθείτε ξανά ή "
+"επικοινωνήστε με τον διαχειριστή σας."
+
+#: templates/loggedOut.html.twig:12
+msgid ""
+"You are signed out of GLPI. Your identity provider and other applications "
+"may still have active sessions."
+msgstr ""
+"Έχετε αποσυνδεθεί από το GLPI. Ενδέχεται να παραμένουν ενεργές συνεδρίες "
+"στον πάροχο ταυτότητάς σας και σε άλλες εφαρμογές."
+
+#: src/LoginFlow.php:642
+#, php-format
+msgid ""
+"You signed in through the identity provider: <b>%1$s</b>.<br><br>Because "
+"SAML sign-in is required, a local GLPI logout may sign you in again while "
+"your identity provider session remains active.<br><br>Select <b>'%2$s'</b> "
+"to sign out of GLPI and request logout from your identity provider. Your "
+"identity provider determines whether its own session and sessions in other "
+"applications are ended.<br><br>You can also return to GLPI or close this "
+"browser tab."
+msgstr ""
+"Συνδεθήκατε μέσω του παρόχου ταυτότητας: <b>%1$s</b>.<br><br>Επειδή "
+"απαιτείται σύνδεση μέσω SAML, η τοπική αποσύνδεση από το GLPI ενδέχεται να "
+"οδηγήσει σε νέα σύνδεση όσο η συνεδρία σας στον πάροχο ταυτότητας παραμένει "
+"ενεργή.<br><br>Επιλέξτε <b>'%2$s'</b> για να αποσυνδεθείτε από το GLPI και "
+"να ζητήσετε αποσύνδεση από τον πάροχο ταυτότητάς σας. Ο πάροχος ταυτότητάς "
+"σας καθορίζει αν θα τερματιστεί η δική του συνεδρία και οι συνεδρίες σε "
+"άλλες εφαρμογές.<br><br>Μπορείτε επίσης να επιστρέψετε στο GLPI ή να "
+"κλείσετε αυτή την καρτέλα του προγράμματος περιήγησης."
+
+#: src/LoginFlow.php:648
+#, php-format
+msgid ""
+"You signed in through the identity provider: <b>%1$s</b>.<br><br>Select "
+"<b>'%2$s'</b> to sign out of GLPI and request logout from your identity "
+"provider. Your identity provider determines whether its own session and "
+"sessions in other applications are ended.<br><br>To sign out of GLPI only, "
+"select <b>'%3$s'</b>."
+msgstr ""
+"Συνδεθήκατε μέσω του παρόχου ταυτότητας: <b>%1$s</b>.<br><br>Επιλέξτε "
+"<b>'%2$s'</b> για να αποσυνδεθείτε από το GLPI και να ζητήσετε αποσύνδεση "
+"από τον πάροχο ταυτότητάς σας. Ο πάροχος ταυτότητάς σας καθορίζει αν θα "
+"τερματιστεί η δική του συνεδρία και οι συνεδρίες σε άλλες "
+"εφαρμογές.<br><br>Για να αποσυνδεθείτε μόνο από το GLPI, επιλέξτε "
+"<b>'%3$s'</b>."

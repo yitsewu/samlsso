@@ -227,6 +227,11 @@ class LoginFlow extends LoginFlowCompat
         if (!is_string($requestPath)) {
             $requestPath = '';
         }
+        // Protocol callbacks must reach their controller, not the logout chooser.
+        if (preg_match('~/(?:plugins|marketplace)/samlsso/front/logout(?:/[1-9]\d*)?/?$~D', $requestPath)) {
+            return;
+        }
+
         if (strpos($requestPath, 'front/acs') !== false) {
             return;
         }
@@ -583,6 +588,13 @@ class LoginFlow extends LoginFlowCompat
         // so we can keep tracking it after the next redirect.
         // https://github.com/DonutsNL/samlsso/issues/26
         $state->setSessionId();
+        // Bind IdP-initiated logout to this freshly validated SAML login.
+        $_SESSION['samlsso_slo_context'] = [
+            'idp' => $state->getIdpId(),
+            'name_id' => $response->getNameId(),
+            'session_index' => $response->getSessionIndex(),
+        ];
+
 
         // Dont depend on GLPI core to perform the correct type of redirect.
         $this->performBrowserRedirect();
@@ -623,17 +635,17 @@ class LoginFlow extends LoginFlowCompat
             $idpName = htmlentities((string) $configEntity->getField(ConfigEntity::NAME));
 
             $returnLabel = $isEnforced ? __('Go back to GLPI', PLUGIN_NAME) : __('Continue with local logout', PLUGIN_NAME);
-            $sloLabel    = __('Log out everywhere', PLUGIN_NAME);
+            $sloLabel    = __('Request identity provider logout', PLUGIN_NAME);
 
             if ($isEnforced) {
                 $infoText = sprintf(
-                    __('You have been authenticated using the SAML2 identity provider: <b>%1$s</b>.<br><br>Because SAML authentication is enforced, logging out of GLPI locally will automatically log you back in immediately.<br><br>To sign out completely, please select <b>\'%2$s\'</b>. Note that this will also terminate your active sessions in all other applications connected to this Identity Provider.<br><br>If you want to leave GLPI, just close this browser tab.', PLUGIN_NAME),
+                    __('You signed in through the identity provider: <b>%1$s</b>.<br><br>Because SAML sign-in is required, a local GLPI logout may sign you in again while your identity provider session remains active.<br><br>Select <b>\'%2$s\'</b> to sign out of GLPI and request logout from your identity provider. Your identity provider determines whether its own session and sessions in other applications are ended.<br><br>You can also return to GLPI or close this browser tab.', PLUGIN_NAME),
                     $idpName,
                     $sloLabel
                 );
             } else {
                 $infoText = sprintf(
-                    __('You have been authenticated using the SAML2 identity provider: <b>%1$s</b>.<br><br>You can log out permanently by also logging out with the IDP by pressing <b>\'%2$s\'</b> (which terminates active sessions in all other applications depending on it), or perform a local logout from GLPI only by pressing <b>\'%3$s\'</b>.', PLUGIN_NAME),
+                    __('You signed in through the identity provider: <b>%1$s</b>.<br><br>Select <b>\'%2$s\'</b> to sign out of GLPI and request logout from your identity provider. Your identity provider determines whether its own session and sessions in other applications are ended.<br><br>To sign out of GLPI only, select <b>\'%3$s\'</b>.', PLUGIN_NAME),
                     $idpName,
                     $sloLabel,
                     $returnLabel

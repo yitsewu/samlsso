@@ -588,6 +588,7 @@ namespace GlpiPlugin\Samlsso\Tests {
 
             $acs = new TestableAcs();
             TestableAcs::$lastError = [];
+            $_SESSION['samlsso_slo_context'] = ['stale' => true];
             $redirected = false;
             try {
                 $acs->init($request);
@@ -607,7 +608,14 @@ namespace GlpiPlugin\Samlsso\Tests {
             ) {
                 throw new \UnexpectedValueException('Successful ACS login did not persist its authentication state.');
             }
-            echo "✅ ACS: successful authentication state and redirect boundary\n";
+            if (($_SESSION['samlsso_slo_context'] ?? null) !== [
+                'idp' => 5,
+                'name_id' => 'testuser',
+                'session_index' => 'MOCK_SESSION_INDEX',
+            ]) {
+                throw new \UnexpectedValueException('Successful ACS login did not replace the stale logout context.');
+            }
+            echo "✅ ACS: successful authentication state, fresh logout context, and redirect boundary\n";
         }
 
         /**

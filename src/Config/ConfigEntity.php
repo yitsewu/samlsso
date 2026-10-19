@@ -537,7 +537,7 @@ class ConfigEntity extends ConfigItem
                         'url'                           => samlsso_webdir() . SamlSsoController::ACS_ROUTE . '/' . $this->fields[ConfigEntity::ID],
                     ],
                     'singleLogoutService'               => [
-                        'url'                           => samlsso_webdir() . SamlSsoController::SLO_ROUTE,
+                        'url'                           => samlsso_webdir() . SamlSsoController::SLO_ROUTE . '/' . $this->fields[ConfigEntity::ID],
                     ],
                     'x509cert'                          => $this->fields[ConfigEntity::SP_CERTIFICATE],
                     'privateKey'                        => $this->fields[ConfigEntity::SP_KEY],

@@ -51,6 +51,10 @@ declare(strict_types=1);
  * validator existence, and identifying dead configuration fields.
  */
 
+namespace Glpi\Controller { abstract class AbstractController {} }
+namespace GlpiPlugin\Samlsso\Config {
+    function samlsso_webdir(): string { return 'https://sp.example.test/plugins/samlsso/'; }
+}
 namespace GlpiPlugin\Samlsso\Tests {
 
     require_once __DIR__ . '/Shims.php';
@@ -58,6 +62,7 @@ namespace GlpiPlugin\Samlsso\Tests {
     require_once __DIR__ . '/../src/Config/ConfigEntity.php';
     require_once __DIR__ . '/../src/Config.php';
     require_once __DIR__ . '/TestHarness.php';
+    require_once __DIR__ . '/../src/Controller/SamlSsoController.php';
 
     use GlpiPlugin\Samlsso\Config\ConfigEntity;
     use GlpiPlugin\Samlsso\Config\ConfigItem;
@@ -70,6 +75,30 @@ namespace GlpiPlugin\Samlsso\Tests {
      * Evaluates configuration schemas, validator presence, and references.
      */
     class ConfigIntegrityTest extends TestHarness {
+
+        /** Verify real configuration output selects the exact provider callback. */
+        public function testProviderSpecificLogoutEndpoint(): void {
+            $GLOBALS['CFG_GLPI']['url_base'] = 'https://sp.example.test';
+            foreach ([1, 27] as $id) {
+                $entity = new class($id) extends ConfigEntity {
+                    public function __construct(int $id) {
+                        $fieldNames = array_filter(
+                            (new \ReflectionClass(ConfigEntity::class))->getConstants(),
+                            'is_string'
+                        );
+                        $this->fields = array_fill_keys($fieldNames, '');
+                        $this->fields[self::ID] = $id;
+                    }
+                    public function isValid(): bool { return true; }
+                };
+                $config = $entity->getPhpSamlConfig();
+                $expected = 'https://sp.example.test/plugins/samlsso/front/logout/' . $id;
+                if ($config['sp']['singleLogoutService']['url'] !== $expected) {
+                    throw new \UnexpectedValueException('Logout metadata must identify the configured provider.');
+                }
+            }
+            echo "Provider-specific logout endpoint: PASS\n";
+        }
 
         /**
          * Test that the captured database schema matches constants, environmental mocks, and data types.
@@ -339,6 +368,7 @@ namespace {
      */
     $test = new GlpiPlugin\Samlsso\Tests\ConfigIntegrityTest();
     try {
+        $test->testProviderSpecificLogoutEndpoint();
         $test->testSchemaVsConstants();
         $test->testValidatorsExistence();
         $test->testDeadConfigDetection();
