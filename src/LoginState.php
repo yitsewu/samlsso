@@ -176,7 +176,7 @@ class LoginState extends CommonDBTM /** NOSONAR - Existing facade contract. */
      * @param   string  $samlInResponseTo   - Fetch state using inResponseTo instead of phpSessionId;
      * @return  void
      * @since   1.2.0
-     * @throws LoginStateException When the state is missing or cannot be loaded or saved.
+     * @throws LoginStateException When the state is missing, duplicated, or cannot be loaded or saved.
      */
     private function getState(string $samlInResponseTo): void
     {
@@ -209,6 +209,11 @@ class LoginState extends CommonDBTM /** NOSONAR - Existing facade contract. */
                 ]);
             }
             return;
+        }
+
+        /** We should never get more then one row */
+        if ((int) $sessionIterator->numrows() !== 1) {
+            throw new LoginStateException('Found duplicated states in samlsso state table!');
         }
 
         $this->hydrateStoredState($sessionIterator);

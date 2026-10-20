@@ -123,10 +123,25 @@ class LoginFlowEntity extends LoginFlowItem
      * The LoginFlowEntity class constructor
      *
      * @param int $id Login flow configuration identifier.
+     * @param array $options Template selection and optional submitted form data.
+     * @throws \InvalidArgumentException When submitted postData is not an array.
      */
-    public function __construct(int $id = 1)
+    public function __construct(int $id = 1, array $options = [])
     {
-        $this->validateAndPopulateDBEntity($id);
+        if (($options['template'] ?? '') === 'post') {
+            /** Validate only declared form fields; do not silently discard submitted values. */
+            $postData = $options['postData'] ?? [];
+            if (!is_array($postData)) {
+                throw new \InvalidArgumentException('Login flow postData must be an array');
+            }
+            foreach ($postData as $field => $value) {
+                if (in_array($field, self::getConstants(), true)) {
+                    $this->evaluateItem($field, $value);
+                }
+            }
+        } else {
+            $this->validateAndPopulateDBEntity($id);
+        }
     }
 
     /**

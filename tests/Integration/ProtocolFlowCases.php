@@ -111,7 +111,8 @@ $actions = [
     'acs_missing' => ['status' => 400, 'body' => ['Return to GLPI']],
     'acs_missing_provider' => ['status' => 400, 'body' => ['Return to GLPI']],
     'acs_settings' => ['status' => 400, 'body' => ['Return to GLPI']],
-'acs_response_write' => ['status' => 400, 'body' => ['Return to GLPI']],
+    'acs_duplicate_state' => ['status' => 400, 'body' => ['Return to GLPI']],
+    'acs_response_write' => ['status' => 400, 'body' => ['Return to GLPI']],
     'acs_phase_write' => ['status' => 400, 'body' => ['Return to GLPI']],
     'acs_phase_changed_after_response' => ['status' => 400, 'body' => ['Return to GLPI']],
 ];
@@ -131,7 +132,7 @@ foreach ($actions as $action => $expectations) {
         if (
             !in_array($action, [
                 'acs_missing', 'acs_malformed', 'acs_malformed_internal',
-                'acs_missing_provider', 'acs_settings',
+                'acs_missing_provider', 'acs_settings', 'acs_duplicate_state',
             ], true)
         ) {
             $covers = [...$covers, Acs::class . '::configureProxyVars', Acs::class . '::setupSamlResponse',

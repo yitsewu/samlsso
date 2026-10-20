@@ -89,7 +89,7 @@ class LoginFlowForm /** NOSONAR complexity by design. */
     {
         Session::checkRight('config', UPDATE);
         /** Populate configEntity using post; */
-        $loginFlowEntity = new LoginFlowEntity(1);
+        $loginFlowEntity = new LoginFlowEntity(1, ['template' => 'post', 'postData' => $postData]);
         /** Validate configEntity */
         if ($loginFlowEntity->isValid()) {
             /** Get the normalized database fields */
@@ -134,12 +134,10 @@ class LoginFlowForm /** NOSONAR complexity by design. */
      */
     public function showForm(int $id, array $options = []): string
     {
-        /** Retain the native form signature while loading only persisted configuration. */
-        unset($options);
         Session::checkRight('config', READ);
         if ($id === -1 || $id > 0) {
             /** Generate form using a template */
-            return $this->generateForm(new LoginFlowEntity($id));
+            return $this->generateForm(new LoginFlowEntity($id, $options));
         } else {
             /** Invalid id used redirect back to origin */
             Session::addMessageAfterRedirect(__('Invalid request, redirecting back', PLUGIN_NAME));

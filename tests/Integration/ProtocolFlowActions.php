@@ -236,6 +236,15 @@ final class ProtocolFlowActions
         if ($action === 'acs_phase') {
             $context->assert($state->setPhase(LoginState::PHASE_SAML_AUTH), 'Cannot persist mismatched phase.');
         }
+        if ($action === 'acs_duplicate_state') {
+            $duplicate = $context->row(LoginState::getTable(), ['id' => $state->getStateId()]);
+            unset($duplicate[LoginState::STATE_ID]);
+            $duplicate[LoginState::SESSION_ID] = 'native-duplicate-' . bin2hex(random_bytes(8));
+            $context->assert(
+                (bool) $context->db()->insert(LoginState::getTable(), $duplicate),
+                'Cannot persist duplicate correlation fixture.'
+            );
+        }
         if ($action === 'acs_settings') {
             $context->assert($context->db()->update(Config::getTable(), [
                 ConfigEntity::IDP_SSO_URL => 'not a URL',
