@@ -8,6 +8,7 @@
 - Require the intended release catalog entry before packaging and keep development validation separate from release publication.
 - Process signed provider-specific IdP logout requests, bind them to the current SAML login, preserve state before cleanup, and sign responses using their actual redirect encoding; related to https://github.com/yitsewu/samlsso/issues/1 and proposed ADR 0025.
 - Translate six logout messages in all supported catalogs to explain local and identity-provider scope without promising global logout.
+- Resolve canonical plugin URLs without duplicating installation prefixes and pass raw user values to native persistence; add URL regressions and strengthen JIT and synchronization fixtures with raw text; see ADR 0026.
 
 **V1.3.2**
 - Fixed issue https://github.com/DonutsNL/samlsso/issues/134 by adding "registration_number" to user mapping.

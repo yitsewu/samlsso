@@ -100,19 +100,13 @@ define('PLUGIN_SAMLSSO_CLASSES', [
 ]);
 
 /**
- * Resolve the plugin web directory through the available native API.
+ * Return the canonical plugin URL used by GLPI 11 and later, including marketplace installs.
  *
- * @return string Native plugin web directory without a trailing slash.
+ * @return string Canonical plugin web directory with a trailing slash.
  */
 function samlsso_plugin_web_dir(): string /** NOSONAR: GLPI API. */
 {
     global $CFG_GLPI;
-    if (is_callable([Plugin::class, 'getWebDir'])) {
-        $webDir = call_user_func([Plugin::class, 'getWebDir'], PLUGIN_NAME);
-        if (is_string($webDir) && $webDir !== '') {
-            return $webDir;
-        }
-    }
     return (string) ($CFG_GLPI['root_doc'] ?? '') . '/plugins/' . PLUGIN_NAME;
 }
 
@@ -138,8 +132,8 @@ function samlsso_plugin_web_dir(): string /** NOSONAR: GLPI API. */
 function samlsso_webdir(): string /** NOSONAR: GLPI API. */
 {
     global $CFG_GLPI;
-    $urlBase = isset($CFG_GLPI['url_base']) ? rtrim((string) $CFG_GLPI['url_base'], '/') : '';
-    return $urlBase . samlsso_plugin_web_dir() . '/';
+    $urlBase = (isset($CFG_GLPI['url_base'])) ? rtrim((string) $CFG_GLPI['url_base'], '/') : '';
+    return ($urlBase !== '' ? $urlBase . '/plugins/' . PLUGIN_NAME : samlsso_plugin_web_dir()) . '/';
 }
 
 /** METHODS */

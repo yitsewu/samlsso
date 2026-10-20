@@ -224,21 +224,6 @@ class User
     }
 
     /**
-     * Apply the legacy version-selected input transformation before native writes.
-     *
-     * @param array $input User fields about to be written.
-     * @return array Values transformed by the available native legacy sanitizer.
-     */
-    private static function sanitizeInput(array $input): array
-    {
-        $sanitizer = 'Glpi\Toolbox\Sanitizer';
-        if (class_exists($sanitizer)) {
-            return $sanitizer::sanitize($input);
-        }
-        return $input;
-    }
-
-    /**
      * Performs Just-In-Time (JIT) user creation dynamically.
      *
      * @param array $userFields User attributes from SAML claims.
@@ -266,7 +251,7 @@ class User
              * Build the input array using the provided attributes (claims) from the samlResponse. maybe use this
              * method in the future to also validate provided claims in one go.
              */
-            $id = $user->add(self::sanitizeInput($userFields));
+            $id = $user->add($userFields);
             if (!$id) {
                 LoginFlow::PrintFatalLoginError(__(
                     /* phpcs:disable Generic.Files.LineLength.TooLong -- Preserve this multiline literal. */
@@ -508,7 +493,7 @@ class User
             unset($updateFields[User::EMAIL]);
         }
 
-        $user->update(self::sanitizeInput($updateFields));
+        $user->update($updateFields);
         $this->runRulesEngine((int)$user->fields[User::USERID], $userFields, $state);
     }
 

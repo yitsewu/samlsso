@@ -158,13 +158,13 @@ return [
             $provider = $context->createProvider([ConfigEntity::USER_JIT => 1]);
             $name = 'samlsso_jit_' . bin2hex(random_bytes(8));
             $claims = [SamlUser::NAME => $name, SamlUser::EMAIL => [$name . '@example.invalid'],
-                 SamlUser::REALNAME => 'Native JIT fixture', SamlUser::SAMLGROUPS => [], 'is_active' => 1];
+                 SamlUser::REALNAME => "JIT O'Neil & 臺灣 \\ <fixture>", SamlUser::SAMLGROUPS => [], 'is_active' => 1];
             $before = LoginFlow::$throwOnError;
             LoginFlow::$throwOnError = true;
             try {
                 $created = (new SamlUser())->getOrCreateUser($claims, $provider);
                 $row = $context->row('glpi_users', ['id' => $created->getID()]);
-                $context->same($claims[SamlUser::REALNAME], $row['realname'], 'Native JIT changed the mapped name.');
+                $context->same($claims[SamlUser::REALNAME], $row['realname'], 'Native JIT changed the raw claim.');
                 $context->assert(
                     Profile_User::getForUser($created->getID()) !== [],
                     'Native JIT created a user without an effective profile.'
@@ -218,6 +218,38 @@ return [
                 )['profiles_id'],
                 'User default profile does not match the effective assignment.'
             );
+        },
+    ],
+    'user.raw_claim_update' => [
+        'covers' => [SamlUser::class . '::getOrCreateUser', SamlUser::class . '::syncUserFieldsOnLogin',
+             SamlUser::class . '::compareEmail'],
+        'run' => static function (Context $context): void {
+            $native = $context->createUser();
+            $provider = $context->createProvider([ConfigEntity::SYNC_ON_LOGIN => 1]);
+            $name = (string) $native->fields['name'];
+            $email = $name . '@example.invalid';
+            $claims = [
+                SamlUser::NAME => $name,
+                SamlUser::EMAIL => [$email],
+                SamlUser::SAMLGROUPS => [],
+                SamlUser::REALNAME => "O'Neil & Sons <Research> \\ 臺灣",
+                SamlUser::FIRSTNAME => 'François "QA" \\ 測試',
+            ];
+            $found = (new SamlUser())->getOrCreateUser($claims, $provider);
+            $context->same((int) $native->getID(), (int) $found->getID(), 'Plugin selected the wrong native user.');
+            $stored = $context->row('glpi_users', ['id' => $native->getID()]);
+            $context->same(
+                $claims[SamlUser::REALNAME],
+                $stored['realname'],
+                'Raw surname was encoded before native persistence.'
+            );
+            $context->same(
+                $claims[SamlUser::FIRSTNAME],
+                $stored['firstname'],
+                'Raw first name was encoded before native persistence.'
+            );
+            $context->same(1, count($context->rows('glpi_useremails', ['users_id' => $native->getID(),
+                 'email' => $email])), 'Synchronization duplicated the existing email.');
         },
     ],
     'user.native_group_and_defaults' => [
