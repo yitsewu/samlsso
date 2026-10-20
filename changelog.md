@@ -6,6 +6,8 @@
 - Replace core shims with disposable native GLPI integration tests, real CGI request lifecycles, persistence and installation checks, and measured LoginFlow method and line coverage; reject diagnostics and premature exits.
 - Apply PSR-12 and accurate DocBlocks with narrowly documented API and literal-format exceptions; replace three dynamic gettext messages with static format strings and matching translations in all 11 catalogs.
 - Require the intended release catalog entry before packaging and keep development validation separate from release publication.
+- Process signed provider-specific IdP logout requests, bind them to the current SAML login, preserve state before cleanup, and sign responses using their actual redirect encoding; related to https://github.com/yitsewu/samlsso/issues/1 and proposed ADR 0025.
+- Translate six logout messages in all supported catalogs to explain local and identity-provider scope without promising global logout.
 
 **V1.3.2**
 - Fixed issue https://github.com/DonutsNL/samlsso/issues/134 by adding "registration_number" to user mapping.

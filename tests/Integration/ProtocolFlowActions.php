@@ -312,7 +312,9 @@ final class ProtocolFlowActions
             'verify' => static function () use (
                 $context,
                 $state,
+                $fixture,
                 $user,
+                $name,
                 $success,
                 $action,
                 $responseId,
@@ -336,6 +338,16 @@ final class ProtocolFlowActions
                         (int) $row[LoginState::PHASE],
                         'Successful ACS did not reach native authentication.'
                     );
+                    $expectedContext = [
+                        'idp' => $fixture->providerId,
+                        'name_id' => $name,
+                        'session_index' => ProtocolFixtures::SESSION_INDEX,
+                    ];
+                    $context->same(
+                        $expectedContext,
+                        $_SESSION['samlsso_slo_context'] ?? null,
+                        'Fresh ACS did not bind its validated logout context.'
+                    );
                     $fresh = new LoginState();
                     $context->same(
                         $responseId,
@@ -344,6 +356,10 @@ final class ProtocolFlowActions
                     );
                 } else {
                     $context->assert(empty($_SESSION['glpiID']), 'Rejected ACS authenticated a native user.');
+                    $context->assert(
+                        !isset($_SESSION['samlsso_slo_context']),
+                        'Rejected ACS installed logout context.'
+                    );
                     if (
                         !in_array($action, [
                             'acs_correlation', 'acs_missing', 'acs_malformed', 'acs_malformed_internal',

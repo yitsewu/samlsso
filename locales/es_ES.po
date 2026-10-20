@@ -1115,46 +1115,6 @@ msgstr ""
 msgid "Continue with local logout"
 msgstr "Continuar con el cierre de sesión local"
 
-#: src/LoginFlow.php:632
-msgid "Log out everywhere"
-msgstr "Cerrar sesión en todas partes"
-
-#: src/LoginFlow.php:636
-#, php-format
-msgid ""
-"You have been authenticated using the SAML2 identity provider: "
-"<b>%1$s</b>.<br><br>Because SAML authentication is enforced, logging out of "
-"GLPI locally will automatically log you back in immediately.<br><br>To sign "
-"out completely, please select <b>'%2$s'</b>. Note that this will also "
-"terminate your active sessions in all other applications connected to this "
-"Identity Provider.<br><br>If you want to leave GLPI, just close this browser"
-" tab."
-msgstr ""
-"Ha sido autenticado utilizando el proveedor de identidad SAML2: "
-"<b>%1$s</b>.<br><br>Debido a que se aplica la autenticación SAML, cerrar "
-"sesión en GLPI localmente lo iniciará automáticamente nuevamente de "
-"inmediato.<br><br>Para cerrar sesión por completo, seleccione <b>'Cerrar "
-"sesión en todas partes'</b>. Tenga en cuenta que esto también finalizará sus"
-" sesiones activas en todas las demás aplicaciones conectadas a este "
-"proveedor de identidad.<br><br>Si desea salir de GLPI, simplemente cierre "
-"esta pestaña del navegador."
-
-#: src/LoginFlow.php:642
-#, php-format
-msgid ""
-"You have been authenticated using the SAML2 identity provider: "
-"<b>%1$s</b>.<br><br>You can log out permanently by also logging out with the"
-" IDP by pressing <b>'%2$s'</b> (which terminates active sessions in all "
-"other applications depending on it), or perform a local logout from GLPI "
-"only by pressing <b>'%3$s'</b>."
-msgstr ""
-"Ha sido autenticado utilizando el proveedor de identidad SAML2: "
-"<b>%1$s</b>.<br><br>. Puede cerrar sesión permanentemente también con el IDP"
-" presionando <b>'Cerrar sesión en todas partes'</b> (que finaliza las "
-"sesiones activas en todas las demás aplicaciones dependiendo de ello), o "
-"realizar un cierre de sesión local desde GLPI solo presionando <b>'Continuar"
-" cierre de sesión de GLPI'</b>."
-
 #: src/LoginFlow.php:651
 msgid "🤔 How would you like to proceed?"
 msgstr "🤔 ¿Cómo le gustaría proceder?"
@@ -1730,19 +1690,6 @@ msgstr "Agente del cliente realizando la llamada"
 msgid "To be excluded path"
 msgstr "Ser excluido camino"
 
-#: templates/loggedOut.html.twig:9
-msgid "Successfully Logged Out"
-msgstr "Cerrado exitosamente"
-
-#: templates/loggedOut.html.twig:12
-msgid ""
-"You have been successfully logged out of your session. You can now safely "
-"close this browser window/tab, or log in again using the button below."
-msgstr ""
-"Se ha cerrado correctamente su sesión. Ahora puede cerrar de forma segura "
-"esta ventana/pestaña del navegador o iniciar sesión nuevamente usando el "
-"botón a continuación."
-
 #: templates/loggedOut.html.twig:17
 msgid "Log in again"
 msgstr "Inicia sesión nuevamente"
@@ -2185,6 +2132,66 @@ msgstr ""
 "⚠️ ¡Advertencia sobre metadatos de SP expuestos! - ROWID: %1$s | FECHA DE "
 "CREACIÓN: %2$s | ÚLTIMA ACTUALIZACIÓN: %3$s"
 
+#: src/LoginFlow.php:702
+msgid "Request identity provider logout"
+msgstr "Solicitar cierre de sesión al proveedor de identidad"
+
+#: src/Controller/SamlSsoController.php:298 templates/loggedOut.html.twig:9
+msgid "Signed out of GLPI"
+msgstr "Sesión de GLPI cerrada"
+
+#: src/Controller/SamlSsoController.php:153
+msgid ""
+"The logout request could not be verified. Sign in again or contact your "
+"administrator."
+msgstr ""
+"No se pudo verificar la solicitud de cierre de sesión. Vuelva a iniciar "
+"sesión o contacte con su administrador."
+
+#: templates/loggedOut.html.twig:12
+msgid ""
+"You are signed out of GLPI. Your identity provider and other applications "
+"may still have active sessions."
+msgstr ""
+"Su sesión en GLPI se ha cerrado. Todavía puede haber sesiones activas en su "
+"proveedor de identidad y en otras aplicaciones."
+
+#: src/LoginFlow.php:708
+#, php-format
+msgid ""
+"You signed in through the identity provider: <b>%1$s</b>.<br><br>Because "
+"SAML sign-in is required, a local GLPI logout may sign you in again while "
+"your identity provider session remains active.<br><br>Select <b>'%2$s'</b> "
+"to sign out of GLPI and request logout from your identity provider. Your "
+"identity provider determines whether its own session and sessions in other "
+"applications are ended.<br><br>You can also return to GLPI or close this "
+"browser tab."
+msgstr ""
+"Inició sesión mediante el proveedor de identidad: <b>%1$s</b>.<br><br>Como "
+"es obligatorio iniciar sesión mediante SAML, al cerrar la sesión local de "
+"GLPI podría volver a iniciarse la sesión mientras siga activa la del "
+"proveedor de identidad.<br><br>Seleccione <b>'%2$s'</b> para cerrar la "
+"sesión de GLPI y solicitar el cierre de sesión a su proveedor de identidad. "
+"Su proveedor de identidad determina si se cierran su propia sesión y las "
+"sesiones de otras aplicaciones.<br><br>También puede volver a GLPI o cerrar "
+"esta pestaña del navegador."
+
+#: src/LoginFlow.php:718
+#, php-format
+msgid ""
+"You signed in through the identity provider: <b>%1$s</b>.<br><br>Select "
+"<b>'%2$s'</b> to sign out of GLPI and request logout from your identity "
+"provider. Your identity provider determines whether its own session and "
+"sessions in other applications are ended.<br><br>To sign out of GLPI only, "
+"select <b>'%3$s'</b>."
+msgstr ""
+"Inició sesión mediante el proveedor de identidad: "
+"<b>%1$s</b>.<br><br>Seleccione <b>'%2$s'</b> para cerrar la sesión de GLPI y"
+" solicitar el cierre de sesión a su proveedor de identidad. Su proveedor de "
+"identidad determina si se cierran su propia sesión y las sesiones de otras "
+"aplicaciones.<br><br>Para cerrar únicamente la sesión de GLPI, seleccione "
+"<b>'%3$s'</b>."
+
 #. %s is the remote address that sent the unexpected SAML assertion.
 #: src/LoginFlow/Acs.php:376
 #, php-format
@@ -2220,3 +2227,51 @@ msgstr "🆗 Versión de instalación:%s"
 
 #~ msgid "🆗 Installing version:"
 #~ msgstr "🆗 Versión de instalación:"
+
+#~ msgid "Log out everywhere"
+#~ msgstr "Cerrar sesión en todas partes"
+
+#, php-format
+#~ msgid ""
+#~ "You have been authenticated using the SAML2 identity provider: "
+#~ "<b>%1$s</b>.<br><br>Because SAML authentication is enforced, logging out of "
+#~ "GLPI locally will automatically log you back in immediately.<br><br>To sign "
+#~ "out completely, please select <b>'%2$s'</b>. Note that this will also "
+#~ "terminate your active sessions in all other applications connected to this "
+#~ "Identity Provider.<br><br>If you want to leave GLPI, just close this browser"
+#~ " tab."
+#~ msgstr ""
+#~ "Ha sido autenticado utilizando el proveedor de identidad SAML2: "
+#~ "<b>%1$s</b>.<br><br>Debido a que se aplica la autenticación SAML, cerrar "
+#~ "sesión en GLPI localmente lo iniciará automáticamente nuevamente de "
+#~ "inmediato.<br><br>Para cerrar sesión por completo, seleccione <b>'Cerrar "
+#~ "sesión en todas partes'</b>. Tenga en cuenta que esto también finalizará sus"
+#~ " sesiones activas en todas las demás aplicaciones conectadas a este "
+#~ "proveedor de identidad.<br><br>Si desea salir de GLPI, simplemente cierre "
+#~ "esta pestaña del navegador."
+
+#, php-format
+#~ msgid ""
+#~ "You have been authenticated using the SAML2 identity provider: "
+#~ "<b>%1$s</b>.<br><br>You can log out permanently by also logging out with the"
+#~ " IDP by pressing <b>'%2$s'</b> (which terminates active sessions in all "
+#~ "other applications depending on it), or perform a local logout from GLPI "
+#~ "only by pressing <b>'%3$s'</b>."
+#~ msgstr ""
+#~ "Ha sido autenticado utilizando el proveedor de identidad SAML2: "
+#~ "<b>%1$s</b>.<br><br>. Puede cerrar sesión permanentemente también con el IDP"
+#~ " presionando <b>'Cerrar sesión en todas partes'</b> (que finaliza las "
+#~ "sesiones activas en todas las demás aplicaciones dependiendo de ello), o "
+#~ "realizar un cierre de sesión local desde GLPI solo presionando <b>'Continuar"
+#~ " cierre de sesión de GLPI'</b>."
+
+#~ msgid "Successfully Logged Out"
+#~ msgstr "Cerrado exitosamente"
+
+#~ msgid ""
+#~ "You have been successfully logged out of your session. You can now safely "
+#~ "close this browser window/tab, or log in again using the button below."
+#~ msgstr ""
+#~ "Se ha cerrado correctamente su sesión. Ahora puede cerrar de forma segura "
+#~ "esta ventana/pestaña del navegador o iniciar sesión nuevamente usando el "
+#~ "botón a continuación."

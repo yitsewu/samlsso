@@ -942,32 +942,6 @@ msgstr ""
 msgid "Continue with local logout"
 msgstr ""
 
-#: src/LoginFlow.php:632
-msgid "Log out everywhere"
-msgstr ""
-
-#: src/LoginFlow.php:636
-#, php-format
-msgid ""
-"You have been authenticated using the SAML2 identity provider: "
-"<b>%1$s</b>.<br><br>Because SAML authentication is enforced, logging out of "
-"GLPI locally will automatically log you back in immediately.<br><br>To sign "
-"out completely, please select <b>'%2$s'</b>. Note that this will also "
-"terminate your active sessions in all other applications connected to this "
-"Identity Provider.<br><br>If you want to leave GLPI, just close this browser"
-" tab."
-msgstr ""
-
-#: src/LoginFlow.php:642
-#, php-format
-msgid ""
-"You have been authenticated using the SAML2 identity provider: "
-"<b>%1$s</b>.<br><br>You can log out permanently by also logging out with the"
-" IDP by pressing <b>'%2$s'</b> (which terminates active sessions in all "
-"other applications depending on it), or perform a local logout from GLPI "
-"only by pressing <b>'%3$s'</b>."
-msgstr ""
-
 #: src/LoginFlow.php:651
 msgid "🤔 How would you like to proceed?"
 msgstr ""
@@ -1463,16 +1437,6 @@ msgstr ""
 msgid "To be excluded path"
 msgstr ""
 
-#: templates/loggedOut.html.twig:9
-msgid "Successfully Logged Out"
-msgstr ""
-
-#: templates/loggedOut.html.twig:12
-msgid ""
-"You have been successfully logged out of your session. You can now safely "
-"close this browser window/tab, or log in again using the button below."
-msgstr ""
-
 #: templates/loggedOut.html.twig:17
 msgid "Log in again"
 msgstr ""
@@ -1874,6 +1838,48 @@ msgstr ""
 msgid ""
 "⚠️ Warning SP metadata exposed! - ROWID: %1$s | CREATED DATE: %2$s | LAST "
 "UPDATED: %3$s"
+msgstr ""
+
+#: src/LoginFlow.php:702
+msgid "Request identity provider logout"
+msgstr ""
+
+#: src/Controller/SamlSsoController.php:298 templates/loggedOut.html.twig:9
+msgid "Signed out of GLPI"
+msgstr ""
+
+#: src/Controller/SamlSsoController.php:153
+msgid ""
+"The logout request could not be verified. Sign in again or contact your "
+"administrator."
+msgstr ""
+
+#: templates/loggedOut.html.twig:12
+msgid ""
+"You are signed out of GLPI. Your identity provider and other applications "
+"may still have active sessions."
+msgstr ""
+
+#: src/LoginFlow.php:708
+#, php-format
+msgid ""
+"You signed in through the identity provider: <b>%1$s</b>.<br><br>Because "
+"SAML sign-in is required, a local GLPI logout may sign you in again while "
+"your identity provider session remains active.<br><br>Select <b>'%2$s'</b> "
+"to sign out of GLPI and request logout from your identity provider. Your "
+"identity provider determines whether its own session and sessions in other "
+"applications are ended.<br><br>You can also return to GLPI or close this "
+"browser tab."
+msgstr ""
+
+#: src/LoginFlow.php:718
+#, php-format
+msgid ""
+"You signed in through the identity provider: <b>%1$s</b>.<br><br>Select "
+"<b>'%2$s'</b> to sign out of GLPI and request logout from your identity "
+"provider. Your identity provider determines whether its own session and "
+"sessions in other applications are ended.<br><br>To sign out of GLPI only, "
+"select <b>'%3$s'</b>."
 msgstr ""
 
 #. %s is the remote address that sent the unexpected SAML assertion.

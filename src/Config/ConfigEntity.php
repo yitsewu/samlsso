@@ -620,7 +620,7 @@ class ConfigEntity extends ConfigItem /** NOSONAR - Existing facade contract. */
                     ],
                     'singleLogoutService'               => [
                         'url'                           => samlsso_webdir()
-                            . SamlSsoController::SLO_ROUTE,
+                            . SamlSsoController::SLO_ROUTE . '/' . $this->fields[ConfigEntity::ID],
                     ],
                     'x509cert'                          => $this->fields[ConfigEntity::SP_CERTIFICATE],
                     'privateKey'                        => $this->fields[ConfigEntity::SP_KEY],

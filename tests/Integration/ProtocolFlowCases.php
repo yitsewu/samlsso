@@ -42,7 +42,7 @@ $cases = [
         ),
     ],
 ];
-foreach (['acs' => '/plugins/samlsso/front/acs/1'] as $name => $path) {
+foreach (['acs' => '/plugins/samlsso/front/acs/1', 'slo' => '/plugins/samlsso/front/logout/1'] as $name => $path) {
     $cases['protocol.flow.callback_bypass_' . $name] = [
         'run' => static function (Context $context) use ($path): void {
             $before = $context->rows(LoginState::getTable(), []);
@@ -92,8 +92,8 @@ $actions = [
     'selected' => ['status' => 302, 'location' => 'https://idp.example.invalid/sso'],
     'bypass' => ['status' => 302, 'location' => 'https://sp.example.invalid/?bypass=1&noAUTO=1'],
     'login_screen' => ['body' => ['Login with external provider', 'saml_buttons']],
-    'logout' => ['body' => ['Log out everywhere', 'Continue with local logout']],
-    'logout_enforced' => ['body' => ['Log out everywhere', 'Go back to GLPI']],
+    'logout' => ['body' => ['Request identity provider logout', 'Continue with local logout']],
+    'logout_enforced' => ['body' => ['Request identity provider logout', 'Go back to GLPI']],
     'slo' => ['status' => 302, 'location' => ProtocolFixtures::IDP_LOGOUT],
     'slo_fallback' => ['status' => 302, 'location' => 'https://sp.example.invalid/'],
     'local' => [],
