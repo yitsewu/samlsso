@@ -76,16 +76,62 @@ Execute the entire automated test runner from the root of the plugin directory t
 php tests/RunAllTests.php
 ```
 
+Tests require an installed, disposable GLPI instance with a synthetic database named `samlsso_test_*`.
+Run the matrix separately on GLPI 11 and GLPI 12. Never point this gate at a production installation
+or use a production database copy. Link that instance's `plugins/samlsso` directory to this checkout.
+Enable Xdebug coverage in the PHP configuration and select the runtime explicitly:
+
+```bash
+export SAMLSSO_GLPI_ROOT=/absolute/path/to/disposable/glpi
+export SAMLSSO_INTEGRATION_ALLOW_DB=1
+export SAMLSSO_PHP_CGI=/absolute/path/to/php-cgi
+export SAMLSSO_PHP_INI=/absolute/path/to/test/php.ini
+SAMLSSO_INTEGRATION_PROVISION=1 php -c "$SAMLSSO_PHP_INI" tests/Integration/Provision.php
+php -c "$SAMLSSO_PHP_INI" tests/RunAllTests.php
+```
+
+Provisioning installs and activates the plugin through GLPI's own installer. Tests execute actual
+GLPI database, session, renderer and controller behavior; core shims and replacement functions are
+not part of the gate. Fixtures use local synthetic identities and do not send email. Test database
+changes are rolled back or explicitly removed. CGI subprocesses exercise terminating HTTP paths.
+The runner requires normal suite completion, rejects PHP diagnostics, and checks declared LoginFlow
+method mappings against measured Xdebug execution. Missing runtimes, CGI or coverage fail validation.
+Focused case runs are for diagnosis and do not replace the complete gate.
+
+For reproducible static analysis, set Intelephense's PHP version to `8.4.0` and include the actual GLPI
+checkout's `inc`, `src`, and `vendor` directories plus Intelephense's bundled Xdebug extension types.
+Analyze every project-owned PHP file, including `tests` and `tools`, while excluding third-party `vendor`
+sources from the reported project scope. Classify Sonar test sources with `**/tests/**` without excluding
+them from analysis, and require a completed diagnostic report for every analyzed file. Measured method
+and line execution in the native test gate does not establish complete branch coverage.
+
+Verify installation and update preservation separately because DDL cannot be rolled back with the case fixtures.
+On the same explicitly selected disposable runtime, provision the plugin first and run:
+
+```bash
+SAMLSSO_INTEGRATION_PROVISION=1 php -c "$SAMLSSO_PHP_INI" tests/Integration/VerifyLifecycle.php
+```
+
+This gate creates synthetic provider, claim and login-state rows, customizes cron retention, then calls GLPI's
+native install and activate APIs twice. It checks preservation, permits the existing migration's location cleanup,
+rejects duplicate cron tasks, and removes its fixtures while restoring the original cron parameters. After a GLPI
+upgrade that suspends plugins, first run `php -c "$SAMLSSO_PHP_INI" "$SAMLSSO_GLPI_ROOT/bin/console" plugin:resume_execution`
+against that disposable instance. The lifecycle gate does not replace GLPI's `db:update` or schema-integrity checks.
+
+The release-catalog suite accepts an explicitly declared development version newer than all published entries.
+For release packaging, run `SAMLSSO_RELEASE_VALIDATION=1 php tests/RunAllTests.php`;
+this additionally requires the packaged version's exact download entry. `tools/mkzip.sh` enables this gate automatically.
+
 ### 2. Creating a Release
 To package a new release zip using `tools/mkzip.sh`:
 1. Update the version constant `PLUGIN_SAMLSSO_VERSION` in `setup.php` (e.g. to `'1.2.7'`).
 2. Update the `OLDVERSION` and `NEWVERSION` variables in `tools/mkzip.sh` to match the version bump (e.g. `OLDVERSION='1.2.6'` and `NEWVERSION='1.2.7'`).
-3. Run the release packaging script:
+3. Update `samlsso.xml` with the intended release version and its download URL before packaging; the strict packaging gate requires this entry.
+4. Run the release packaging script:
    ```bash
    ./tools/mkzip.sh
    ```
    *Note: This script automatically bumps version docstrings in all PHP files (excluding `vendor/`), executes the automated test runner, and aborts the release packaging if any tests fail.*
-4. Manually update `samlsso.xml` to add a new `<version>` block listing the new version and its download URL.
 5. Run the test suite:
    ```bash
    php tests/RunAllTests.php

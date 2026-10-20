@@ -1,4 +1,5 @@
 <?php
+
 /**
  *  ------------------------------------------------------------------------
  *  samlSSO
@@ -44,173 +45,263 @@
 
 namespace GlpiPlugin\Samlsso\Controller;
 
-use Glpi\Http\Firewall;                                                 // Required to allow anonymous access to ACS route
-use Glpi\Controller\AbstractController;                                 // The controller
-use Glpi\Security\Attribute\SecurityStrategy;                           // Required to decorate the invoke
-use Symfony\Component\HttpFoundation\Request;                           // Required for __invoke
-use Symfony\Component\HttpFoundation\Response;                          // Required for __invoke
-use Symfony\Component\Routing\Attribute\Route;                          // Required to register controller route
-use GlpiPlugin\Samlsso\Exclude;                                         // Required to call Exclude object
-use GlpiPlugin\Samlsso\RuleSaml;                                        // Required to call Rules object
-use GlpiPlugin\Samlsso\LoginState;                                      //
-use GlpiPlugin\Samlsso\LoginFlow\Acs;                                   // Required to call the ACS object
-use GlpiPlugin\Samlsso\LoginFlow\Meta;                                  // Required to call Exclude object
-use GlpiPlugin\Samlsso\Config\ConfigForm;                               // Required to call Config object
-use GlpiPlugin\Samlsso\LoginFlow\LoginFlowForm;                         //
-use Glpi\Application\View\TemplateRenderer;
+use Glpi\Http\Firewall;
+use Glpi\Controller\AbstractController;
 
+/** The controller */
+/** Required to decorate the invoke */
+use Glpi\Security\Attribute\SecurityStrategy;
+/** Required for __invoke */
+use Symfony\Component\HttpFoundation\Request;
+/** Required for __invoke */
+use Symfony\Component\HttpFoundation\Response;
+/** Required to register controller route */
+use Symfony\Component\Routing\Attribute\Route;
+/** Required to call Exclude object */
+use GlpiPlugin\Samlsso\Exclude;
+/** Required to call Rules object */
+use GlpiPlugin\Samlsso\RuleSaml;
+use GlpiPlugin\Samlsso\LoginState;
+/** Required to call the ACS object */
+use GlpiPlugin\Samlsso\LoginFlow\Acs;
+/** Required to call Exclude object */
+use GlpiPlugin\Samlsso\LoginFlow\Meta;
+/** Required to call Config object */
+use GlpiPlugin\Samlsso\Config\ConfigForm;
+use GlpiPlugin\Samlsso\LoginFlow\LoginFlowForm;
+use Glpi\Application\View\TemplateRenderer;
 
 final class SamlSsoController extends AbstractController
 {
-    ####################################################################
-    // ACS route
-    public const ACS_ROUTE      = 'front/acs';                          // Route being registered by __class__
-    public const ACS_PARAM      = '/{'.LoginState::IDP_ID.'}';
-    public const ACS_NAME       = 'samlsso_ACS';                        // Route name
+    /** ACS route */
+    /** Route being registered by __class__ */
+    public const ACS_ROUTE      = 'front/acs';
+    public const ACS_PARAM      = '/{' . LoginState::IDP_ID . '}';
+    /** Route name */
+    public const ACS_NAME       = 'samlsso_ACS';
 
-    #[SecurityStrategy(Firewall::STRATEGY_NO_CHECK)]                    // Decorator to disable authentication check
-    #[Route(self::ACS_ROUTE.self::ACS_PARAM, name: self::ACS_NAME)]     // Decorator to register route to controller
-    public function acs(Request $request): Response                     // What to do if route is invoked.
+    /** Decorator to disable authentication check */
+    #[SecurityStrategy(Firewall::STRATEGY_NO_CHECK)]
+    /** Decorator to register route to controller */
+    #[Route(self::ACS_ROUTE . self::ACS_PARAM, name: self::ACS_NAME)]
+    /**
+     * Process an assertion consumer service request.
+     *
+     * @param Request $request Incoming route request.
+     * @return Response Empty response after the ACS handler has completed.
+     */
+    public function acs(Request $request): Response
     {
-        (new Acs)->init($request);                                     // Call the ACS handler.
+        /** Call the ACS handler. */
+        (new Acs())->init($request);
         return new Response();
     }
 
+    /** SLO route */
+    /** Route being registered by __class__ */
+    public const SLO_ROUTE      = 'front/logout';
+    public const SLO_PARAM      = '/{' . LoginState::IDP_ID . '}';
+    /** Route name */
+    public const SLO_NAME       = 'samlsso_SLO';
 
-    ####################################################################
-    // SLO route
-    public const SLO_ROUTE      = 'front/logout';                       // Route being registered by __class__
-    public const SLO_PARAM      = '/{'.LoginState::IDP_ID.'}';
-    public const SLO_NAME       = 'samlsso_SLO';                        // Route name
-
-    #[SecurityStrategy(Firewall::STRATEGY_NO_CHECK)]                    // Decorator to disable authentication check
+    /**
+     * Render the existing logout landing page.
+     *
+     * @param Request $request Incoming native route request.
+     * @return Response Rendered logout page.
+     */
+    #[SecurityStrategy(Firewall::STRATEGY_NO_CHECK)]
     #[Route(self::SLO_ROUTE, name: self::SLO_NAME)]
-    #[Route(self::SLO_ROUTE.self::SLO_PARAM, name: self::SLO_NAME.'_param')] // Decorator to register route to controller
-    public function slo(Request $request): Response                     // What to do if route is invoked.
+    #[Route(self::SLO_ROUTE . self::SLO_PARAM, name: self::SLO_NAME . '_param')]
+    public function slo(Request $request): Response
     {
         global $CFG_GLPI;
-
+        /** The existing landing page retains its route signature without interpreting the request. */
+        unset($request);
         ob_start();
-        \Html::nullHeader("SamlSSO Logout", '/');
-        
-        $tplVars = [
-            'loginPath' => $CFG_GLPI['url_base'] . '/index.php?noAuto=1'
-        ];
-        
+        \Html::nullHeader('SamlSSO Logout', '/');
+        $tplVars = ['loginPath' => $CFG_GLPI['url_base'] . '/index.php?noAuto=1'];
         echo TemplateRenderer::getInstance()->render('@samlsso/loggedOut.html.twig', $tplVars);
-        
         \Html::nullFooter();
-        $content = ob_get_clean();
-
-        return new Response($content);
+        return new Response(ob_get_clean());
     }
 
-
-    ####################################################################
-    // Meta route
-    public const META_ROUTE     = 'front/meta';                         // Route being registered by __class__
+    /** Meta route */
+    /** Route being registered by __class__ */
+    public const META_ROUTE     = 'front/meta';
     public const META_PARAM     = '/{idpId}';
-    public const META_NAME      = 'samlsso_META';                       // Route name
+    /** Route name */
+    public const META_NAME      = 'samlsso_META';
 
-    #[SecurityStrategy(Firewall::STRATEGY_NO_CHECK)]                    // Decorator to disable authentication check
-    #[Route(self::META_ROUTE.self::META_PARAM, name: self::META_NAME)]  // Decorator to register route to controller
-    public function meta(Request $request): Response                    // What to do if route is invoked.
+    /** Decorator to disable authentication check */
+    #[SecurityStrategy(Firewall::STRATEGY_NO_CHECK)]
+    /** Decorator to register route to controller */
+    #[Route(self::META_ROUTE . self::META_PARAM, name: self::META_NAME)]
+    /**
+     * Render the service provider metadata.
+     *
+     * @param Request $request Incoming route request.
+     * @return Response XML metadata response.
+     */
+    public function meta(Request $request): Response
     {
-        return (new Meta)->getSPMeta($request);                         // Call the SPMeta handler.
+        /** Call the SPMeta handler. */
+        return (new Meta())->getSPMeta($request);
     }
 
+    /** Config routes */
+    /** Register old route as well */
+    public const CONFIG_FILE     = 'front/config.php';
+    /** Route being registered by __class__ */
+    public const CONFIG_ROUTE    = 'front/config';
+    /** Route name */
+    public const CONFIG_NAME     = 'configMain';
+    /** Parent object name */
+    public const CONFIG_PNAME    = 'config';
 
-    ####################################################################
-    // Config routes
-    public const CONFIG_FILE     = 'front/config.php';                  // Register old route as well
-    public const CONFIG_ROUTE    = 'front/config';                      // Route being registered by __class__
-    public const CONFIG_NAME     = 'configMain';                        // Route name
-    public const CONFIG_PNAME    = 'config';                            // Parent object name
-
-    //#[SecurityStrategy(Firewall::STRATEGY_NO_CHECK)]                  // Decorator to disable authentication check
-    #[Route(self::CONFIG_ROUTE, name: self::CONFIG_NAME)]               // Decorator to register route to controller
-    #[Route(self::CONFIG_FILE, name: self::CONFIG_NAME.'_file')]        // Decorator to register old route to handle GLPI generated menu's
-    public function config(Request $request): Response                  // What to do if route is invoked.
+    /** [SecurityStrategy(Firewall::STRATEGY_NO_CHECK)]                  // Decorator to disable authentication check */
+    /** Decorator to register route to controller */
+    #[Route(self::CONFIG_ROUTE, name: self::CONFIG_NAME)]
+    #[Route(self::CONFIG_FILE, name: self::CONFIG_NAME . '_file')]
+    /**
+     * Render the identity provider configuration list.
+     *
+     * @param Request $request Incoming route request.
+     * @return Response Rendered list or export response.
+     */
+    public function config(Request $request): Response
     {
-        $res = (new ConfigForm)->invoke($request);
+        $res = (new ConfigForm())->invoke($request);
         if ($res instanceof Response) {
             return $res;
         }
         return new Response((string)$res);
     }
 
-    // ConfigForm routes
-    public const CONFIGFORM_FILE = 'front/config.form.php';             // Register old route as well
-    public const CONFIGFORM_ROUTE= 'front/config/form';                 // Route being registered by __class__
-    public const CONFIGFORM_NAME = 'configForm';                        // Route name
-    public const CONFIGFORM_PNAME= 'config';                            // Parent object name
-    //#[SecurityStrategy(Firewall::STRATEGY_NO_CHECK)]                  // Decorator to disable authentication check
-    #[Route(self::CONFIGFORM_ROUTE, name: self::CONFIGFORM_NAME)]       // Decorator to register route to controller
-    #[Route(self::CONFIGFORM_FILE, name: self::CONFIGFORM_NAME.'_file')]// Decorator to register old route to handle GLPI generated menu's
+    /** ConfigForm routes */
+    /** Register old route as well */
+    public const CONFIGFORM_FILE = 'front/config.form.php';
+    /** Route being registered by __class__ */
+    public const CONFIGFORM_ROUTE = 'front/config/form';
+    /** Route name */
+    public const CONFIGFORM_NAME = 'configForm';
+    /** Parent object name */
+    public const CONFIGFORM_PNAME = 'config';
+    /** [SecurityStrategy(Firewall::STRATEGY_NO_CHECK)]                  // Decorator to disable authentication check */
+    /** Decorator to register route to controller */
+    #[Route(self::CONFIGFORM_ROUTE, name: self::CONFIGFORM_NAME)]
+    #[Route(self::CONFIGFORM_FILE, name: self::CONFIGFORM_NAME . '_file')]
+    /**
+     * Render or update an identity provider configuration.
+     *
+     * @param Request $request Incoming route request.
+     * @return Response Rendered form or redirect response.
+     */
     public function configform(Request $request): Response
     {
-        return (new ConfigForm)->invokeForm($request);
+        return (new ConfigForm())->invokeForm($request);
     }
 
-
-    ####################################################################
-    // LoginFlowConfig
+    /** LoginFlowConfig */
     public const FLOWFORM_FILE = 'front/loginflow.form.php';
-    public const FLOWFORM_ROUTE= 'front/flowconfig';                    // Route being registered by __class__
-    public const FLOWFORM_NAME = 'flowMain';                            // Route name
-    public const FLOWFORM_PNAME= 'config';                              // Parent object name
-    #[SecurityStrategy(Firewall::STRATEGY_NO_CHECK)]                    // Decorator to disable authentication check
-    #[Route(self::FLOWFORM_ROUTE, name: self::FLOWFORM_NAME)]           // Decorator to register route to controller
-    #[Route(self::FLOWFORM_FILE, name: self::FLOWFORM_NAME.'_file')]    // Decorator to register old route to handle GLPI generated menu's
-    public function loginflow(Request $request): Response               // What to do if route is invoked.
+    /** Route being registered by __class__ */
+    public const FLOWFORM_ROUTE = 'front/flowconfig';
+    /** Route name */
+    public const FLOWFORM_NAME = 'flowMain';
+    /** Parent object name */
+    public const FLOWFORM_PNAME = 'config';
+    /** Decorator to disable authentication check */
+    #[SecurityStrategy(Firewall::STRATEGY_NO_CHECK)]
+    /** Decorator to register route to controller */
+    #[Route(self::FLOWFORM_ROUTE, name: self::FLOWFORM_NAME)]
+    #[Route(self::FLOWFORM_FILE, name: self::FLOWFORM_NAME . '_file')]
+    /**
+     * Render the login flow configuration.
+     *
+     * @return Response Rendered login flow page.
+     */
+    public function loginflow(): Response
     {
-        (new LoginFlowForm)->init();                                   // Call the ACS handler.
+        /** Call the ACS handler. */
+        (new LoginFlowForm())->init();
         return new Response();
     }
 
-
-    ####################################################################
-    // Exclude routes
-    public const EXCLUDE_ROUTE = 'front/exclude';                       // Route being registered by __class__
-    public const EXCLUDE_NAME  = 'excludeMain';                         // Route name
-    public const EXCLUDE_PNAME = 'config';                              // Parent object name
-    #[SecurityStrategy(Firewall::STRATEGY_NO_CHECK)]                    // Decorator to disable authentication check
-    #[Route(self::EXCLUDE_ROUTE, name: self::EXCLUDE_NAME)]             // Decorator to register route to controller
-    public function exclude(): Response                                 // What to do if route is invoked.
+    /** Exclude routes */
+    /** Route being registered by __class__ */
+    public const EXCLUDE_ROUTE = 'front/exclude';
+    /** Route name */
+    public const EXCLUDE_NAME  = 'excludeMain';
+    /** Parent object name */
+    public const EXCLUDE_PNAME = 'config';
+    /** Decorator to disable authentication check */
+    #[SecurityStrategy(Firewall::STRATEGY_NO_CHECK)]
+    /** Decorator to register route to controller */
+    #[Route(self::EXCLUDE_ROUTE, name: self::EXCLUDE_NAME)]
+    /**
+     * Render the login exclusion configuration.
+     *
+     * @return Response Rendered exclusions page.
+     */
+    public function exclude(): Response
     {
-        (new Exclude)->invoke();                                       // Call the ACS handler.
+        /** Call the ACS handler. */
+        (new Exclude())->invoke();
         return new Response();
     }
 
+    /**
+     * Rules routes Preserve the file route generated by native GLPI menus.
+     */
+    public const RULES_FILE     = 'front/rulesaml.php';
+    /** Route being registered by __class__ */
+    public const RULES_ROUTE    = 'front/rule';
+    /** Route name */
+    public const RULES_NAME     = 'ruleMain';
+    /** Parent object name */
+    public const RULES_PNAME    = 'config';
+    /** Preserve the form route generated by native GLPI menus. */
+    public const RULESFORM_FILE = 'front/rulesaml.form.php';
+    /** Route being registered by __class__ */
+    public const RULESFORM_ROUTE = 'front/ruleForm';
+    /** Route name */
+    public const RULESFORM_NAME = 'ruleForm';
+    /** Parent object name */
+    public const RULESFORM_PNAME = 'config';
 
-    ####################################################################
-    // Rules routes
-    public const RULES_FILE     = 'front/rulesaml.php';                 // Register all route as well because these might be autogenerated
-    public const RULES_ROUTE    = 'front/rule';                         // Route being registered by __class__
-    public const RULES_NAME     = 'ruleMain';                           // Route name
-    public const RULES_PNAME    = 'config';                             // Parent object name
-    public const RULESFORM_FILE = 'front/rulesaml.form.php';            // Register old route as well because paths are auto generated
-    public const RULESFORM_ROUTE= 'front/ruleForm';                     // Route being registered by __class__
-    public const RULESFORM_NAME = 'ruleForm';                           // Route name
-    public const RULESFORM_PNAME= 'config';                             // Parent object name
-
-
-    #[SecurityStrategy(Firewall::STRATEGY_NO_CHECK)]                    // Decorator to disable authentication check
-    #[Route(self::RULES_ROUTE, name: self::RULES_NAME)]                 // Decorator to register route to controller
-    #[Route(self::RULES_FILE, name: self::RULES_NAME.'_file')]          // Decorator to register route to controller
-    public function __invoke(Request $request): Response                // What to do if route is invoked.
+    /** Decorator to disable authentication check */
+    #[SecurityStrategy(Firewall::STRATEGY_NO_CHECK)]
+    /** Decorator to register route to controller */
+    #[Route(self::RULES_ROUTE, name: self::RULES_NAME)]
+    /** Decorator to register route to controller */
+    #[Route(self::RULES_FILE, name: self::RULES_NAME . '_file')]
+    /**
+     * Render the native SAML rule list.
+     *
+     * @return Response Rendered rules page.
+     */
+    public function __invoke(): Response
     {
-        (new RuleSaml)->invoke();                                      // Call the ACS handler.
+        /** Call the ACS handler. */
+        (new RuleSaml())->invoke();
         return new Response();
     }
 
-    #[SecurityStrategy(Firewall::STRATEGY_NO_CHECK)]                    // Decorator to disable authentication check
-    #[Route(self::RULESFORM_ROUTE, name: self::RULESFORM_NAME)]         // Decorator to register route to controller
-    #[Route(self::RULESFORM_FILE, name: self::RULESFORM_NAME.'_file')]  // Decorator to register route to controller
-    public function itemform(Request $request): Response                // What to do if route is invoked.
+    /** Decorator to disable authentication check */
+    #[SecurityStrategy(Firewall::STRATEGY_NO_CHECK)]
+    /** Decorator to register route to controller */
+    #[Route(self::RULESFORM_ROUTE, name: self::RULESFORM_NAME)]
+    /** Decorator to register route to controller */
+    #[Route(self::RULESFORM_FILE, name: self::RULESFORM_NAME . '_file')]
+    /**
+     * Render the native SAML rule form.
+     *
+     * @return Response Rendered rule form.
+     */
+    public function itemform(): Response
     {
-        (new RuleSaml)->invokeForm();                                  // Call the ACS handler.
+        /** Call the ACS handler. */
+        (new RuleSaml())->invokeForm();
         return new Response();
     }
-
 }

@@ -1,6 +1,5 @@
 <?php
 
-declare(strict_types=1);
 /**
  *  ------------------------------------------------------------------------
  *  samlSSO
@@ -44,6 +43,8 @@ declare(strict_types=1);
  * ------------------------------------------------------------------------
  **/
 
+declare(strict_types=1);
+
 namespace GlpiPlugin\Samlsso\LoginFlow;
 
 use Html;
@@ -55,15 +56,16 @@ use Glpi\Application\View\TemplateRenderer;
 use GlpiPlugin\Samlsso\Controller\SamlSsoController;
 use OneLogin\Saml2\Constants as Saml2Const;
 
-
 /**
  * Class Handles the Configuration front/config.form.php Form
  */
-class LoginFlowForm    //NOSONAR complexity by design.
+class LoginFlowForm /** NOSONAR complexity by design. */
 {
     /**
      * Called by the controller to load the
      * configFlow list (top lvl).
+     *
+     * @return void
      */
     public function init(): void
     {
@@ -77,65 +79,72 @@ class LoginFlowForm    //NOSONAR complexity by design.
         Search::show(LoginFlow::class);
     }
 
-
     /**
      * Update phpSaml configuration
      *
-     * @param int   $id of configuration to update
      * @param array $postData $_POST data from form
-     * @return void -
+     * @return string Rendered form when validation fails.
      */
     public function updateSamlConfig(array $postData): string
     {
         Session::checkRight('config', UPDATE);
-        // Populate configEntity using post;
-        $loginFlowEntity = new LoginFlowEntity(1, ['template' => 'post', 'postData' => $postData]);
-        // Validate configEntity
+        /** Populate configEntity using post; */
+        $loginFlowEntity = new LoginFlowEntity(1);
+        /** Validate configEntity */
         if ($loginFlowEntity->isValid()) {
-            // Get the normalized database fields
+            /** Get the normalized database fields */
             $fields = $loginFlowEntity->getDBFields([loginFlowEntity::CREATE_DATE, loginFlowEntity::IS_DELETED]);
-            // Add the cross site request forgery token to the fields
+            /** Add the cross site request forgery token to the fields */
             $fields['_glpi_csrf_token'] = $postData['_glpi_csrf_token'];
-            // Get instance of SamlConfig for db update.
+            /** Get instance of SamlConfig for db update. */
             $config = new LoginFlow();
-            // Perform database update using fields.
+            /** Perform database update using fields. */
             if (
                 $config->canUpdate()     &&
                 $config->update($fields)
             ) {
-                // Leave a success message for the user and redirect using ID.
+                /** Leave a success message for the user and redirect using ID. */
                 Session::addMessageAfterRedirect(__('Configuration updated successfully', PLUGIN_NAME));
                 Html::redirect(samlsso_webdir() . SamlSsoController::FLOWFORM_ROUTE . '/' . $postData['id']);
             } else {
-                // Leave a failed message
-                Session::addMessageAfterRedirect(__('Configuration update failed, check your update rights or error logging', PLUGIN_NAME));
+                /** Leave a failed message */
+                Session::addMessageAfterRedirect(__(
+                    'Configuration update failed, check your update rights or error logging',
+                    PLUGIN_NAME
+                ));
                 Html::redirect(samlsso_webdir() . SamlSsoController::FLOWFORM_ROUTE . '/' . $postData['id']);
             }
         } else {
-            // Leave an error message and reload the form with provided values and errors
-            Session::addMessageAfterRedirect(__('Configuration invalid please correct all ⭕ errors first', PLUGIN_NAME));
+            /** Leave an error message and reload the form with provided values and errors */
+            Session::addMessageAfterRedirect(__(
+                'Configuration invalid please correct all ⭕ errors first',
+                PLUGIN_NAME
+            ));
             return $this->generateForm($loginFlowEntity);
         }
     }
-
 
     /**
      * Figures out what form to show
      *
      * @param integer $id       ID the configuration item to show
      * @param array   $options  Options
+     *
+     * @return string Rendered configuration form.
      */
     public function showForm(int $id, array $options = []): string
     {
+        /** Retain the native form signature while loading only persisted configuration. */
+        unset($options);
         Session::checkRight('config', READ);
         if ($id === -1 || $id > 0) {
-            // Generate form using a template
-            return $this->generateForm(new LoginFlowEntity($id, $options));
+            /** Generate form using a template */
+            return $this->generateForm(new LoginFlowEntity($id));
         } else {
-            // Invalid id used redirect back to origin
+            /** Invalid id used redirect back to origin */
             Session::addMessageAfterRedirect(__('Invalid request, redirecting back', PLUGIN_NAME));
             Html::back();
-            // Unreachable bogus return for linter.
+            /** Unreachable bogus return for linter. */
             return '';
         }
     }
@@ -144,7 +153,7 @@ class LoginFlowForm    //NOSONAR complexity by design.
      * Generates the HTML for the config form using the GLPI
      * template renderer.
      *
-     * @param ConfigEntity $configEntity    Field values to populate in form
+     * @param LoginFlowEntity $loginFlowEntity    Field values to populate in form
      * @return string ConfigForm            HTML
      * @since                               1.0.0
      * @see https://codeberg.org/QuinQuies/glpisaml/issues/17
@@ -153,46 +162,57 @@ class LoginFlowForm    //NOSONAR complexity by design.
     {
         global $CFG_GLPI;
         $fields = $loginFlowEntity->getFields();
-        // Get warnings tabs
+        /** Get warnings tabs */
         $tplVars  = [];
 
-        // Get AuthN context as array
-        //$fields[ConfigEntity::AUTHN_CONTEXT][ConfigItem::VALUE] = $configEntity->getRequestedAuthnContextArray();
+        /**
+         * Get AuthN context as array $fields[ConfigEntity::AUTHN_CONTEXT][ConfigItem::VALUE] =
+         * $configEntity->getRequestedAuthnContextArray();
+         */
 
-        // get the logging entries, but only if the object already exists
-        // https://codeberg.org/QuinQuies/glpisaml/issues/15#issuecomment-1785284
+        /**
+         * get the logging entries, but only if the object already exists
+         * https://codeberg.org/QuinQuies/glpisaml/issues/15#issuecomment-1785284
+         */
         if (is_numeric($fields[LoginFlowEntity::ID]['value'])) {
             $logging = LoginState::getLoggingEntries($fields[LoginFlowEntity::ID]['value']);
         } else {
             $logging = [];
         }
 
-        // Twig strict_variables compatibility (GLPI 12 instances running with
-        // kernel.debug=true): see ConfigForm::showConfigForm() for the same
-        // normalization. Default the optional field sub-keys used by the form
-        // templates so strict mode renders like production.
+        /**
+         * Twig strict_variables compatibility (GLPI 12 instances running with kernel.debug=true): see
+         * ConfigForm::showConfigForm() for the same normalization. Default the optional field sub-keys used by the
+         * form templates so strict mode renders like production.
+         */
         foreach ($fields as $fkey => $fval) {
             if (!is_array($fval)) {
                 continue;
             }
-            foreach ([LoginFlowItem::ERRORS, LoginFlowItem::FORMTITLE, LoginFlowItem::FORMEXPLAIN, LoginFlowItem::VALIDATE, LoginFlowItem::FIELD, LoginFlowItem::VALUE] as $skey) {
+            foreach (
+                [LoginFlowItem::ERRORS, LoginFlowItem::FORMTITLE, LoginFlowItem::FORMEXPLAIN,
+                 LoginFlowItem::VALIDATE, LoginFlowItem::FIELD, LoginFlowItem::VALUE] as $skey
+            ) {
                 if (!array_key_exists($skey, $fval)) {
                     $fields[$fkey][$skey] = '';
                 }
             }
         }
 
-        // Define static field translations
+        /** Define static field translations */
         $tplVars = array_merge($tplVars, [
             'plugin'                    =>  PLUGIN_NAME,
             'close_form'                =>  Html::closeForm(false),
-            'glpi_rootdoc'              =>  samlsso_webdir() . SamlSsoController::FLOWFORM_ROUTE . '?id=' . $fields[LoginFlowEntity::ID][LoginFlowItem::VALUE],
+            'glpi_rootdoc'              =>  samlsso_webdir() . SamlSsoController::FLOWFORM_ROUTE
+                . '?id=' . $fields[LoginFlowEntity::ID][LoginFlowItem::VALUE],
             'glpi_tpl_macro'            =>  '/components/form/fields_macros.html.twig',
             'inputfields'               =>  $fields,
             'loggingfields'             =>  $logging,
             'entityID'                  =>  $CFG_GLPI['url_base'] . '/',
-            'acsUrl'                    =>  samlsso_webdir() . SamlSsoController::ACS_ROUTE . '?id=' . $fields[LoginFlowEntity::ID][LoginFlowItem::VALUE],
-            'metaUrl'                   =>  samlsso_webdir() . SamlSsoController::META_ROUTE . '?id=' . $fields[LoginFlowEntity::ID][LoginFlowItem::VALUE],
+            'acsUrl'                    =>  samlsso_webdir() . SamlSsoController::ACS_ROUTE
+                . '?id=' . $fields[LoginFlowEntity::ID][LoginFlowItem::VALUE],
+            'metaUrl'                   =>  samlsso_webdir() . SamlSsoController::META_ROUTE
+                . '?id=' . $fields[LoginFlowEntity::ID][LoginFlowItem::VALUE],
             'inputOptionsBool'          =>  [
                 1                                 => __('Yes', PLUGIN_NAME),
                 0                                 => __('No', PLUGIN_NAME)
@@ -217,7 +237,7 @@ class LoginFlowForm    //NOSONAR complexity by design.
             ],
         ]);
 
-        // https://codeberg.org/QuinQuies/glpisaml/issues/12
-        return TemplateRenderer::getInstance()->render('@samlsso/loginFlowForm.html.twig',  $tplVars);
+        /** https://codeberg.org/QuinQuies/glpisaml/issues/12 */
+        return TemplateRenderer::getInstance()->render('@samlsso/loginFlowForm.html.twig', $tplVars);
     }
 }

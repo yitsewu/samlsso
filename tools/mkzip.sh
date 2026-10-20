@@ -29,7 +29,7 @@ if [ -d "$GLPIPATH" ]; then
 
 	# Run automated tests and verify success before release
 	echo "Running automated test suite..."
-	php "$GLPIPATH/samlsso/tests/RunAllTests.php"
+	SAMLSSO_RELEASE_VALIDATION=1 php "$GLPIPATH/samlsso/tests/RunAllTests.php"
 	TEST_RESULT=$?
 	if [ $TEST_RESULT -ne 0 ]; then
 		echo "❌ Automated test suite failed! Release package will not be created."

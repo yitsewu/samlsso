@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+
 /**
  *  ------------------------------------------------------------------------
  *  samlSSO
@@ -42,6 +42,8 @@ declare(strict_types=1);
  *  @since      1.3.2
  * ------------------------------------------------------------------------
  **/
+
+declare(strict_types=1);
 
 namespace GlpiPlugin\Samlsso\Utility;
 
@@ -87,39 +89,42 @@ class GeoIPResolver
      */
     public static function resolveCountry(?string $ip): string
     {
-        if (empty($ip)) {
-            return '??';
-        }
-
-        // Only support IPv4 for now
-        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false) {
-            return '??';
-        }
-
-        $ipLong = ip2long($ip);
+        $ipLong = !empty($ip) && filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false
+            ? ip2long($ip) : false;
         if ($ipLong === false) {
             return '??';
         }
 
-        // Convert signed long to unsigned float equivalent for safe 32-bit comparisons
+        /** Convert signed long to unsigned float equivalent for safe 32-bit comparisons */
         $targetIp = (float) sprintf('%u', $ipLong);
 
         $dbFile = self::getDatabasePath();
-        if (!file_exists($dbFile)) {
-            return '??';
-        }
-
-        $handle = @fopen($dbFile, 'rb');
+        $handle = file_exists($dbFile) ? @fopen($dbFile, 'rb') : false;
         if (!$handle) {
             return '??';
         }
+        try {
+            return self::searchDatabase($handle, $targetIp, (int) filesize($dbFile));
+        } finally {
+            fclose($handle);
+        }
+    }
 
-        $fileSize = filesize($dbFile);
-        $recordSize = 10; // 4 bytes start IP, 4 bytes end IP, 2 bytes country code
+    /**
+     * Search fixed-width IPv4 records in an already opened database.
+     *
+     * @param resource $handle Open binary database stream positioned by the search.
+     * @param float $targetIp Unsigned numeric IPv4 address to locate.
+     * @param int $fileSize Binary database size in bytes.
+     * @return string Matching country code, or ?? when the address is absent.
+     */
+    private static function searchDatabase($handle, float $targetIp, int $fileSize): string
+    {
+        /** 4 bytes start IP, 4 bytes end IP, 2 bytes country code */
+        $recordSize = 10;
         $numRecords = intval($fileSize / $recordSize);
 
         if ($numRecords === 0) {
-            fclose($handle);
             return '??';
         }
 
@@ -147,7 +152,7 @@ class GeoIPResolver
             $endVal = (float) sprintf('%u', $unpacked['end']);
             $recordCountry = $unpacked['country'];
             if ($targetIp >= $startVal && $targetIp <= $endVal) {
-                $country = $recordCountry === 'ZZ' ? '??' : $recordCountry;
+                $country = $recordCountry;
                 break;
             } elseif ($targetIp < $startVal) {
                 $high = $mid - 1;
@@ -156,8 +161,7 @@ class GeoIPResolver
             }
         }
 
-        fclose($handle);
-        return $country;
+        return str_replace('ZZ', '??', $country);
     }
 
     /**

@@ -1,6 +1,7 @@
 <?php
 
-declare(strict_types=1);
+/* phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols -- Native bootstrap must precede these declarations. */
+
 /**
  *  ------------------------------------------------------------------------
  *  samlSSO
@@ -44,6 +45,8 @@ declare(strict_types=1);
  * ------------------------------------------------------------------------
  **/
 
+declare(strict_types=1);
+
 namespace GlpiPlugin\Samlsso;
 
 use Html;
@@ -54,8 +57,10 @@ use DBConnection;
 use GlpiPlugin\Samlsso\Compat\ExcludeCompat;
 use GlpiPlugin\Samlsso\Controller\SamlSsoController;
 
-// Version-selected compatibility layer (GLPI 11 untyped / GLPI 12 typed core
-// properties). Must be required before the class below extends ExcludeCompat.
+/**
+ * Version-selected compatibility layer (GLPI 11 untyped / GLPI 12 typed core properties). Must be required before the
+ * class below extends ExcludeCompat.
+ */
 require_once __DIR__ . '/compat.php';
 
 /**
@@ -72,13 +77,12 @@ class Exclude extends ExcludeCompat
     /**
      * Exclude DB fields
      */
-    const NAME              = 'name';
-    const DATE_CREATION     = 'date_creation';
-    const DATE_MOD          = 'date_mod';
-    const CLIENTAGENT       = 'ClientAgent';
-    const EXCLUDEPATH       = 'ExcludePath';
-    const ACTION            = 'action';
-
+    public const NAME              = 'name';
+    public const DATE_CREATION     = 'date_creation';
+    public const DATE_MOD          = 'date_mod';
+    public const CLIENTAGENT       = 'ClientAgent';
+    public const EXCLUDEPATH       = 'ExcludePath';
+    public const ACTION            = 'action';
 
     /**
      * getTypeName(int nb) : string -
@@ -86,7 +90,7 @@ class Exclude extends ExcludeCompat
      * it to the RegEx Matching then decides what to do.
      *
      * @param  int      $nb     number of items.
-     * @return void
+     * @return string
      */
     public static function getTypeName($nb = 0): string
     {
@@ -125,6 +129,11 @@ class Exclude extends ExcludeCompat
     {
         return 'fa-regular fa-eye-slash';
     }
+    /**
+     * Render the native exclusion configuration list.
+     *
+     * @return void
+     */
     public function invoke()
     {
         Session::checkRight('config', READ);
@@ -137,7 +146,6 @@ class Exclude extends ExcludeCompat
         Search::show(Exclude::class);
         Html::footer();
     }
-
 
     /**
      * getAdditionalFields(): array
@@ -199,7 +207,6 @@ class Exclude extends ExcludeCompat
         return $tab;
     }
 
-
     /**
      * getExcludes(): array -
      * Get configured excludes from Excludes dropdown
@@ -235,43 +242,45 @@ class Exclude extends ExcludeCompat
      * @since           1.1.0
      *
      */
-    public static function ProcessExcludes(): bool                                                         //NOSONAR - Maybe fix complexity in future.
+    /* phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps -- Existing public API name. */
+    public static function ProcessExcludes(): bool /** NOSONAR: existing flow contract. */
     {
-        // Glpi-Agents now post to the root url https://my-server/
-        // So if we see the inventory's UserAgent then we need to exclude it, always.
-        // @see  https://github.com/glpi-project/glpi-agent/blob/77f7cdda24aa6d14ba8800f6bb71a18b98f4526d/lib/GLPI/Agent.pm#L28
-        // @see  https://github.com/glpi-project/glpi/blob/26997c8dbff582c63d407f5599ad2dd69c50f847/index.php#L91
-        // @see  https://codeberg.org/QuinQuies/glpisaml/issues/92
+        /**
+         * Glpi-Agents now post to the root url https://my-server/ So if we see the inventory's UserAgent then we need
+         * to exclude it, always. @see
+         * https://github.com/glpi-project/glpi-agent/blob/77f7cdda24aa6d14ba8800f6bb71a18b98f4526d/lib/GLPI/Agent.pm#L28
+         * @see  https://github.com/glpi-project/glpi/blob/26997c8dbff582c63d407f5599ad2dd69c50f847/index.php#L91 @see
+         * https://codeberg.org/QuinQuies/glpisaml/issues/92
+         */
         if (
-            $_SERVER['REQUEST_METHOD'] == 'POST'                       &&     // The glpi agent uses POST method to send data to the server
-            !empty($_SERVER['HTTP_USER_AGENT'])                        &&     // The user-agent field must not be empty
+            /** The glpi agent uses POST method to send data to the server */
+            $_SERVER['REQUEST_METHOD'] == 'POST'                       &&
+            /** The user-agent field must not be empty */
+            !empty($_SERVER['HTTP_USER_AGENT'])                        &&
             (strpos($_SERVER['HTTP_USER_AGENT'], 'Agent_v') !== false)
-        ) {     // The user-agent field must contain the 'Agent-v' substring
-            // Dont log, dont register, these may include thousands of calls per period and
-            // will be logged by apache's access logging.
+            /** The user-agent field must contain the 'Agent-v' substring */
+        ) {
+            /**
+             * Dont log, dont register, these may include thousands of calls per period and will be logged by apache's
+             * access logging.
+             */
             return true;
-        } // else continue processing
+        /** else continue processing */
+        }
 
-        // Get the excludes from the database.
+        /** Get the excludes from the database. */
         $excludes = Exclude::getExcludes();
-        // Process configured excluded URIs and agents.
+        /** Process configured excluded URIs and agents. */
         $requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
         if (!is_string($requestPath)) {
             $requestPath = '';
         }
         foreach ($excludes as $exclude) {
             if (strpos($requestPath, $exclude[Exclude::EXCLUDEPATH]) !== false) {
-                // Do we need to validate client agent?
-                if (
-                    !empty($exclude[Exclude::CLIENTAGENT])                                        &&         //NOSONAR - Maybe fix verbosity in future.
-                    strpos($_SERVER['HTTP_USER_AGENT'], $exclude[Exclude::CLIENTAGENT]) !== false
-                ) {
-                    return ($exclude[Exclude::ACTION]) ? true : false;
-                } else {
-                    // return configured action true for bypass, false for auth.
-                    return ($exclude[Exclude::ACTION]) ? true : false;
-                }
-            } // Else Continue
+                /** Preserve the configured path action regardless of the optional agent field. */
+                return (bool) $exclude[Exclude::ACTION];
+            /** Else Continue */
+            }
         }
         return false;
     }
@@ -279,25 +288,25 @@ class Exclude extends ExcludeCompat
     /**
      * Validate object $excluded is excluded and get the configured action
      * @param string $excluded String describing the object to be validated
-     * @param string $agent    Optional, the userAgent to be validated
+     * @param string|bool $agent Legacy parameter retained for callers; the path determines the configured action.
      * @return bool  Configured action, or false
      * @since        1.1.4
      */
-    public static function GetExcludeAction(string $excluded, $agent = false): bool    //NOSONAR - complexity by design
-    {
-        // Get all the excluded objects from the database
+    /* phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps -- Existing public API name. */
+    public static function GetExcludeAction(
+        string $excluded,
+        $agent = false
+    ): bool {
+        /** Accept and discard the legacy argument; existing callers may still supply it. */
+        unset($agent);
+        /** Get all the excluded objects from the database */
         $excludes = Exclude::getExcludes();
-        // Process configured excluded URIs and agents.
+        /** Process configured excluded URIs and agents. */
         foreach ($excludes as $exclude) {
             if (strpos($excluded, $exclude[Exclude::EXCLUDEPATH]) !== false) {
-                // Do we need to validate client agent?
-                if ($agent  && strpos($agent, $exclude[Exclude::CLIENTAGENT]) !== false) { //NOSONAR - additional 'if branch' by design
-                    return ($exclude[Exclude::ACTION]) ? true : false;
-                } else {
-                    // return configured action true for bypass, false for auth.
-                    return ($exclude[Exclude::ACTION]) ? true : false;
-                }
-            } // Else Continue
+                /** Return the existing path action regardless of the optional legacy agent value. */
+                return (bool) $exclude[Exclude::ACTION];
+            }
         }
         return false;
     }
@@ -306,23 +315,32 @@ class Exclude extends ExcludeCompat
      * Combines database excludes with hardcoded excludes.
      * returns true (with context) if excluded, else it will return false.
      * @since   1.0.0
+     *
+     * @return string|bool Excluded request URI or CLI command, or false when authentication should continue.
      */
     public static function isExcluded(): string|bool
     {
-        //https://github.com/derricksmith/phpsaml/issues/159
-        // Do not perform auth on CLI, asserter service and manually excluded files.
+        /**
+         * https://github.com/derricksmith/phpsaml/issues/159 Do not perform auth on CLI, asserter service and manually
+         * excluded files.
+         */
         if (PHP_SAPI != 'cli') {
-            // https://codeberg.org/QuinQuies/glpisaml/issues/18#issuecomment-1785444
-            // $_SERVER['REQUEST_URI'] obviously isn't populated in 'CLI' mode.
+            /**
+             * https://codeberg.org/QuinQuies/glpisaml/issues/18#issuecomment-1785444 $_SERVER['REQUEST_URI'] obviously
+             * isn't populated in 'CLI' mode.
+             */
             if (isset($_SERVER['REQUEST_URI'])) {
                 $requestPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
                 if (!is_string($requestPath)) {
                     $requestPath = '';
                 }
                 if (
-                    strpos($requestPath, 'acs.php') !== false         ||         // do not process acs
-                    strpos($requestPath, 'common.tabs.php') !== false ||         // do not process common.tabs
-                    strpos($requestPath, 'dashboard.php') !== false   ||         // do not process dashboard
+                    /** do not process acs */
+                    strpos($requestPath, 'acs.php') !== false         ||
+                    /** do not process common.tabs */
+                    strpos($requestPath, 'common.tabs.php') !== false ||
+                    /** do not process dashboard */
+                    strpos($requestPath, 'dashboard.php') !== false   ||
                     Exclude::ProcessExcludes()
                 ) {
                     return $_SERVER['REQUEST_URI'];
@@ -345,19 +363,23 @@ class Exclude extends ExcludeCompat
      *
      * @return void
      * @see             hook.php:plugin_GLPISaml_install()
+     *
+     * @param Migration $_migration Native installation migration context.
      */
-    public static function install(Migration $migration): void
+    public static function install(Migration $_migration): void
     {
         global $DB;
         $default_charset = DBConnection::getDefaultCharset();
         $default_collation = DBConnection::getDefaultCollation();
         $default_key_sign = DBConnection::getDefaultPrimaryKeySignOption();
 
-        // Fix for https://github.com/DonutsNL/samlsso/issues/111
+        /** Fix for https://github.com/DonutsNL/samlsso/issues/111 */
         $table = getTableForItemType(static::class);
 
-        // Create the base table if it does not yet exist;
-        // Do not update this table for later versions, use the migration class;
+        /**
+         * Create the base table if it does not yet exist; Do not update this table for later versions, use the
+         * migration class;
+         */
         if (!$DB->tableExists($table)) {
             $query = <<<SQL
             CREATE TABLE IF NOT EXISTS `$table` (
@@ -374,44 +396,44 @@ class Exclude extends ExcludeCompat
             SQL;
             $DB->doQuery($query) or die($DB->error());
             Session::addMessageAfterRedirect("🆗 Installed: $table.");
-            // insert default excludes;
+            /** insert default excludes; */
             $query = <<<SQL
                 INSERT INTO `$table`(name, comment, action, ClientAgent, ExcludePath)
                 VALUES('Bypass Cron.php', 'backport configuration', '1', '', '/front/cron.php');
             SQL;
             $DB->doQuery($query) or die($DB->error());
 
-            // insert default excludes;
+            /** insert default excludes; */
             $query = <<<SQL
                 INSERT INTO `$table`(name, comment, action, ClientAgent, ExcludePath)
                 VALUES('Bypass Inventory.php', '', '1', '', 'front/inventory.php');
             SQL;
             $DB->doQuery($query) or die($DB->error());
 
-            // insert default excludes;
+            /** insert default excludes; */
             $query = <<<SQL
                 INSERT INTO `$table`(name, comment, action, ClientAgent, ExcludePath)
                 VALUES('Bypass ldap_mass_sync.php', '', '1', '', 'ldap_mass_sync.php');
             SQL;
             $DB->doQuery($query) or die($DB->error());
 
-            // insert default excludes;
+            /** insert default excludes; */
             $query = <<<SQL
                 INSERT INTO `$table`(name, comment, action, ClientAgent, ExcludePath)
                 VALUES('Bypass apirest.php', '', '1', '', 'apirest.php');
             SQL;
             $DB->doQuery($query) or die($DB->error());
 
-            // insert default excludes;
+            /** insert default excludes; */
             $query = <<<SQL
                 INSERT INTO `$table`(name, comment, action, ClientAgent, ExcludePath)
                 VALUES('Bypass all fusioninventory files', '', '1', '', '/fusioninventory/');
             SQL;
             $DB->doQuery($query) or die($DB->error());
 
-
-            // insert default excludes;
-            // https://codeberg.org/QuinQuies/glpisaml/issues/36
+            /**
+             * insert default excludes; https://codeberg.org/QuinQuies/glpisaml/issues/36
+             */
             $query = <<<SQL
                 INSERT INTO `$table`(name, comment, action, ClientAgent, ExcludePath)
                 VALUES('Bypass dashboard.php', '', '1', '', 'dashboard.php');
@@ -419,9 +441,11 @@ class Exclude extends ExcludeCompat
             $DB->doQuery($query) or die($DB->error());
         }
 
-        // Version 1.2.3 add exclude for GLPI11
-        // https://github.com/DonutsNL/samlsso/issues/32
-        $result = $DB->request(['FROM' => Exclude::getTable(), 'WHERE' => [Exclude::EXCLUDEPATH => '/ajax/webhook.php']]) or die($DB->error());
+        /**
+         * Version 1.2.3 add exclude for GLPI11 https://github.com/DonutsNL/samlsso/issues/32
+         */
+        $result = $DB->request(['FROM' => Exclude::getTable(),
+             'WHERE' => [Exclude::EXCLUDEPATH => '/ajax/webhook.php']]) or die($DB->error());
         if (!$result->numrows() > 0) {
             $query = <<<SQL
                 INSERT INTO `$table`(name, comment, action, ClientAgent, ExcludePath)
@@ -430,8 +454,9 @@ class Exclude extends ExcludeCompat
             $DB->doQuery($query) or die($DB->error());
         }
 
-        // https://github.com/DonutsNL/samlsso/issues/36
-        $result = $DB->request(['FROM' => Exclude::getTable(), 'WHERE' => [Exclude::EXCLUDEPATH => '/api.php']]) or die($DB->error());
+        /** https://github.com/DonutsNL/samlsso/issues/36 */
+        $result = $DB->request(['FROM' => Exclude::getTable(),
+             'WHERE' => [Exclude::EXCLUDEPATH => '/api.php']]) or die($DB->error());
         if (!$result->numrows() > 0) {
             $query = <<<SQL
                 INSERT INTO `$table`(name, comment, action, ClientAgent, ExcludePath)
@@ -446,13 +471,15 @@ class Exclude extends ExcludeCompat
     /**
      * uninstall(Migration migration) : void -
      * Uninstall tables uncomment the line to make plugin clean table.
-     * 
+     *
      * @return void
      * @see             hook.php:plugin_GLPISaml_uninstall()
+     *
+     * @param Migration $migration Native migration used to drop the plugin table.
      */
     public static function uninstall(Migration $migration): void
     {
-        // Fix for https://github.com/DonutsNL/samlsso/issues/111
+        /** Fix for https://github.com/DonutsNL/samlsso/issues/111 */
         $table = getTableForItemType(static::class);
         Session::addMessageAfterRedirect("🆗 Removed: $table");
         $migration->dropTable($table);

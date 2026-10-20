@@ -1,14 +1,11 @@
-
 **V1.3.3**
-- Feature: Added GLPI 12 compatibility while keeping GLPI 11 support unchanged - resolves https://github.com/DonutsNL/samlsso/issues/167.
-- Feature: Added `src/compat.php`, one abstract intermediate class per plugin class declaring the GLPI 12 core property types (`$rightname`, `$dohistory`, `$menu_option`) selected at load time from `GLPI_VERSION`, so `Config`, `Exclude`, `LoginFlow`, `RuleSaml` and `RuleSamlCollection` load on both GLPI 11 and GLPI 12.
-- Bugfix: Resolved the `Plugin::getWebDir()` removal on GLPI 12 by resolving the plugin web directory at call time with a `method_exists` fallback, keeping GLPI 11 behaviour identical.
-- Bugfix: Exposed absolute ACS/SLO URLs to php-saml and the IdP to fix `sp_acs_url_invalid` / `sp_sls_url_invalid` when `setup.php` is loaded during kernel boot before `url_base` is available (issue https://github.com/DonutsNL/samlsso/issues/167).
-- Bugfix: Set `Auth::$auth_succeded` to `true` (typed `bool` on GLPI 12) to prevent the fatal `TypeError` on SSO login.
-- Bugfix: Guarded `Glpi\Toolbox\Sanitizer` behind `class_exists` because it was removed from GLPI 12 core, keeping GLPI 11 sanitization behaviour unchanged.
-- Bugfix: Made the configuration and login-flow form pages render under Twig `strict_variables` by defaulting optional field keys, guarding IdP certificate mappings and providing `currentUserId` / `currentUsername` to the render context.
-- Architecture: Added ADR 0024 documenting the typed-property compatibility layer introduced for GLPI 12 support.
-- Tests: Added `tests/Glpi12CompatTest.php` verifying the GLPI 12 compatibility wiring (compat layer selection, absolute web-dir helper, no core patches, no obfuscation).
+- Support GLPI 12 typed core properties and boolean authentication results while retaining GLPI 11 support, and use native DBAL query expressions; related to https://github.com/DonutsNL/samlsso/issues/167 and ADR 0024.
+- Extract cohesive state, configuration, claim mapping, provisioning and diagnostic helpers; preserve public APIs, native rule-page includes, lifecycle ordering and Twig strict-variable compatibility.
+- Normalize database phase values before authentication-state comparisons so expired and forced-logout sessions are handled correctly.
+- Scope XML parser errors around assertion construction and restore the prior mode before returning an error page; preserve escaped diagnostic output.
+- Replace core shims with disposable native GLPI integration tests, real CGI request lifecycles, persistence and installation checks, and measured LoginFlow method and line coverage; reject diagnostics and premature exits.
+- Apply PSR-12 and accurate DocBlocks with narrowly documented API and literal-format exceptions; replace three dynamic gettext messages with static format strings and matching translations in all 11 catalogs.
+- Require the intended release catalog entry before packaging and keep development validation separate from release publication.
 
 **V1.3.2**
 - Fixed issue https://github.com/DonutsNL/samlsso/issues/134 by adding "registration_number" to user mapping.

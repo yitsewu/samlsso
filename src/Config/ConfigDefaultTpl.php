@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+
 /**
  *  ------------------------------------------------------------------------
  *  samlSSO
@@ -43,6 +43,8 @@ declare(strict_types=1);
  * ------------------------------------------------------------------------
  **/
 
+declare(strict_types=1);
+
 namespace GlpiPlugin\Samlsso\Config;
 
 use OneLogin\Saml2\Constants as Saml2Const;
@@ -52,11 +54,19 @@ use GlpiPlugin\Samlsso\Config\ConfigEntity;
  * Provides a default template for new configurations
  * Future: use ConfigEntities database to store additional templates
  */
-class ConfigDefaultTpl {
-    public static function template(): array
+class ConfigDefaultTpl
+{
+    /**
+     * Return the example identity provider configuration.
+     *
+     * @return array Field names mapped to default values.
+     */
+    public static function template(): array /** NOSONAR: declarative defaults. */
     {
-        // Do not define the 'id' field, this will break the ConfigEntity logic.
-        // DONT USE THE PROVIDED CERTIFICATES ANYWHERE, THESE ARE JUST EXAMPLES
+        /**
+         * Do not define the 'id' field, this will break the ConfigEntity logic. DONT USE THE PROVIDED CERTIFICATES
+         * ANYWHERE, THESE ARE JUST EXAMPLES
+         */
         return [ ConfigEntity::NAME             => 'DonutsExample',
                  ConfigEntity::CONF_DOMAIN      => 'youruserdomain.tld',
                  ConfigEntity::CONF_ICON        => 'fa-brands fa-microsoft',
@@ -199,7 +209,9 @@ s2DsGVGfjX/LlC5WK63pBfsK3tttiIWXaOmAz29C2279l/WrZFWHQyy0DOHBQYtb
                  ConfigEntity::COMPRESS_RES     => true,
                  ConfigEntity::XML_VALIDATION   => true,
                  ConfigEntity::LOWERCASE_URL    => true,
+                 /* phpcs:ignore Generic.Files.LineLength.TooLong -- Preserve literal output and translation keys. */
                  ConfigEntity::COMMENT          => 'Azure example configuration, see: https://learn.microsoft.com/en-us/entra/identity/saas-apps/saml-toolkit-tutorial',
+
                  ConfigEntity::IS_ACTIVE        => false,
                  ConfigEntity::SYNC_ON_LOGIN    => false,
                  ConfigEntity::SECURITY_WANTMESSAGESSIGNED => false,

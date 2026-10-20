@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+
 /**
  *  ------------------------------------------------------------------------
  *  samlSSO
@@ -43,13 +43,16 @@ declare(strict_types=1);
  * ------------------------------------------------------------------------
  **/
 
+declare(strict_types=1);
+
 namespace GlpiPlugin\Samlsso;
 
 use CommonDBTM;
-// https://glpi-developer-documentation.readthedocs.io/en/master/devapi/crontasks.html
+
+/** https://glpi-developer-documentation.readthedocs.io/en/master/devapi/crontasks.html */
 use CronTask as glpiCronTask;
 use Migration;
-use QueryExpression;
+use Glpi\DBAL\QueryExpression;
 use GlpiPlugin\Samlsso\LoginState;
 
 class CronTask extends CommonDBTM
@@ -63,10 +66,12 @@ class CronTask extends CommonDBTM
     public static function cronInfo(string $name): array
     {
         if ($name == 'cleanSessionSAML') {
-                return ['description' => __("Clean old SAML sessions", PLUGIN_NAME),
-                        'parameter'   => __("SAML sessions retention period (in days, 0 for infinite)", PLUGIN_NAME)];
-        } else if ($name == 'updateGeoIP') {
-                return ['description' => __("Update GeoIP offline database", PLUGIN_NAME)];
+            return [
+                'description' => __("Clean old SAML sessions", PLUGIN_NAME),
+                'parameter'   => __("SAML sessions retention period (in days, 0 for infinite)", PLUGIN_NAME)
+            ];
+        } elseif ($name == 'updateGeoIP') {
+            return ['description' => __("Update GeoIP offline database", PLUGIN_NAME)];
         } else {
             return [];
         }
@@ -74,7 +79,7 @@ class CronTask extends CommonDBTM
 
     /**
      * Cron action to cleanup sessions older than $task->param (30 days by default)
-     * @param CronTask $task for log
+     * @param glpiCronTask $task for log
      * @return integer 0 : nothing to do, 1 : done with success
      */
     public static function cronCleanSessionSAML(glpiCronTask $task): int
@@ -85,7 +90,7 @@ class CronTask extends CommonDBTM
         $cron_status = 0;
         $volume = 0;
 
-        // 1. Process inactivity timeout for active sessions
+        /** 1. Process inactivity timeout for active sessions */
         try {
             $configsTable = Config::getTable();
             $configs = $DB->request([
@@ -108,15 +113,16 @@ class CronTask extends CommonDBTM
                     [
                         LoginState::IDP_ID => $idpId,
                         LoginState::PHASE  => LoginState::PHASE_GLPI_AUTH,
-                        LoginState::LAST_ACTIVITY => ['<', new QueryExpression('NOW() - INTERVAL ' . $timeoutMinutes . ' MINUTE')]
+                        LoginState::LAST_ACTIVITY => ['<', new QueryExpression('NOW() - INTERVAL '
+                            . $timeoutMinutes . ' MINUTE')]
                     ]
                 );
             }
-        } catch (\Throwable $e) {
-            // Keep going to clean up old sessions
+        } catch (\Throwable) {
+            /** Keep going to clean up old sessions */
         }
 
-        // 2. Cleanup sessions older than retention period (days)
+        /** 2. Cleanup sessions older than retention period (days) */
         if ($days > 0) {
             $result = $DB->delete(
                 LoginState::getTable(),
@@ -146,11 +152,11 @@ class CronTask extends CommonDBTM
 
     /**
      * Register GlpiSAML plugin CronTasks
-     * @param   Migration $migration    - Plugin migration information;
+     * @param   Migration $_migration    - Plugin migration information;
      * @return  void
      * @see                             - GLPISaml/hook.php
      */
-    public static function install(Migration $migration): void
+    public static function install(Migration $_migration): void
     {
         $cron = new glpiCronTask();
         $class = get_called_class();
@@ -176,11 +182,11 @@ class CronTask extends CommonDBTM
 
     /**
      * Unregister GlpiSAML plugin CronTasks
-     * @param   Migration $migration    - Plugin migration information;
+     * @param   Migration $_migration    - Plugin migration information;
      * @return  void
      * @see                             - GLPISaml/hook.php
      */
-    public static function uninstall(Migration $migration): void
+    public static function uninstall(Migration $_migration): void
     {
         glpiCronTask::unregister(get_called_class());
     }

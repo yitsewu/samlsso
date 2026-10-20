@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  *  ------------------------------------------------------------------------
  *  samlSSO
@@ -44,6 +42,8 @@ declare(strict_types=1);
  *  @since      1.3.2
  * ------------------------------------------------------------------------
  **/
+
+declare(strict_types=1);
 
 namespace GlpiPlugin\Samlsso\Config;
 

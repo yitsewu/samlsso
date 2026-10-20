@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+
 /**
  *  ------------------------------------------------------------------------
  *  samlSSO
@@ -43,13 +43,15 @@ declare(strict_types=1);
  * ------------------------------------------------------------------------
  **/
 
+declare(strict_types=1);
+
 if (php_sapi_name() !== 'cli' && !defined('GLPI_ROOT')) {
     header("HTTP/1.1 403 Forbidden");
     echo "Access denied. This script can only be run via CLI or from within GLPI.\n";
     return;
 }
 
-// Bootstrap Composer autoloader
+/** Bootstrap Composer autoloader */
 require_once dirname(__DIR__, 2) . '/vendor/autoload.php';
 
 use GlpiPlugin\Samlsso\Utility\GeoIPUpdater;

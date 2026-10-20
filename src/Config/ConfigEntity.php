@@ -1,6 +1,5 @@
 <?php
 
-declare(strict_types=1);
 /**
  *  ------------------------------------------------------------------------
  *  samlSSO
@@ -44,6 +43,8 @@ declare(strict_types=1);
  * ------------------------------------------------------------------------
  **/
 
+declare(strict_types=1);
+
 namespace GlpiPlugin\Samlsso\Config;
 
 use Session;
@@ -52,49 +53,78 @@ use GlpiPlugin\Samlsso\Config\ConfigItem;
 use GlpiPlugin\Samlsso\Config as SamlConfig;
 use GlpiPlugin\Samlsso\Controller\SamlSsoController;
 
-/*
+/**
  * Class ConfigEntity's job is to populate, evaluate, test, normalize and
  * make sure we always return a consistent, valid, and usable instance of
  * a samlConfiguration thats either based on a template or based on an
  * existing database row
  */
 
-class ConfigEntity extends ConfigItem
+class ConfigEntity extends ConfigItem /** NOSONAR - Existing facade contract. */
 {
-    /*
+    /**
      * ConfigEntity can be reflected by this->getConstants(),
      * private constants are not!
      * 32 database fields expected
      */
-    public const ID              = 'id';                                     // Database ID
-    public const NAME            = 'name';                                   // Configuration name, not used in SAML handling
-    public const CONF_DOMAIN     = 'conf_domain';                            // Configuration domain, used to identify saml handled logins
-    public const CONF_ICON       = 'conf_icon';                              // Configuration ICON to use in UI elements
-    public const ENFORCE_SSO     = 'enforce_sso';                            // Enforce SSO
-    public const PROXIED         = 'proxied';                                // Handle proxied responses (X-forwarded-for)
-    public const STRICT          = 'strict';                                 // Enforce encryption
-    public const DEBUG           = 'debug';                                  // Enable debug logging
-    public const USER_JIT        = 'user_jit';                               // Enable Just In Time user creation
-    public const SP_CERTIFICATE  = 'sp_certificate';                         // Service provider certificate
-    public const SP_KEY          = 'sp_private_key';                         // Service provider certificate key
-    public const SP_NAME_FORMAT  = 'sp_nameid_format';                       // Service provider nameID formatting
-    public const IDP_ENTITY_ID   = 'idp_entity_id';                          // Identity provider Entity ID
-    public const IDP_SSO_URL     = 'idp_single_sign_on_service';             // Identity provider Single Sign On Url
-    public const IDP_SLO_URL     = 'idp_single_logout_service';              // Identity provider Logout Url
-    public const IDP_CERTIFICATE = 'idp_certificate';                        // Identity provider certificate
-    public const AUTHN_CONTEXT   = 'requested_authn_context';                // Requested authn context (to be provided by Idp)
-    public const AUTHN_COMPARE   = 'requested_authn_context_comparison';     // Requested authn context comparison (to be evaluated by Idp)
-    public const ENCRYPT_NAMEID  = 'security_nameidencrypted';               // Encrypt nameId field using service provider certificate
-    public const SIGN_AUTHN      = 'security_authnrequestssigned';           // Sign authN request using service provider certificate
-    public const SIGN_SLO_REQ    = 'security_logoutrequestsigned';           // Sign logout request using service provider certificate
-    public const SIGN_SLO_RES    = 'security_logoutresponsesigned';          // Sign logout response using service provider certificate
-    public const COMPRESS_REQ    = 'compress_requests';                      // Compress all requests
-    public const COMPRESS_RES    = 'compress_responses';                     // Compress all responses
-    public const XML_VALIDATION  = 'validate_xml';                           // Validate XML messages
-    public const DEST_VALIDATION = 'validate_destination';                   // relax destination validation
-    public const LOWERCASE_URL   = 'lowercase_url_encoding';                 // lowercaseUrlEncoding
-    public const COMMENT         = 'comment';                                // Field for comments on configuration page
-    public const IS_ACTIVE       = 'is_active';                              // Toggle SAML config active or disabled
+    /** Database ID */
+    public const ID              = 'id';
+    /** Configuration name, not used in SAML handling */
+    public const NAME            = 'name';
+    /** Configuration domain, used to identify saml handled logins */
+    public const CONF_DOMAIN     = 'conf_domain';
+    /** Configuration ICON to use in UI elements */
+    public const CONF_ICON       = 'conf_icon';
+    /** Enforce SSO */
+    public const ENFORCE_SSO     = 'enforce_sso';
+    /** Handle proxied responses (X-forwarded-for) */
+    public const PROXIED         = 'proxied';
+    /** Enforce encryption */
+    public const STRICT          = 'strict';
+    /** Enable debug logging */
+    public const DEBUG           = 'debug';
+    /** Enable Just In Time user creation */
+    public const USER_JIT        = 'user_jit';
+    /** Service provider certificate */
+    public const SP_CERTIFICATE  = 'sp_certificate';
+    /** Service provider certificate key */
+    public const SP_KEY          = 'sp_private_key';
+    /** Service provider nameID formatting */
+    public const SP_NAME_FORMAT  = 'sp_nameid_format';
+    /** Identity provider Entity ID */
+    public const IDP_ENTITY_ID   = 'idp_entity_id';
+    /** Identity provider Single Sign On Url */
+    public const IDP_SSO_URL     = 'idp_single_sign_on_service';
+    /** Identity provider Logout Url */
+    public const IDP_SLO_URL     = 'idp_single_logout_service';
+    /** Identity provider certificate */
+    public const IDP_CERTIFICATE = 'idp_certificate';
+    /** Requested authn context (to be provided by Idp) */
+    public const AUTHN_CONTEXT   = 'requested_authn_context';
+    /** Requested authn context comparison (to be evaluated by Idp) */
+    public const AUTHN_COMPARE   = 'requested_authn_context_comparison';
+    /** Encrypt nameId field using service provider certificate */
+    public const ENCRYPT_NAMEID  = 'security_nameidencrypted';
+    /** Sign authN request using service provider certificate */
+    public const SIGN_AUTHN      = 'security_authnrequestssigned';
+    /** Sign logout request using service provider certificate */
+    public const SIGN_SLO_REQ    = 'security_logoutrequestsigned';
+    /** Sign logout response using service provider certificate */
+    public const SIGN_SLO_RES    = 'security_logoutresponsesigned';
+    /** Compress all requests */
+    public const COMPRESS_REQ    = 'compress_requests';
+    /** Compress all responses */
+    public const COMPRESS_RES    = 'compress_responses';
+    /** Validate XML messages */
+    public const XML_VALIDATION  = 'validate_xml';
+    /** relax destination validation */
+    public const DEST_VALIDATION = 'validate_destination';
+    /** lowercaseUrlEncoding */
+    public const LOWERCASE_URL   = 'lowercase_url_encoding';
+    /** Field for comments on configuration page */
+    public const COMMENT         = 'comment';
+    /** Toggle SAML config active or disabled */
+    public const IS_ACTIVE       = 'is_active';
     public const IS_DELETED      = 'is_deleted';
     public const CREATE_DATE     = 'date_creation';
     public const MOD_DATE        = 'date_mod';
@@ -117,11 +147,9 @@ class ConfigEntity extends ConfigItem
      */
     private $isValid            = true;
 
-
     /**
      * For debugging, shows how entity was populated
      */
-    private $populationSource   = null;
 
     /**
      * Contains all field values of a certain configuration
@@ -138,36 +166,35 @@ class ConfigEntity extends ConfigItem
      *
      * @param  int      $id             - Saml configuration ID to fetch, or null for default template
      * @param  array    $options        - Options['template'] what template to use;
-     * @return object   ConfigEntity    - returns an instance of populated ConfigEntity;
+     * @throws \UnexpectedValueException When the requested and fallback templates cannot be loaded.
      */
     public function __construct(int $id = -1, array $options = [])
     {
         if (!$id || $id == -1) {
-            // negative identifier equals populate using a template file
+            /** negative identifier equals populate using a template file */
             $options = (!empty($options['template'])) ? $options : ['template' => 'default'];
             $this->validateAndPopulateTemplateEntity($options);
         } else {
-            // positive identifier equals populate using on a database row
+            /** positive identifier equals populate using on a database row */
             $this->validateAndPopulateDBEntity($id);
         }
     }
-
 
     /**
      * Populates the instance of ConfigEntity using a template.
      *
      * @param  array   $options      - name of the Config[NAME]Tpl class to use as template.
      * @return void
+     * @throws \UnexpectedValueException When the requested and fallback templates cannot be loaded.
      */
-    private function validateAndPopulateTemplateEntity(array $options): void    //NOSONAR we are to lazy to split method further.
+    private function validateAndPopulateTemplateEntity(array $options): void /** NOSONAR: existing flow contract. */
     {
-        // Create entity based on post inputs
+        /** Create entity based on post inputs */
         if (
             $options['template'] == 'post'       &&
             array_key_exists('postData', $options)
         ) {
-            $this->populationSource = 'post';
-            // Only evaluate valid Config Items;
+            /** Only evaluate valid Config Items; */
             $configItems = $this->getConstants();
             foreach ($options['postData'] as $field => $value) {
                 if (array_search($field, $configItems)) {
@@ -175,26 +202,30 @@ class ConfigEntity extends ConfigItem
                 }
             }
         } else {
-            // Locate our template file
+            /** Locate our template file */
             $templateClass = 'GlpiPlugin\Samlsso\Config\Config' . $options['template'] . 'Tpl';
-            $this->populationSource = $templateClass;
             if (!class_exists($templateClass)) {
-                //Fallback
+                /** Fallback */
                 $templateClass = 'GlpiPlugin\Samlsso\Config\ConfigDefaultTpl';
                 if (!class_exists($templateClass)) {
-                    // Fatal issue.
-                    Session::addMessageAfterRedirect(sprintf(__("Could not locate configuration template %s, please verify installation!", PLUGIN_NAME), $templateClass));
-                    throw new \RuntimeException("Could not locate configuration template $templateClass, please verify installation!");
+                    /** Fatal issue. */
+                    Session::addMessageAfterRedirect(sprintf(__(
+                        "Could not locate configuration template %s, please verify installation!",
+                        PLUGIN_NAME
+                    ), $templateClass));
+                    throw new \UnexpectedValueException(
+                        "Could not locate configuration template $templateClass, please verify installation!"
+                    );
                 }
-            } // Use found template.
-            // Perform same validation
+            /** Use found template. */
+            }
+            /** Perform same validation */
             foreach ($templateClass::template() as $field => $value) {
-                // Might be issue, we assume the correct fields are declared in returned array.
+                /** Might be issue, we assume the correct fields are declared in returned array. */
                 $this->evaluateItem($field, $value);
             }
         }
     }
-
 
     /**
      * Populates the instance of ConfigEntity using a DB query from the glpisaml config table.
@@ -204,25 +235,27 @@ class ConfigEntity extends ConfigItem
      */
     private function validateAndPopulateDBEntity($id): void
     {
-        $this->populationSource = 'Database:' . $id;
 
-        // Get configuration from database;
+        /** Get configuration from database; */
         $config = new SamlConfig();
         if ($config->getFromDB($id)) {
-            // Iterate through fetched fields
+            /** Iterate through fetched fields */
             foreach ($config->fields as $field => $value) {
-                // Do validations on all provided fields. All fields need to be
-                // verified by GlpiPlugin\Glpisaml\Config\ConfigItem per default.
+                /**
+                 * Do validations on all provided fields. All fields need to be verified by
+                 * GlpiPlugin\Glpisaml\Config\ConfigItem per default.
+                 */
                 $this->evaluateItem((string) $field, $value);
             }
         } else {
-            // Return the default configuration, this exception can be verified
-            // by checking the absence of the 'id' field in the returned ConfigEntity.
+            /**
+             * Return the default configuration, this exception can be verified by checking the absence of the 'id'
+             * field in the returned ConfigEntity.
+             */
             $this->validateAndPopulateTemplateEntity(['template' => 'default']);
         }
-        // Do some final consistency check here.
+        /** Do some final consistency check here. */
     }
-
 
     /**
      * Validates and normalizes configuration fields using checks defined
@@ -230,16 +263,23 @@ class ConfigEntity extends ConfigItem
      * if defined in ConfigItem, it will convert DB result (string) '1'
      * too (boolean) true in the returned array for type safety purposes.
      *
-     * @param  string   $field  - name of the field to validate
-     * @param  mixed    $val    - value belonging to the field.
      * @return array            - result of the validation including normalized values.
      * @see https://www.mysqltutorial.org/mysql-basics/mysql-boolean/
+     *
+     * @param string $field Configuration field name.
+     * @param mixed $value Submitted field value.
+     * @param bool $invalidate Whether to invalidate the evaluated field.
      */
     private function evaluateItem(string $field, mixed $value, $invalidate = false): array
     {
-        // Note: Clean up using class extend instead of external static call. //NOSONAR
-        // Rule: We want coders to be forced to always use configEntity and not create loopholes.   //NOSONAR
-        $evaluatedItem = (method_exists(get_parent_class($this), $field)) ? $this->$field($value) : $this->noMethod($field, $value);
+        /**
+         * NOSONAR - Note: Clean up using class extend instead of external static call. NOSONAR - Rule: We want coders
+         * to be forced to always use configEntity and not create loopholes.
+         */
+        $evaluatedItem = (method_exists(
+            get_parent_class($this),
+            $field
+        )) ? $this->$field($value) : $this->noMethod($field, $value);
 
         if (
             isset($evaluatedItem[ConfigItem::EVAL])      &&
@@ -247,16 +287,17 @@ class ConfigEntity extends ConfigItem
         ) {
             $this->fields[$field] = $evaluatedItem[ConfigItem::VALUE];
         } else {
-            // Pass or invalidate
+            /** Pass or invalidate */
             $this->fields[$field] = ($invalidate) ? '' : $value;
-            // Add errormessage
-            $this->invalidMessages[$field] = (isset($evaluatedItem[ConfigItem::ERRORS])) ? $evaluatedItem[ConfigItem::ERRORS] : 'UNDEFINED';
-            // Mark entity invalid
+            /** Add errormessage */
+            $this->invalidMessages[$field] = (isset($evaluatedItem[ConfigItem::ERRORS]))
+                ? $evaluatedItem[ConfigItem::ERRORS]
+                : 'UNDEFINED';
+            /** Mark entity invalid */
             $this->isValid = false;
         }
         return $evaluatedItem;
     }
-
 
     /**
      * This static function will return the configuration constants
@@ -270,9 +311,8 @@ class ConfigEntity extends ConfigItem
     public static function getConstants(): array
     {
         $reflectedObj = new ReflectionClass(__CLASS__);
-        return $reflectedObj->getConstants();                  //NOSONAR - ignore S3011 all constants here are intended to be public!
+        return $reflectedObj->getConstants(); /** NOSONAR: public constants only. */
     }
-
 
     /**
      * This function will return contextual and actual information about the handled
@@ -281,36 +321,43 @@ class ConfigEntity extends ConfigItem
      *
      * Intended for generating Config->searchOptions, ConfigForm->showForm().
      *
-     * @param  bool     $debug  - If true will only return fields without predefined class Constant and preloaded value.
      * @return array            - ConfigEntity field information
      */
-    public function getFields(): array        //NOSONAR - Maybe reduce complexity reduce calls to validateConfigFields?;
+    public function getFields(): array /** NOSONAR: existing flow contract. */
     {
         global $DB;
         $fields = [];
-        // Fetch config item constants;
+        /** Fetch config item constants; */
         $classConstants = ConfigEntity::getConstants();
         $sql = 'SHOW COLUMNS FROM ' . SamlConfig::getTable();
         $result = $DB->doQuery($sql);
         if ($result) {
-            while ($data = $result->fetch_assoc()) {
+            for ($data = $result->fetch_assoc(); $data; $data = $result->fetch_assoc()) {
                 $key = array_search($data['Field'], $classConstants);
                 $fields[$data['Field']] = [
                     ConfigItem::FIELD       => $data['Field'],
                     ConfigItem::TYPE        => $data['Type'],
                     ConfigItem::NULL        => $data['Null'],
                     ConfigItem::CONSTANT    => $key ? "ConfigEntity::$key" : 'UNDEFINED',
-                    ConfigItem::VALUE       => (isset($this->fields[$data['Field']])) ? $this->fields[$data['Field']] : null,
+                    ConfigItem::VALUE       => (isset($this->fields[$data['Field']]))
+                        ? $this->fields[$data['Field']]
+                        : null,
+
                 ];
-                // Evaluate and merge results.
-                $fields[$data['Field']] = array_merge($fields[$data['Field']], $this->evaluateItem($data['Field'], (isset($this->fields[$data['Field']])) ? $this->fields[$data['Field']] : ''));
+                /** Evaluate and merge results. */
+                $fields[$data['Field']] = array_merge(
+                    $fields[$data['Field']],
+                    $this->evaluateItem(
+                        $data['Field'],
+                        (isset($this->fields[$data['Field']])) ? $this->fields[$data['Field']] : ''
+                    )
+                );
             }
         }
-        // Validate spcert and key if provided
+        /** Validate spcert and key if provided */
         $fields = $this->validateAdvancedConfig($fields);
         return $fields;
     }
-
 
     /**
      * Returns the validated and normalized fields in the ConfigEntity
@@ -324,7 +371,7 @@ class ConfigEntity extends ConfigItem
     {
         $fields = [];
         foreach ($this->getFields() as $key => $value) {
-            // https://github.com/DonutsNL/glpisaml/issues/11
+            /** https://github.com/DonutsNL/glpisaml/issues/11 */
             if (is_array($ignoreFields) && !in_array($key, $ignoreFields)) {
                 $fields[$key] = $value[ConfigItem::VALUE];
             }
@@ -332,23 +379,22 @@ class ConfigEntity extends ConfigItem
         return $fields;
     }
 
-
     /**
      * Fetches the config domain from the populated config entity
      * if the entity is anything else than the default 'youruserdomain.tld' or empty
      * it returns that value or an empty string.
      *
-     * @param  array $ignoreFields fields to skip
-     * @return array $fields with validated and corrected configuration
+     * @return string Configured email domain.
      * @since 1.1.3
      */
     public function getConfigDomain(): string
     {
         return (key_exists(ConfigEntity::CONF_DOMAIN, $this->fields) &&
             !empty($this->fields[ConfigEntity::CONF_DOMAIN])     &&
-            $this->fields[ConfigEntity::CONF_DOMAIN] != 'youruserdomain.tld') ? $this->fields[ConfigEntity::CONF_DOMAIN] : '';
+            $this->fields[ConfigEntity::CONF_DOMAIN] != 'youruserdomain.tld')
+                ? $this->fields[ConfigEntity::CONF_DOMAIN]
+                : '';
     }
-
 
     /**
      * Validate advanced configuration options and correct params if not supported by provided setup.
@@ -358,42 +404,64 @@ class ConfigEntity extends ConfigItem
      */
     private function validateAdvancedConfig(array $fields): array
     {
+        $fields = $this->validateOutboundSecurity($fields);
+        $fields = $this->validateInboundSecurity($fields);
+        return $this->validateEnforcedProvider($fields);
+    }
+
+    /**
+     * Disable outbound cryptographic options when the certificate/key pair is unusable.
+     *
+     * @param array $fields Configuration metadata containing normalized values and validation errors.
+     * @return array Fields with unusable outbound cryptographic options disabled.
+     */
+    private function validateOutboundSecurity(array $fields): array
+    {
         $disable = false;
         if (isset($fields[configEntity::SP_CERTIFICATE]) && isset($fields[configEntity::SP_KEY])) {
-            if (empty($fields[configEntity::SP_CERTIFICATE][ConfigItem::VALUE]) || empty($fields[configEntity::SP_KEY][ConfigItem::VALUE])) {
+            if (
+                empty($fields[configEntity::SP_CERTIFICATE][ConfigItem::VALUE])
+                || empty($fields[configEntity::SP_KEY][ConfigItem::VALUE])
+            ) {
                 $disable = true;
-            } else {
-                // Perform key validation
-                if (!$this->validateCertKeyPairModulus($fields[configEntity::SP_CERTIFICATE][configItem::VALUE], $fields[configEntity::SP_KEY][configItem::VALUE])) {
-                    $fields[configEntity::SP_KEY][configItem::ERRORS] = __('⚠️ SP private key does not seem to match provided SP certificates modulus.', PLUGIN_NAME);
-                    $disable = true;
-                } // Only show key issue on error.
+            } elseif (
+                !$this->validateCertKeyPairModulus(
+                    $fields[configEntity::SP_CERTIFICATE][configItem::VALUE],
+                    $fields[configEntity::SP_KEY][configItem::VALUE]
+                )
+            ) {
+                $fields[configEntity::SP_KEY][configItem::ERRORS] = __(
+                    '⚠️ SP private key does not seem to match provided SP certificates modulus.',
+                    PLUGIN_NAME
+                );
+                $disable = true;
+            /** Only show key issue on error. */
             }
         }
         if ($disable) {
-            $errormsg = __('⚠️ Will be defaulted to "No" because the provided SP certificate does not look valid!', PLUGIN_NAME);
-            // Strict cannot be enabled without valid certificate!
-            if (isset($fields[configEntity::ENCRYPT_NAMEID]) && $fields[configEntity::ENCRYPT_NAMEID][configItem::VALUE]) {
-                $fields[configEntity::ENCRYPT_NAMEID][configItem::VALUE] = false;
-                $fields[configEntity::ENCRYPT_NAMEID][configItem::ERRORS] = $errormsg;
-            }
-            // Strict cannot be enabled without valid certificate!
-            if (isset($fields[configEntity::SIGN_AUTHN]) && $fields[configEntity::SIGN_AUTHN][configItem::VALUE]) {
-                $fields[configEntity::SIGN_AUTHN][configItem::VALUE] = false;
-                $fields[configEntity::SIGN_AUTHN][configItem::ERRORS] = $errormsg;
-            }
-            // Strict cannot be enabled without valid certificate!
-            if (isset($fields[configEntity::SIGN_SLO_REQ]) && $fields[configEntity::SIGN_SLO_REQ][configItem::VALUE]) {
-                $fields[configEntity::SIGN_SLO_REQ][configItem::VALUE] = false;
-                $fields[configEntity::SIGN_SLO_REQ][configItem::ERRORS] = $errormsg;
-            }
-            // Strict cannot be enabled without valid certificate!
-            if (isset($fields[configEntity::SIGN_SLO_RES]) && $fields[configEntity::SIGN_SLO_RES][configItem::VALUE]) {
-                $fields[configEntity::SIGN_SLO_RES][configItem::VALUE] = false;
-                $fields[configEntity::SIGN_SLO_RES][configItem::ERRORS] = $errormsg;
+            $errormsg = __(
+                '⚠️ Will be defaulted to "No" because the provided SP certificate does not look valid!',
+                PLUGIN_NAME
+            );
+            foreach ([self::ENCRYPT_NAMEID, self::SIGN_AUTHN, self::SIGN_SLO_REQ, self::SIGN_SLO_RES] as $field) {
+                if (isset($fields[$field]) && $fields[$field][ConfigItem::VALUE]) {
+                    $fields[$field][ConfigItem::VALUE] = false;
+                    $fields[$field][ConfigItem::ERRORS] = $errormsg;
+                }
             }
         }
 
+        return $fields;
+    }
+
+    /**
+     * Keep the form explicit about which inbound checks require strict mode.
+     *
+     * @param array $fields Configuration metadata containing normalized values and validation errors.
+     * @return array Fields with inbound checks disabled and annotated when strict mode is off.
+     */
+    private function validateInboundSecurity(array $fields): array
+    {
         /**
          * Disable inbound security options if strict mode is disabled
          * and attach a warning message explaining they are not enforced.
@@ -401,7 +469,11 @@ class ConfigEntity extends ConfigItem
         if (isset($fields[configEntity::STRICT])) {
             $strict = (bool)($fields[configEntity::STRICT][configItem::VALUE] ?? false);
             if (!$strict) {
-                $strictWarning = __('⚠️ These fields are only enforced when strict mode is enabled. Your environment is at risk without strict mode.', PLUGIN_NAME);
+                $strictWarning = __(
+                    /* phpcs:ignore Generic.Files.LineLength.TooLong -- Preserve literal output and translation keys. */
+                    '⚠️ These fields are only enforced when strict mode is enabled. Your environment is at risk without strict mode.',
+                    PLUGIN_NAME
+                );
                 $inboundFields = [
                     configEntity::SECURITY_WANTMESSAGESSIGNED,
                     configEntity::SECURITY_WANTASSERTIONSSIGNED,
@@ -417,9 +489,21 @@ class ConfigEntity extends ConfigItem
             }
         }
 
-        // Enforce option check for multiple active IDPs.
-        // If there are more than one active and configured IDPs, we automatically disable the enforce option
-        // and display a warning inline in the form.
+        return $fields;
+    }
+
+    /**
+     * Enforced login is only coherent when one active provider is configured.
+     *
+     * @param array $fields Configuration metadata for the provider being edited.
+     * @return array Fields with enforcement disabled when another active provider would conflict.
+     */
+    private function validateEnforcedProvider(array $fields): array
+    {
+        /**
+         * Enforce option check for multiple active IDPs. If there are more than one active and configured IDPs, we
+         * automatically disable the enforce option and display a warning inline in the form.
+         */
         global $DB;
         $isActive = (int)($fields[configEntity::IS_ACTIVE][configItem::VALUE] ?? 0);
         $isDeleted = (int)($fields[configEntity::IS_DELETED][configItem::VALUE] ?? 0);
@@ -441,13 +525,15 @@ class ConfigEntity extends ConfigItem
 
             if ($otherActiveCount > 0) {
                 $fields[configEntity::ENFORCE_SSO][configItem::VALUE] = 0;
-                $fields[configEntity::ENFORCE_SSO][configItem::ERRORS] = __('⚠️ IDPs cannot be enforced if more than one is present in the IDP list.', PLUGIN_NAME);
+                $fields[configEntity::ENFORCE_SSO][configItem::ERRORS] = __(
+                    '⚠️ IDPs cannot be enforced if more than one is present in the IDP list.',
+                    PLUGIN_NAME
+                );
             }
         }
 
         return $fields;
     }
-
 
     /**
      * This function will return specific config field if it exists
@@ -470,7 +556,6 @@ class ConfigEntity extends ConfigItem
         }
     }
 
-
     /**
      * This function will return all registered error messages
      *
@@ -481,7 +566,6 @@ class ConfigEntity extends ConfigItem
         return (count($this->invalidMessages) > 0) ? $this->invalidMessages : [];
     }
 
-
     /**
      * Returns the validity state of the currently loaded ConfigEntity
      * @return bool
@@ -490,7 +574,6 @@ class ConfigEntity extends ConfigItem
     {
         return (bool) $this->isValid;
     }
-
 
     /**
      * Returns the validity state of the currently loaded ConfigEntity
@@ -501,10 +584,9 @@ class ConfigEntity extends ConfigItem
         return (bool) $this->fields[ConfigEntity::IS_ACTIVE];
     }
 
-
     /**
      * Returns the validity state of the currently loaded ConfigEntity
-     * @return bool
+     * @return array
      */
     public function getRequestedAuthnContextArray(): array
     {
@@ -526,7 +608,6 @@ class ConfigEntity extends ConfigItem
     {
         global $CFG_GLPI;
         if ($this->isValid()) {
-
             return [
                 'strict'                                => (bool) $this->fields[ConfigEntity::STRICT],
                 'debug'                                 => (bool) $this->fields[ConfigEntity::DEBUG],
@@ -534,14 +615,17 @@ class ConfigEntity extends ConfigItem
                 'sp' => [
                     'entityId'                          => $CFG_GLPI['url_base'] . '/',
                     'assertionConsumerService'          => [
-                        'url'                           => samlsso_webdir() . SamlSsoController::ACS_ROUTE . '/' . $this->fields[ConfigEntity::ID],
+                        'url'                           => samlsso_webdir()
+                            . SamlSsoController::ACS_ROUTE . '/' . $this->fields[ConfigEntity::ID],
                     ],
                     'singleLogoutService'               => [
-                        'url'                           => samlsso_webdir() . SamlSsoController::SLO_ROUTE,
+                        'url'                           => samlsso_webdir()
+                            . SamlSsoController::SLO_ROUTE,
                     ],
                     'x509cert'                          => $this->fields[ConfigEntity::SP_CERTIFICATE],
                     'privateKey'                        => $this->fields[ConfigEntity::SP_KEY],
-                    'NameIDFormat'                      => (isset($this->fields[ConfigEntity::SP_NAME_FORMAT]) ? $this->fields[ConfigEntity::SP_NAME_FORMAT]
+                    'NameIDFormat'                      => (isset($this->fields[ConfigEntity::SP_NAME_FORMAT])
+                        ? $this->fields[ConfigEntity::SP_NAME_FORMAT]
                         : 'unspecified'),
                 ],
                 'idp'                                   => [
@@ -563,40 +647,51 @@ class ConfigEntity extends ConfigItem
                     'authnRequestsSigned'               => (bool) $this->fields[ConfigEntity::SIGN_AUTHN],
                     'logoutRequestSigned'               => (bool) $this->fields[ConfigEntity::SIGN_SLO_REQ],
                     'logoutResponseSigned'              => (bool) $this->fields[ConfigEntity::SIGN_SLO_RES],
-                    'wantMessagesSigned'                => (bool)$this->fields[ConfigEntity::SECURITY_WANTMESSAGESSIGNED],
-                    'wantAssertionsSigned'              => (bool)$this->fields[ConfigEntity::SECURITY_WANTASSERTIONSSIGNED],
-                    'wantAssertionsEncrypted'           => (bool)$this->fields[ConfigEntity::SECURITY_WANTASSERTIONSENCRYPTED],
+                    'wantMessagesSigned' => (bool)$this->fields[ConfigEntity::SECURITY_WANTMESSAGESSIGNED],
+
+                    'wantAssertionsSigned' => (bool)$this->fields[ConfigEntity::SECURITY_WANTASSERTIONSSIGNED],
+
+                    'wantAssertionsEncrypted' => (bool)$this->fields[ConfigEntity::SECURITY_WANTASSERTIONSENCRYPTED],
+
                     'signMetadata'                      => (bool)$this->fields[ConfigEntity::SECURITY_SIGNMETADATA],
                     'wantNameId'                        => (bool)$this->fields[ConfigEntity::SECURITY_WANTNAMEID],
-                    // Set true or don't present this parameter and you will get an AuthContext 'exact' 'urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport'
-                    // Set an array with the possible auth context values: array ('urn:oasis:names:tc:SAML:2.0:ac:classes:Password', 'urn:oasis:names:tc:SAML:2.0:ac:classes:X509'),
+                    /**
+                     * Set true or don't present this parameter and you will get an AuthContext 'exact'
+                     * 'urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport' Set an array with the
+                     * possible auth context values: array ('urn:oasis:names:tc:SAML:2.0:ac:classes:Password',
+                     * 'urn:oasis:names:tc:SAML:2.0:ac:classes:X509'),
+                     */
                     'requestedAuthnContext'             => $this->getAuthn($this->fields[ConfigEntity::AUTHN_CONTEXT]),
-                    'requestedAuthnContextComparison'   => (isset($this->fields[ConfigEntity::AUTHN_COMPARE]) ? $this->fields[ConfigEntity::AUTHN_COMPARE] : 'exact'),
+                    'requestedAuthnContextComparison'   => (isset($this->fields[ConfigEntity::AUTHN_COMPARE])
+                        ? $this->fields[ConfigEntity::AUTHN_COMPARE]
+                        : 'exact'),
+
                     'wantXMLValidation'                 => (bool) $this->fields[ConfigEntity::XML_VALIDATION],
                     'relaxDestinationValidation'        => (bool) $this->fields[ConfigEntity::DEST_VALIDATION],
 
-                    // Algorithm that the toolkit will use on signing process. Options:
-                    //    'http://www.w3.org/2000/09/xmldsig#rsa-sha1'
-                    //    'http://www.w3.org/2000/09/xmldsig#dsa-sha1'
-                    //    'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256'
-                    //    'http://www.w3.org/2001/04/xmldsig-more#rsa-sha384'
-                    //    'http://www.w3.org/2001/04/xmldsig-more#rsa-sha512'
-                    // Notice that sha1 is a deprecated algorithm and should not be used
+                    /**
+                     * Algorithm that the toolkit will use on signing process. Options:
+                     * 'http://www.w3.org/2000/09/xmldsig#rsa-sha1' 'http://www.w3.org/2000/09/xmldsig#dsa-sha1'
+                     * 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256'
+                     * 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha384'
+                     * 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha512' Notice that sha1 is a deprecated algorithm
+                     * and should not be used
+                     */
                     'signatureAlgorithm'            => 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256',
-                    //'signatureAlgorithm' => XMLSecurityKey::RSA_SHA256,
+                    /** 'signatureAlgorithm' => XMLSecurityKey::RSA_SHA256, */
 
-                    // Algorithm that the toolkit will use on digest process. Options:
-                    //    'http://www.w3.org/2000/09/xmldsig#sha1'
-                    //    'http://www.w3.org/2001/04/xmlenc#sha256'
-                    //    'http://www.w3.org/2001/04/xmldsig-more#sha384'
-                    //    'http://www.w3.org/2001/04/xmlenc#sha512'
-                    // Notice that sha1 is a deprecated algorithm and should not be used
+                    /**
+                     * Algorithm that the toolkit will use on digest process. Options:
+                     * 'http://www.w3.org/2000/09/xmldsig#sha1' 'http://www.w3.org/2001/04/xmlenc#sha256'
+                     * 'http://www.w3.org/2001/04/xmldsig-more#sha384' 'http://www.w3.org/2001/04/xmlenc#sha512' Notice
+                     * that sha1 is a deprecated algorithm and should not be used
+                     */
                     'digestAlgorithm'               => 'http://www.w3.org/2001/04/xmlenc#sha256',
                     'lowercaseUrlencoding'          => (bool) $this->fields[ConfigEntity::LOWERCASE_URL],
                 ]
             ];
         } else {
-            // ConfigEntity was not usable!
+            /** ConfigEntity was not usable! */
             return [];
         }
     }
@@ -607,8 +702,10 @@ class ConfigEntity extends ConfigItem
      * @return          array|bool   $config
      * @since           1.0.0
      * @example         https://github.com/SAML-Toolkits/php-saml/blob/master/settings_example.php
+     *
+     * @param string $value Configured authentication context identifier.
      */
-    private static function getAuthn($value): array|bool
+    private static function getAuthn(string $value): array|bool
     {
         if (preg_match('/^none,.+/i', $value)) {
             $array  = explode(':', $value);
@@ -645,12 +742,12 @@ class ConfigEntity extends ConfigItem
     {
         $id = $this->getField(self::ID);
         if ($id && (int)$id > 0) {
-            // Load current configuration as array from this entity's fields
+            /** Load current configuration as array from this entity's fields */
             $postData = $this->fields;
-            // Set the new XML structure
+            /** Set the new XML structure */
             $postData[self::SAML_XML_STRUCTURE] = $anonymizedXml;
-            
-            // Re-validate everything using ConfigEntity post template to guarantee typesafety and strict validation
+
+            /** Re-validate everything using ConfigEntity post template to guarantee typesafety and strict validation */
             $updatedEntity = new ConfigEntity(-1, ['template' => 'post', 'postData' => new \ArrayIterator($postData)]);
             if ($updatedEntity->isValid()) {
                 $fields = $updatedEntity->getDBFields([self::CREATE_DATE, self::IS_DELETED]);
@@ -675,23 +772,13 @@ class ConfigEntity extends ConfigItem
         }
 
         $dom = new \DOMDocument();
-        $old_entity_loader = null;
-        if (\PHP_VERSION_ID < 80000) {
-            $old_entity_loader = libxml_disable_entity_loader(true);
-        }
-        
+        /** Never resolve external resources or expand entity declarations in diagnostic XML. */
+        $dom->resolveExternals = false;
+        $dom->substituteEntities = false;
         $dom->preserveWhiteSpace = false;
         $dom->formatOutput = true;
-
-        if (!@$dom->loadXML($xml, LIBXML_NOENT | LIBXML_DTDLOAD | LIBXML_DTDATTR | LIBXML_NOCDATA)) {
-            if (\PHP_VERSION_ID < 80000 && $old_entity_loader !== null) {
-                libxml_disable_entity_loader($old_entity_loader);
-            }
+        if (stripos($xml, '<!DOCTYPE') !== false || !@$dom->loadXML($xml, LIBXML_NONET | LIBXML_NOCDATA)) {
             return 'Invalid XML response';
-        }
-        
-        if (\PHP_VERSION_ID < 80000 && $old_entity_loader !== null) {
-            libxml_disable_entity_loader($old_entity_loader);
         }
 
         self::anonymizeNode($dom->documentElement);
@@ -708,7 +795,7 @@ class ConfigEntity extends ConfigItem
     private static function anonymizeNode(\DOMNode $node): void
     {
         $cryptoTags = ['Signature', 'SignatureValue', 'DigestValue', 'X509Certificate', 'CipherValue', 'EncryptedData'];
-        
+
         $toRemove = [];
         foreach ($node->childNodes as $child) {
             if ($child->nodeType === XML_ELEMENT_NODE) {
@@ -725,6 +812,23 @@ class ConfigEntity extends ConfigItem
             $node->removeChild($child);
         }
 
+        self::anonymizeAttributes($node);
+
+        if ($node->childNodes->length === 1 && $node->firstChild->nodeType === XML_TEXT_NODE) {
+            $val = trim($node->firstChild->nodeValue);
+            if ($val !== '') {
+                $node->firstChild->nodeValue = '[STRIPPED]';
+            }
+        }
+    }
+    /**
+     * Preserve structural attribute names while stripping identity-bearing values.
+     *
+     * @param \DOMNode $node Diagnostic XML node whose attributes are modified in place.
+     * @return void
+     */
+    private static function anonymizeAttributes(\DOMNode $node): void
+    {
         $allowedAttributes = ['Name', 'FriendlyName', 'NameFormat', 'Format', 'Version'];
         if ($node->attributes) {
             foreach ($node->attributes as $attr) {
@@ -732,13 +836,6 @@ class ConfigEntity extends ConfigItem
                     continue;
                 }
                 $attr->nodeValue = '[STRIPPED]';
-            }
-        }
-
-        if ($node->childNodes->length === 1 && $node->firstChild->nodeType === XML_TEXT_NODE) {
-            $val = trim($node->firstChild->nodeValue);
-            if ($val !== '') {
-                $node->firstChild->nodeValue = '[STRIPPED]';
             }
         }
     }

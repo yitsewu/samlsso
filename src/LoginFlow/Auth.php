@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+
 /**
  *  ------------------------------------------------------------------------
  *  samlSSO
@@ -43,6 +43,8 @@ declare(strict_types=1);
  * ------------------------------------------------------------------------
  **/
 
+declare(strict_types=1);
+
 namespace GlpiPlugin\Samlsso\LoginFlow;
 
 use Auth as glpiAuth;
@@ -65,22 +67,24 @@ class Auth extends glpiAuth
      * @param \GlpiPlugin\Samlsso\LoginState|null $state The active login state tracker.
      * @return $this
      */
-    public function loadUser(array $userFields, ConfigEntity $configEntity, ?\GlpiPlugin\Samlsso\LoginState $state = null)
-    {
-        global $DB;
+    public function loadUser(
+        array $userFields,
+        ConfigEntity $configEntity,
+        ?\GlpiPlugin\Samlsso\LoginState $state = null
+    ) {
 
-        // Get or Jit create user or exit on error.
+        /** Get or Jit create user or exit on error. */
         $this->user = (new User())->getOrCreateUser($userFields, $configEntity, $state);
 
-        // Setting this property actually authorizes the login for the user.
-        // The core consumes it as a boolean (Session::check_login_status does a
-        // truthiness check; AuthLDAP/HL Router assign true the same way), and
-        // GLPI 12 types it as `bool`, so assigning the user object there is a
-        // fatal TypeError. Be aware (sic) Succeeded is spelled incorrectly in
-        // parent GLPI object as per Auth.php:1043
+        /**
+         * Setting this property actually authorizes the login for the user. The core consumes it as a boolean
+         * (Session::check_login_status does a truthiness check; AuthLDAP/HL Router assign true the same way), and GLPI
+         * 12 types it as `bool`, so assigning the user object there is a fatal TypeError. Be aware (sic) Succeeded is
+         * spelled incorrectly in parent GLPI object as per Auth.php:1043
+         */
         $this->auth_succeded = true;
 
-        // Return this object for injection into the session.
+        /** Return this object for injection into the session. */
         return $this;
     }
 }

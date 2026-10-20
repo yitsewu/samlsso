@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  *  ------------------------------------------------------------------------
  *  samlSSO
@@ -44,6 +42,8 @@ declare(strict_types=1);
  *  @since      1.3.2
  * ------------------------------------------------------------------------
  **/
+
+declare(strict_types=1);
 
 namespace GlpiPlugin\Samlsso;
 
@@ -226,7 +226,12 @@ class ClaimMap extends CommonDBTM
                 ]
             ]);
             if ($indexes->count() === 0) {
-                $migration->addKey($table, ['configs_id', 'target_type', 'glpi_field'], 'configs_id_target_glpi', 'UNIQUE');
+                $migration->addKey(
+                    $table,
+                    ['configs_id', 'target_type', 'glpi_field'],
+                    'configs_id_target_glpi',
+                    'UNIQUE'
+                );
             }
         }
     }

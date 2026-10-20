@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+
 /**
  *  ------------------------------------------------------------------------
  *  samlSSO
@@ -43,11 +43,16 @@ declare(strict_types=1);
  * ------------------------------------------------------------------------
  **/
 
+declare(strict_types=1);
+
 namespace GlpiPlugin\Samlsso\LoginFlow;
 
 use Exception;
-use OneLogin\Saml2\Settings;                                                        // Required to generate XML metadata
-use GlpiPlugin\Samlsso\Config\ConfigEntity;                                         // Required to fetch requested SAML configuration
+use OneLogin\Saml2\Settings;
+
+/** Required to generate XML metadata */
+/** Required to fetch requested SAML configuration */
+use GlpiPlugin\Samlsso\Config\ConfigEntity;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -57,37 +62,57 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class Meta
 {
-    public const STAG  = '<xml><error>';                                            // Prevent repetition
-    public const ETAG  = '</error></xml>';                                          // Prevent repetition
+    /** Prevent repetition */
+    public const STAG  = '<xml><error>';
+    /** Prevent repetition */
+    public const ETAG  = '</error></xml>';
 
+    /**
+     * Evaluate the getSPMeta configuration value.
+     *
+     * @param Request $request Incoming metadata request containing the provider identifier.
+     * @return Response XML service provider metadata.
+     */
     final public function getSPMeta(Request $request): Response
     {
 
-        $id = (filter_var($request->get('idpId'), FILTER_VALIDATE_INT)) ?           // Did we get a valid ID?
-              (int) $request->get('idpId') :                                        // Then assign it
-              -1;                                                                   // Else fall back to -1
+        /** Did we get a valid ID? */
+        $id = (filter_var($request->get('idpId'), FILTER_VALIDATE_INT)) ?
+            /** Then assign it */
+            (int) $request->get('idpId') :
+            /** Else fall back to -1 */
+            -1;
 
-        try{                                                                        // If we have an ID then try to build the metadata.
-            $configEntity = new ConfigEntity($id);                                  // ConfigEntity expects/validates datatype INT.
-            if($configEntity->getField(ConfigEntity::DEBUG)){                       // Are we allowed to expose metadata.
-                $samlSettings = new Settings($configEntity->getPhpSamlConfig());    // Get the samlConfig using the provided ID.
+        /** If we have an ID then try to build the metadata. */
+        try {
+            /** ConfigEntity expects/validates datatype INT. */
+            $configEntity = new ConfigEntity($id);
+            /** Are we allowed to expose metadata. */
+            if ($configEntity->getField(ConfigEntity::DEBUG)) {
+                /** Get the samlConfig using the provided ID. */
+                $samlSettings = new Settings($configEntity->getPhpSamlConfig());
                 $metadata = $samlSettings->getSPMetadata();
-                if (!$metadata) {                // Get the Serviceprovider metadata.
-                    $metadata = self::STAG.                                         // Set error if something is wrong
-                                __("Error fetching spMetadata.",PLUGIN_NAME).
-                                self::ETAG;
-                }
-            }else{
-                $metadata = self::STAG.                                             // Set error if something is wrong
-                            __("Invalid id or metadata not exposed.",PLUGIN_NAME).
-                            self::ETAG;
-            }
-        } catch (Exception $e) {
-            $metadata = self::STAG.                                                 // Set error if something is wrong
-                        __("Error fetching config.",PLUGIN_NAME).
+                /** Get the Serviceprovider metadata. */
+                if (!$metadata) {
+                    /** Set error if something is wrong */
+                    $metadata = self::STAG .
+                        __("Error fetching spMetadata.", PLUGIN_NAME) .
                         self::ETAG;
+                }
+            } else {
+                /** Set error if something is wrong */
+                $metadata = self::STAG .
+                    __("Invalid id or metadata not exposed.", PLUGIN_NAME) .
+                    self::ETAG;
+            }
+        } catch (Exception) {
+            /** Set error if something is wrong */
+            $metadata = self::STAG .
+                __("Error fetching config.", PLUGIN_NAME) .
+                self::ETAG;
         }
 
-        return new Response($metadata, 200, ['Content-Type' => 'text/xml']);        // Return the result to the calling object.
+        /** Return the result to the calling object. */
+        return new Response($metadata, 200, ['Content-Type' => 'text/xml']);
     }
 }

@@ -3,6 +3,12 @@
 ## Status
 Accepted
 
+> Historical implementation record. The current candidate's test gate follows the newer
+> [ADR 0017](0017-security-by-design-architecture.md) and development skill requirement to bootstrap
+> actual GLPI instead of replacing core classes or functions. The shim strategy below is retained
+> as decision history and is no longer the active test setup. See [CONTRIBUTING](../CONTRIBUTING.md)
+> for the disposable database, CGI and measured coverage requirements.
+
 ## Context
 The GLPI plugin ecosystem is highly dependent on a global state (e.g., `$DB`, `$CFG_GLPI`, `Session`) and hard-coded environment checks (e.g., `PHP_SAPI`). This makes standard unit testing extremely difficult without a full GLPI installation and database. 
 

@@ -1,6 +1,7 @@
 <?php
 
-declare(strict_types=1);
+/* phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols -- Native bootstrap must precede these declarations. */
+
 /**
  *  ------------------------------------------------------------------------
  *  samlSSO
@@ -44,6 +45,8 @@ declare(strict_types=1);
  * ------------------------------------------------------------------------
  **/
 
+declare(strict_types=1);
+
 namespace GlpiPlugin\Samlsso;
 
 use Group;
@@ -53,12 +56,13 @@ use Profile;
 use Location;
 use UserCategory;
 use UserTitle;
-
 use GlpiPlugin\Samlsso\Config\ClaimMapItem;
 use GlpiPlugin\Samlsso\Compat\RuleSamlCompat;
 
-// Version-selected compatibility layer (GLPI 11 untyped / GLPI 12 typed core
-// properties). Must be required before the class below extends RuleSamlCompat.
+/**
+ * Version-selected compatibility layer (GLPI 11 untyped / GLPI 12 typed core properties). Must be required before the
+ * class below extends RuleSamlCompat.
+ */
 require_once __DIR__ . '/compat.php';
 
 /**
@@ -71,7 +75,7 @@ class RuleSaml extends RuleSamlCompat
     /**
      *
      **/
-    public $can_sort = true;            //NOSONAR
+    public $can_sort = true; /** NOSONAR: persisted field API. */
 
     /**
      * Define order
@@ -108,8 +112,10 @@ class RuleSaml extends RuleSamlCompat
     public function invoke(): void
     {
         Session::checkRight(self::$rightname, READ);
-        $rulecollection = new RuleSamlCollection();
-        include_once  GLPI_ROOT . "/front/rule.common.php";                                      // NOSONAR - Cant be included with USE.
+        /** GLPI's included list page reads this variable from the caller's local scope. */
+        $rulecollection = new RuleSamlCollection(); /** NOSONAR - Required local variable for rule.common.php. */
+        include_once  GLPI_ROOT
+            . "/front/rule.common.php"; /** NOSONAR - Cant be included with USE. */
     }
 
     /**
@@ -121,11 +127,17 @@ class RuleSaml extends RuleSamlCompat
     public function invokeForm(): void
     {
         Session::checkRight(self::$rightname, READ);
-        $rulecollection = new RuleSamlCollection();
-        include_once  GLPI_ROOT . "/front/rule.common.form.php";                                 // NOSONAR - Cant be included with USE.
+        /** GLPI's included form page reads this variable from the caller's local scope. */
+        $rulecollection = new RuleSamlCollection(); /** NOSONAR - Required local variable for rule.common.form.php. */
+        include_once  GLPI_ROOT
+            . "/front/rule.common.form.php"; /** NOSONAR - Cant be included with USE. */
     }
 
-
+    /**
+     * Evaluate the getCriterias configuration value.
+     *
+     * @return array Native rule criteria definitions.
+     */
     public function getCriterias(): array
     {
         static $criterias = [];
@@ -185,7 +197,7 @@ class RuleSaml extends RuleSamlCompat
             $criterias['samlClaimedJobTitle']['table']    = '';
             $criterias['samlClaimedJobTitle']['field']    = '';
             $criterias['samlClaimedJobTitle']['name']     = __('SAML Job Title', PLUGIN_NAME);
-            $criterias['samlClaimedJobTitle']['linkfield']= '';
+            $criterias['samlClaimedJobTitle']['linkfield'] = '';
             $criterias['samlClaimedJobTitle']['virtual']  = true;
             $criterias['samlClaimedJobTitle']['id']       = 'samlClaimedJobTitle';
 
@@ -239,7 +251,9 @@ class RuleSaml extends RuleSamlCompat
 
     /**
      * @see Rule::getActions()
-     **/
+     *
+     * @return array Native rule action definitions.
+     */
     public function getActions(): array
     {
 

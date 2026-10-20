@@ -5,7 +5,6 @@
 #
 msgid ""
 msgstr ""
-""
 "Project-Id-Version: samlSSO 1.3.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-06-09 20:30+0200\n"
@@ -21,20 +20,19 @@ msgstr ""
 msgid "samlSSO exclusions"
 msgstr "samlSSO बहिष्करण"
 
-#: hook.php:163
-msgid "🆗 Installing version:"
-msgstr "🆗 संस्करण स्थापित करना:"
-
 #: hook.php:187
 msgid ""
-""
 "⚠️ PHP memory_limit is less than 512M. This may cause crashes during SAML "
 "Login. See: "
-msgstr "⚠️ PHP मेमोरी_लिमिट 512M से कम है। इससे एसएएमएल लॉगिन के दौरान क्रैश हो सकता है। देखना:"
+msgstr ""
+"⚠️ PHP मेमोरी_लिमिट 512M से कम है। इससे एसएएमएल लॉगिन के दौरान क्रैश हो सकता"
+" है। देखना:"
 
 #: hook.php:198
 msgid "⚠️ OpenSSL not available, cant verify provided certificates"
-msgstr "⚠️ ओपनएसएसएल उपलब्ध नहीं है, दिए गए प्रमाणपत्रों को सत्यापित नहीं किया जा सकता"
+msgstr ""
+"⚠️ ओपनएसएसएल उपलब्ध नहीं है, दिए गए प्रमाणपत्रों को सत्यापित नहीं किया जा "
+"सकता"
 
 #: hook.php:200
 msgid "🆗 OpenSSL found!"
@@ -103,10 +101,11 @@ msgstr "कॉन्फिग आईडी"
 
 #: src/Config/ConfigItem.php:122
 msgid ""
-""
-"This name is shown with the login button on the login page. Try to keep this "
-"name short and to the point."
-msgstr "यह नाम लॉगिन पेज पर लॉगिन बटन के साथ दिखाया गया है। इस नाम को संक्षिप्त और बिंदु तक रखने का प्रयास करें।"
+"This name is shown with the login button on the login page. Try to keep this"
+" name short and to the point."
+msgstr ""
+"यह नाम लॉगिन पेज पर लॉगिन बटन के साथ दिखाया गया है। इस नाम को संक्षिप्त और "
+"बिंदु तक रखने का प्रयास करें।"
 
 #: src/Config/ConfigItem.php:123
 msgid "FRIENDLY NAME"
@@ -126,18 +125,21 @@ msgstr "⭕ "
 
 #: src/Config/ConfigItem.php:161
 msgid ""
-""
 "⭕ Provided certificate does not look like a valid (base64 encoded) "
 "certificate"
-msgstr "⭕ प्रदान किया गया प्रमाणपत्र वैध (बेस64 एन्कोडेड) प्रमाणपत्र जैसा नहीं दिखता है"
+msgstr ""
+"⭕ प्रदान किया गया प्रमाणपत्र वैध (बेस64 एन्कोडेड) प्रमाणपत्र जैसा नहीं दिखता"
+" है"
 
 #: src/Config/ConfigItem.php:166
 msgid ""
-""
 "The base64 encoded x509 service provider certificate. Used to sign and "
 "encrypt messages sent by the service provider to the identity provider. "
 "Required for most of the security options"
-msgstr "बेस64 एन्कोडेड x509 सेवा प्रदाता प्रमाणपत्र। सेवा प्रदाता द्वारा पहचान प्रदाता को भेजे गए संदेशों पर हस्ताक्षर और एन्क्रिप्ट करने के लिए उपयोग किया जाता है। अधिकांश सुरक्षा विकल्पों के लिए आवश्यक है"
+msgstr ""
+"बेस64 एन्कोडेड x509 सेवा प्रदाता प्रमाणपत्र। सेवा प्रदाता द्वारा पहचान "
+"प्रदाता को भेजे गए संदेशों पर हस्ताक्षर और एन्क्रिप्ट करने के लिए उपयोग किया"
+" जाता है। अधिकांश सुरक्षा विकल्पों के लिए आवश्यक है"
 
 #: src/Config/ConfigItem.php:167
 msgid "SP CERTIFICATE"
@@ -145,10 +147,11 @@ msgstr "एसपी प्रमाणपत्र"
 
 #: src/Config/ConfigItem.php:184
 msgid ""
-""
 "The base64 encoded x509 service provider's private key. Should match the "
 "modulus of the provided X509 service provider certificate"
-msgstr "बेस64 एन्कोडेड x509 सेवा प्रदाता निजी कुंजी। प्रदान किए गए X509 सेवा प्रदाता प्रमाणपत्र के मापांक से मेल खाना चाहिए"
+msgstr ""
+"बेस64 एन्कोडेड x509 सेवा प्रदाता निजी कुंजी। प्रदान किए गए X509 सेवा प्रदाता"
+" प्रमाणपत्र के मापांक से मेल खाना चाहिए"
 
 #: src/Config/ConfigItem.php:185
 msgid "SP PRIVATE KEY"
@@ -156,13 +159,11 @@ msgstr "एसपी निजी कुंजी"
 
 #: src/Config/ConfigItem.php:198
 msgid ""
-""
 "The Service Provider nameid format specifies the constraints on the name "
 "identifier to be used to represent the requested subject."
 msgstr ""
-""
-"सेवा प्रदाता नाम आईडी प्रारूप अनुरोधित विषय का प्रतिनिधित्व करने के लिए उपयोग किए जाने "
-"वाले नाम पहचानकर्ता पर बाधाओं को निर्दिष्ट करता है।"
+"सेवा प्रदाता नाम आईडी प्रारूप अनुरोधित विषय का प्रतिनिधित्व करने के लिए "
+"उपयोग किए जाने वाले नाम पहचानकर्ता पर बाधाओं को निर्दिष्ट करता है।"
 
 #: src/Config/ConfigItem.php:199
 msgid "NAMEID FORMAT"
@@ -174,13 +175,11 @@ msgstr "सेवा प्रदाता का नाम आईडी एक 
 
 #: src/Config/ConfigItem.php:213
 msgid ""
-""
 "Identifier of the IdP entity which is an URL provided by the SAML2 Identity "
 "Provider (IdP)"
 msgstr ""
-""
-"IdP इकाई का पहचानकर्ता जो SAML2 पहचान प्रदाता (IdP) द्वारा प्रदान किया गया एक "
-"URL है"
+"IdP इकाई का पहचानकर्ता जो SAML2 पहचान प्रदाता (IdP) द्वारा प्रदान किया गया "
+"एक URL है"
 
 #: src/Config/ConfigItem.php:214
 msgid "ENTITY ID"
@@ -200,15 +199,13 @@ msgstr "⭕ अमान्य IdP SSO URL, उपयोग करें: स्
 
 #: src/Config/ConfigItem.php:246
 msgid ""
-""
 "Single Sign On Service endpoint of the IdP. URL Target of the IdP where the "
 "Authentication Request Message will be sent. OneLogin PHPSAML only supports "
 "the 'HTTP-redirect' binding for this endpoint."
 msgstr ""
-""
-"आईडीपी का सिंगल साइन ऑन सर्विस एंडपॉइंट। आईडीपी का यूआरएल लक्ष्य जहां प्रमाणीकरण "
-"अनुरोध संदेश भेजा जाएगा। OneLogin PHPSAML केवल इस एंडपॉइंट के लिए 'HTTP-रीडायरेक्ट' "
-"बाइंडिंग का समर्थन करता है।"
+"आईडीपी का सिंगल साइन ऑन सर्विस एंडपॉइंट। आईडीपी का यूआरएल लक्ष्य जहां "
+"प्रमाणीकरण अनुरोध संदेश भेजा जाएगा। OneLogin PHPSAML केवल इस एंडपॉइंट के लिए"
+" 'HTTP-रीडायरेक्ट' बाइंडिंग का समर्थन करता है।"
 
 #: src/Config/ConfigItem.php:247
 msgid "SSO URL"
@@ -220,15 +217,13 @@ msgstr "⭕ अमान्य Idp SLO URL, उपयोग करें: स्
 
 #: src/Config/ConfigItem.php:274
 msgid ""
-""
-"Single Logout service endpoint of the IdP. URL Location of the IdP where SLO "
-"Request will be sent.OneLogin PHPSAML only supports the 'HTTP-redirect' "
+"Single Logout service endpoint of the IdP. URL Location of the IdP where SLO"
+" Request will be sent.OneLogin PHPSAML only supports the 'HTTP-redirect' "
 "binding for this endpoint."
 msgstr ""
-""
-"आईडीपी का एकल लॉगआउट सेवा समापन बिंदु। आईडीपी का यूआरएल स्थान जहां एसएलओ अनुरोध भेजा "
-"जाएगा। वनलॉगिन PHPSAML केवल इस एंडपॉइंट के लिए 'HTTP-रीडायरेक्ट' बाइंडिंग का समर्थन "
-"करता है।"
+"आईडीपी का एकल लॉगआउट सेवा समापन बिंदु। आईडीपी का यूआरएल स्थान जहां एसएलओ "
+"अनुरोध भेजा जाएगा। वनलॉगिन PHPSAML केवल इस एंडपॉइंट के लिए 'HTTP-रीडायरेक्ट'"
+" बाइंडिंग का समर्थन करता है।"
 
 #: src/Config/ConfigItem.php:275
 msgid "SLO URL"
@@ -240,17 +235,16 @@ msgstr "⭕ वैध Idp X509 प्रमाणपत्र आवश्यक
 
 #: src/Config/ConfigItem.php:301
 msgid ""
-""
 "The Public Base64 encoded x509 certificate used by the IdP. Fingerprinting "
-"can be used, but is not recommended. Fingerprinting requires you to manually "
-"alter the Saml Config array located in ConfigEntity.php and provide the "
+"can be used, but is not recommended. Fingerprinting requires you to manually"
+" alter the Saml Config array located in ConfigEntity.php and provide the "
 "required configuration options"
 msgstr ""
-""
 "IdP द्वारा उपयोग किया जाने वाला सार्वजनिक Base64 एन्कोडेड x509 प्रमाणपत्र। "
-"फ़िंगरप्रिंटिंग का उपयोग किया जा सकता है, लेकिन अनुशंसित नहीं है। फ़िंगरप्रिंटिंग के लिए आपको "
-"कॉन्फ़िगएंटिटी.php में स्थित सैमल कॉन्फ़िग ऐरे को मैन्युअल रूप से बदलने और आवश्यक कॉन्फ़िगरेशन "
-"विकल्प प्रदान करने की आवश्यकता होती है"
+"फ़िंगरप्रिंटिंग का उपयोग किया जा सकता है, लेकिन अनुशंसित नहीं है। "
+"फ़िंगरप्रिंटिंग के लिए आपको कॉन्फ़िगएंटिटी.php में स्थित सैमल कॉन्फ़िग ऐरे "
+"को मैन्युअल रूप से बदलने और आवश्यक कॉन्फ़िगरेशन विकल्प प्रदान करने की "
+"आवश्यकता होती है"
 
 #: src/Config/ConfigItem.php:302
 msgid "X509 CERTIFICATE"
@@ -258,16 +252,15 @@ msgstr "X509 प्रमाणपत्र"
 
 #: src/Config/ConfigItem.php:329
 msgid ""
-""
 "Authentication context needs to be satisfied by the IdP in order to allow "
 "Saml login. Set to \"none\" and OneLogin PHPSAML will not send an "
 "AuthContext in the AuthNRequest. Or, select one or more options using the "
 "\"control+click\" combination."
 msgstr ""
-""
-"सैमल लॉगिन की अनुमति देने के लिए प्रमाणीकरण संदर्भ को आईडीपी द्वारा संतुष्ट किया जाना "
-"आवश्यक है। \"कोई नहीं\" पर सेट करें और OneLogin PHPSAML AuthNRequest में AuthContext "
-"नहीं भेजेगा। या, \"नियंत्रण+क्लिक\" संयोजन का उपयोग करके एक या अधिक विकल्प चुनें।"
+"सैमल लॉगिन की अनुमति देने के लिए प्रमाणीकरण संदर्भ को आईडीपी द्वारा संतुष्ट "
+"किया जाना आवश्यक है। \"कोई नहीं\" पर सेट करें और OneLogin PHPSAML "
+"AuthNRequest में AuthContext नहीं भेजेगा। या, \"नियंत्रण+क्लिक\" संयोजन का "
+"उपयोग करके एक या अधिक विकल्प चुनें।"
 
 #: src/Config/ConfigItem.php:330
 msgid "REQ AUTHN CONTEXT"
@@ -344,10 +337,12 @@ msgstr "हटा दिया गया है"
 
 #: src/Config/ConfigItem.php:444
 msgid ""
-""
-"Indicates if this configuration is activated. Disabled configurations cannot "
-"be used to log in to GLPI and will NOT be shown on the login page."
-msgstr "इंगित करता है कि क्या यह कॉन्फ़िगरेशन सक्रिय है। अक्षम कॉन्फ़िगरेशन का उपयोग GLPI में लॉगिन करने के लिए नहीं किया जा सकता है और इसे लॉगिन पृष्ठ पर नहीं दिखाया जाएगा।"
+"Indicates if this configuration is activated. Disabled configurations cannot"
+" be used to log in to GLPI and will NOT be shown on the login page."
+msgstr ""
+"इंगित करता है कि क्या यह कॉन्फ़िगरेशन सक्रिय है। अक्षम कॉन्फ़िगरेशन का उपयोग"
+" GLPI में लॉगिन करने के लिए नहीं किया जा सकता है और इसे लॉगिन पृष्ठ पर नहीं "
+"दिखाया जाएगा।"
 
 #: src/Config/ConfigItem.php:445
 msgid "IS ACTIVE"
@@ -355,22 +350,26 @@ msgstr "सक्रिय है"
 
 #: src/Config/ConfigItem.php:457
 msgid ""
-""
 "If enabled, PHPSAML will replace the default GLPI login screen with a "
 "version that does not have the default GLPI login options and only allows "
 "the user to authenticate using the configured SAML2 IDPs. This setting can "
 "be bypassed using a bypass URI parameter."
-msgstr "यदि सक्षम किया गया है तो PHPSAML डिफ़ॉल्ट GLPI लॉगिन स्क्रीन को ऐसे संस्करण से बदल देगा जिसमें डिफ़ॉल्ट GLPI लॉगिन विकल्प नहीं हैं और केवल उपयोगकर्ता को कॉन्फ़िगर किए गए SAML2 आईडीपीएस का उपयोग करके प्रमाणित करने की अनुमति देता है। इस सेटिंग को बायपास यूआरआई पैरामीटर का उपयोग करके बायपास किया जा सकता है"
+msgstr ""
+"यदि सक्षम किया गया है तो PHPSAML डिफ़ॉल्ट GLPI लॉगिन स्क्रीन को ऐसे संस्करण "
+"से बदल देगा जिसमें डिफ़ॉल्ट GLPI लॉगिन विकल्प नहीं हैं और केवल उपयोगकर्ता को"
+" कॉन्फ़िगर किए गए SAML2 आईडीपीएस का उपयोग करके प्रमाणित करने की अनुमति देता "
+"है। इस सेटिंग को बायपास यूआरआई पैरामीटर का उपयोग करके बायपास किया जा सकता है"
 
 #: src/Config/ConfigItem.php:458
 msgid "ENFORCED"
 msgstr "से लागू"
 
 #: src/Config/ConfigItem.php:479
-msgid "Is GLPI positioned behind a proxy that alters the SAML response scheme?"
+msgid ""
+"Is GLPI positioned behind a proxy that alters the SAML response scheme?"
 msgstr ""
-""
-"क्या जीएलपीआई एक प्रॉक्सी के पीछे स्थित है जो एसएएमएल प्रतिक्रिया योजना को बदल देता है?"
+"क्या जीएलपीआई एक प्रॉक्सी के पीछे स्थित है जो एसएएमएल प्रतिक्रिया योजना को "
+"बदल देता है?"
 
 #: src/Config/ConfigItem.php:480
 msgid "REQUESTS PROXIED"
@@ -378,13 +377,17 @@ msgstr "अनुरोध प्रॉक्सी किए गए"
 
 #: src/Config/ConfigItem.php:492
 msgid ""
-""
-"If enabled, the OneLogin PHPSAML Toolkit will reject unsigned or unencrypted "
-"messages if it expects them to be signed or encrypted. Also, it will reject "
-"the messages if the SAML standard is not strictly followed: Destination, "
+"If enabled, the OneLogin PHPSAML Toolkit will reject unsigned or unencrypted"
+" messages if it expects them to be signed or encrypted. Also, it will reject"
+" the messages if the SAML standard is not strictly followed: Destination, "
 "NameID, and Conditions are validated too. Strongly advised in production "
 "environments."
-msgstr "सक्षम होने पर OneLogin PHPSAML टूलकिट अहस्ताक्षरित या अनएन्क्रिप्टेड संदेशों को अस्वीकार कर देगा यदि यह उनसे हस्ताक्षरित या एन्क्रिप्टेड होने की अपेक्षा करता है। इसके अलावा यदि एसएएमएल मानक का सख्ती से पालन नहीं किया जाता है तो यह संदेशों को अस्वीकार कर देगा: गंतव्य, नामआईडी, शर्तें भी मान्य हैं। उत्पादन परिवेश में दृढ़तापूर्वक सलाह दी जाती है।"
+msgstr ""
+"सक्षम होने पर OneLogin PHPSAML टूलकिट अहस्ताक्षरित या अनएन्क्रिप्टेड संदेशों"
+" को अस्वीकार कर देगा यदि यह उनसे हस्ताक्षरित या एन्क्रिप्टेड होने की अपेक्षा"
+" करता है। इसके अलावा यदि एसएएमएल मानक का सख्ती से पालन नहीं किया जाता है तो "
+"यह संदेशों को अस्वीकार कर देगा: गंतव्य, नामआईडी, शर्तें भी मान्य हैं। "
+"उत्पादन परिवेश में दृढ़तापूर्वक सलाह दी जाती है।"
 
 #: src/Config/ConfigItem.php:493
 msgid "STRICT"
@@ -392,21 +395,27 @@ msgstr "कठोर"
 
 #: src/Config/ConfigItem.php:505
 msgid ""
-""
 "If enabled, it will force OneLogin PHPSAML to print status and error "
 "messages. Be aware that not all messages might be captured by samlSSO and "
-"might therefore not become visible. WARNING: Enabling debug mode will expose "
-"the Service Provider metadata publicly."
-msgstr "यदि सक्षम किया गया है तो यह स्थिति और त्रुटि संदेशों को मुद्रित करने के लिए OneLogin PHPSAML को लागू करेगा। सावधान रहें कि सभी संदेशों को samlSSO द्वारा कैप्चर नहीं किया जा सकता है और इसलिए वे दृश्यमान नहीं हो सकते हैं।"
+"might therefore not become visible. WARNING: Enabling debug mode will expose"
+" the Service Provider metadata publicly."
+msgstr ""
+"यदि सक्षम किया गया है तो यह स्थिति और त्रुटि संदेशों को मुद्रित करने के लिए "
+"OneLogin PHPSAML को लागू करेगा। सावधान रहें कि सभी संदेशों को samlSSO द्वारा"
+" कैप्चर नहीं किया जा सकता है और इसलिए वे दृश्यमान नहीं हो सकते हैं।"
 
 #: src/Config/ConfigItem.php:518
 msgid ""
-""
 "If enabled, samlSSO will create new GLPI users on the fly and assign the "
 "properties defined in the samlSSO assignment rules. If disabled, users that "
 "do not have a valid GLPI user will not be able to log in to GLPI until a "
 "user is manually created."
-msgstr "यदि सक्षम किया गया है तो samlSSO तुरंत नए GLPI उपयोगकर्ता बनाएगा और samlSSO असाइनमेंट नियमों में परिभाषित गुणों को निर्दिष्ट करेगा। यदि उन उपयोगकर्ताओं को अक्षम कर दिया गया है जिनके पास वैध GLPI उपयोगकर्ता नहीं है, तो वे GLPI में तब तक लॉगिन नहीं कर पाएंगे जब तक कोई उपयोगकर्ता मैन्युअल रूप से नहीं बनाया जाता है।"
+msgstr ""
+"यदि सक्षम किया गया है तो samlSSO तुरंत नए GLPI उपयोगकर्ता बनाएगा और samlSSO "
+"असाइनमेंट नियमों में परिभाषित गुणों को निर्दिष्ट करेगा। यदि उन उपयोगकर्ताओं "
+"को अक्षम कर दिया गया है जिनके पास वैध GLPI उपयोगकर्ता नहीं है, तो वे GLPI "
+"में तब तक लॉगिन नहीं कर पाएंगे जब तक कोई उपयोगकर्ता मैन्युअल रूप से नहीं "
+"बनाया जाता है।"
 
 #: src/Config/ConfigItem.php:519
 msgid "JIT USER CREATION"
@@ -414,13 +423,11 @@ msgstr "JIT उपयोगकर्ता निर्माण"
 
 #: src/Config/ConfigItem.php:537
 msgid ""
-""
-"If enabled, user fields mapped from SAML claims and assignment rules will be "
-"synchronized on every successful login."
+"If enabled, user fields mapped from SAML claims and assignment rules will be"
+" synchronized on every successful login."
 msgstr ""
-""
-"यदि सक्षम किया गया है, तो एसएएमएल दावों और असाइनमेंट नियमों से मैप किए गए उपयोगकर्ता "
-"फ़ील्ड प्रत्येक सफल लॉगिन पर सिंक्रनाइज़ किए जाएंगे।"
+"यदि सक्षम किया गया है, तो एसएएमएल दावों और असाइनमेंट नियमों से मैप किए गए "
+"उपयोगकर्ता फ़ील्ड प्रत्येक सफल लॉगिन पर सिंक्रनाइज़ किए जाएंगे।"
 
 #: src/Config/ConfigItem.php:538
 msgid "SYNC ON LOGIN"
@@ -428,13 +435,12 @@ msgstr "लॉगिन पर सिंक करें"
 
 #: src/Config/ConfigItem.php:556
 msgid ""
-""
 "If enabled, GLPI will require all SAML protocol messages received from the "
 "Identity Provider (IdP) to be cryptographically signed."
 msgstr ""
-""
 "यदि सक्षम किया गया है, तो जीएलपीआई को पहचान प्रदाता (आईडीपी) से प्राप्त सभी "
-"एसएएमएल प्रोटोकॉल संदेशों को क्रिप्टोग्राफ़िक रूप से हस्ताक्षरित करने की आवश्यकता होगी।"
+"एसएएमएल प्रोटोकॉल संदेशों को क्रिप्टोग्राफ़िक रूप से हस्ताक्षरित करने की "
+"आवश्यकता होगी।"
 
 #: src/Config/ConfigItem.php:557
 msgid "REQUIRE SIGNED MESSAGES"
@@ -442,13 +448,12 @@ msgstr "हस्ताक्षरित संदेशों की आवश
 
 #: src/Config/ConfigItem.php:575
 msgid ""
-""
 "If enabled, GLPI will require individual SAML assertions within the SAML "
 "message to be signed. If unsigned, assertions will be rejected."
 msgstr ""
-""
-"यदि सक्षम किया गया है, तो GLPI को हस्ताक्षरित होने के लिए SAML संदेश के भीतर अलग-अलग "
-"SAML दावे की आवश्यकता होगी। यदि अहस्ताक्षरित है, तो दावे खारिज कर दिए जाएंगे।"
+"यदि सक्षम किया गया है, तो GLPI को हस्ताक्षरित होने के लिए SAML संदेश के भीतर"
+" अलग-अलग SAML दावे की आवश्यकता होगी। यदि अहस्ताक्षरित है, तो दावे खारिज कर "
+"दिए जाएंगे।"
 
 #: src/Config/ConfigItem.php:576
 msgid "REQUIRE SIGNED ASSERTIONS"
@@ -456,13 +461,12 @@ msgstr "हस्ताक्षरित दावे की आवश्यक
 
 #: src/Config/ConfigItem.php:594
 msgid ""
-""
 "If enabled, GLPI will expect the SAML assertions containing user claims to "
 "be encrypted. GLPI will decrypt them using the SP private key."
 msgstr ""
-""
-"यदि सक्षम किया गया है, तो जीएलपीआई उपयोगकर्ता दावों वाले एसएएमएल दावों को एन्क्रिप्ट "
-"किए जाने की अपेक्षा करेगा। जीएलपीआई एसपी निजी कुंजी का उपयोग करके उन्हें डिक्रिप्ट करेगा।"
+"यदि सक्षम किया गया है, तो जीएलपीआई उपयोगकर्ता दावों वाले एसएएमएल दावों को "
+"एन्क्रिप्ट किए जाने की अपेक्षा करेगा। जीएलपीआई एसपी निजी कुंजी का उपयोग करके"
+" उन्हें डिक्रिप्ट करेगा।"
 
 #: src/Config/ConfigItem.php:595
 msgid "REQUIRE ENCRYPTED ASSERTIONS"
@@ -470,13 +474,12 @@ msgstr "एन्क्रिप्टेड दावे की आवश्य
 
 #: src/Config/ConfigItem.php:613
 msgid ""
-""
 "If enabled, the SAML SP metadata XML generated by GLPI will be "
 "cryptographically signed using the Service Provider certificate."
 msgstr ""
-""
-"यदि सक्षम किया गया है, तो जीएलपीआई द्वारा उत्पन्न एसएएमएल एसपी मेटाडेटा एक्सएमएल को "
-"सेवा प्रदाता प्रमाणपत्र का उपयोग करके क्रिप्टोग्राफ़िक रूप से हस्ताक्षरित किया जाएगा।"
+"यदि सक्षम किया गया है, तो जीएलपीआई द्वारा उत्पन्न एसएएमएल एसपी मेटाडेटा "
+"एक्सएमएल को सेवा प्रदाता प्रमाणपत्र का उपयोग करके क्रिप्टोग्राफ़िक रूप से "
+"हस्ताक्षरित किया जाएगा।"
 
 #: src/Config/ConfigItem.php:614
 msgid "SIGN SP METADATA"
@@ -484,13 +487,11 @@ msgstr "एसपी मेटाडेटा पर हस्ताक्षर
 
 #: src/Config/ConfigItem.php:632
 msgid ""
-""
-"If enabled, GLPI will strictly require a NameID element to be present in the "
-"SAML assertion payload."
+"If enabled, GLPI will strictly require a NameID element to be present in the"
+" SAML assertion payload."
 msgstr ""
-""
-"यदि सक्षम किया गया है, तो GLPI को SAML अभिकथन पेलोड में मौजूद होने के लिए एक NameID "
-"तत्व की सख्त आवश्यकता होगी।"
+"यदि सक्षम किया गया है, तो GLPI को SAML अभिकथन पेलोड में मौजूद होने के लिए एक"
+" NameID तत्व की सख्त आवश्यकता होगी।"
 
 #: src/Config/ConfigItem.php:633
 msgid "REQUIRE NAMEID"
@@ -498,12 +499,15 @@ msgstr "NAMEID की आवश्यकता है"
 
 #: src/Config/ConfigItem.php:645
 msgid ""
-""
-"If enabled, the OneLogin PHPSAML toolkit will encrypt the <samlp:"
-"logoutRequest> sent by this SP using the provided SP certificate and private "
-"key. This option will be toggled \"off\" automatically if no, or no valid SP "
-"certificate and key is provided."
-msgstr "यदि सक्षम किया गया है तो OneLogin PHPSAML टूलकिट दिए गए SP प्रमाणपत्र और निजी कुंजी का उपयोग करके इस SP द्वारा भेजे गए <samlp:logoutRequest> को एन्क्रिप्ट करेगा। यदि नहीं, या कोई वैध एसपी प्रमाणपत्र और कुंजी प्रदान नहीं की गई है तो यह विकल्प स्वचालित रूप से \"बंद\" हो जाएगा।"
+"If enabled, the OneLogin PHPSAML toolkit will encrypt the "
+"<samlp:logoutRequest> sent by this SP using the provided SP certificate and "
+"private key. This option will be toggled \"off\" automatically if no, or no "
+"valid SP certificate and key is provided."
+msgstr ""
+"यदि सक्षम किया गया है तो OneLogin PHPSAML टूलकिट दिए गए SP प्रमाणपत्र और "
+"निजी कुंजी का उपयोग करके इस SP द्वारा भेजे गए <samlp:logoutRequest> को "
+"एन्क्रिप्ट करेगा। यदि नहीं, या कोई वैध एसपी प्रमाणपत्र और कुंजी प्रदान नहीं "
+"की गई है तो यह विकल्प स्वचालित रूप से \"बंद\" हो जाएगा।"
 
 #: src/Config/ConfigItem.php:646
 msgid "ENCRYPT NAMEID"
@@ -511,11 +515,14 @@ msgstr "एन्क्रिप्ट नामआईडी"
 
 #: src/Config/ConfigItem.php:658
 msgid ""
-""
 "If enabled, the OneLogin PHPSAML toolkit will sign the <samlp:AuthnRequest> "
 "messages sent by this SP. The IDP should consult the metadata to get the "
 "information required to validate the signatures."
-msgstr "सक्षम होने पर OneLogin PHPSAML टूलकिट इस SP द्वारा भेजे गए <samlp:AuthnRequest> संदेशों पर हस्ताक्षर करेगा। हस्ताक्षरों को मान्य करने के लिए आवश्यक जानकारी प्राप्त करने के लिए आईडीपी को मेटाडेटा से परामर्श लेना चाहिए।"
+msgstr ""
+"सक्षम होने पर OneLogin PHPSAML टूलकिट इस SP द्वारा भेजे गए "
+"<samlp:AuthnRequest> संदेशों पर हस्ताक्षर करेगा। हस्ताक्षरों को मान्य करने "
+"के लिए आवश्यक जानकारी प्राप्त करने के लिए आईडीपी को मेटाडेटा से परामर्श लेना"
+" चाहिए।"
 
 #: src/Config/ConfigItem.php:659
 msgid "SIGN AUTHN REQUEST"
@@ -523,10 +530,11 @@ msgstr "प्रमाणीकरण अनुरोध पर हस्ता
 
 #: src/Config/ConfigItem.php:671
 msgid ""
-""
-"If enabled, the OneLogin PHPSAML toolkit will sign the <samlp:logoutRequest> "
-"messages sent by this SP."
-msgstr "सक्षम होने पर OneLogin PHPSAML टूलकिट इस SP द्वारा भेजे गए <samlp:logoutRequest> संदेशों पर हस्ताक्षर करेगा।"
+"If enabled, the OneLogin PHPSAML toolkit will sign the <samlp:logoutRequest>"
+" messages sent by this SP."
+msgstr ""
+"सक्षम होने पर OneLogin PHPSAML टूलकिट इस SP द्वारा भेजे गए "
+"<samlp:logoutRequest> संदेशों पर हस्ताक्षर करेगा।"
 
 #: src/Config/ConfigItem.php:672
 msgid "SIGN LOGOUT REQUEST"
@@ -534,10 +542,11 @@ msgstr "लॉगआउट अनुरोध पर हस्ताक्षर
 
 #: src/Config/ConfigItem.php:684
 msgid ""
-""
-"If enabled, the OneLogin PHPSAML toolkit will sign the <samlp:"
-"logoutResponse> messages sent by this SP."
-msgstr "सक्षम होने पर OneLogin PHPSAML टूलकिट इस SP द्वारा भेजे गए <samlp:logoutResponse> संदेशों पर हस्ताक्षर करेगा।"
+"If enabled, the OneLogin PHPSAML toolkit will sign the "
+"<samlp:logoutResponse> messages sent by this SP."
+msgstr ""
+"सक्षम होने पर OneLogin PHPSAML टूलकिट इस SP द्वारा भेजे गए "
+"<samlp:logoutResponse> संदेशों पर हस्ताक्षर करेगा।"
 
 #: src/Config/ConfigItem.php:685
 msgid "SIGN LOGOUT RESPONSE"
@@ -545,10 +554,11 @@ msgstr "साइन लॉगआउट प्रतिक्रिया"
 
 #: src/Config/ConfigItem.php:697
 msgid ""
-""
 "If enabled, the authentication requests sent to the IdP will be compressed "
 "by the SP."
-msgstr "सक्षम होने पर आईडीपी को भेजे गए प्रमाणीकरण अनुरोध एसपी द्वारा संपीड़ित किए जाएंगे।"
+msgstr ""
+"सक्षम होने पर आईडीपी को भेजे गए प्रमाणीकरण अनुरोध एसपी द्वारा संपीड़ित किए "
+"जाएंगे।"
 
 #: src/Config/ConfigItem.php:698
 msgid "COMPRESS REQUESTS"
@@ -556,7 +566,9 @@ msgstr "संपीड़ित अनुरोध"
 
 #: src/Config/ConfigItem.php:710
 msgid "If enabled, the SP expects responses sent by the IdP to be compressed."
-msgstr "सक्षम होने पर एसपी को उम्मीद है कि आईडीपी द्वारा भेजी गई प्रतिक्रियाएँ संपीड़ित होंगी।"
+msgstr ""
+"सक्षम होने पर एसपी को उम्मीद है कि आईडीपी द्वारा भेजी गई प्रतिक्रियाएँ "
+"संपीड़ित होंगी।"
 
 #: src/Config/ConfigItem.php:711
 msgid "COMPRESS RESPONSES"
@@ -564,10 +576,11 @@ msgstr "संपीड़ित प्रतिक्रियाएँ"
 
 #: src/Config/ConfigItem.php:723
 msgid ""
-""
-"If enabled, the SP will validate all received XMLs. In order to validate the "
-"XML, the \"strict\" security setting must be enabled."
-msgstr "सक्षम होने पर एसपी सभी प्राप्त एक्सएमएल को मान्य करेगा। XML को मान्य करने के लिए\n                                                        \"सख्त\" सुरक्षा सेटिंग सत्य होनी चाहिए."
+"If enabled, the SP will validate all received XMLs. In order to validate the"
+" XML, the \"strict\" security setting must be enabled."
+msgstr ""
+"सक्षम होने पर एसपी सभी प्राप्त एक्सएमएल को मान्य करेगा। XML को मान्य करने के लिए\n"
+"                                                        \"सख्त\" सुरक्षा सेटिंग सत्य होनी चाहिए."
 
 #: src/Config/ConfigItem.php:724
 msgid "VALIDATE XML"
@@ -575,13 +588,11 @@ msgstr "XML मान्य करें"
 
 #: src/Config/ConfigItem.php:736
 msgid ""
-""
 "If enabled, SAMLResponses with an empty value at its Destination attribute "
 "will not be rejected for this fact."
 msgstr ""
-""
-"यदि सक्षम किया गया है, तो इसके गंतव्य विशेषता पर खाली मान वाले SAMLResponses को इस "
-"तथ्य के लिए अस्वीकार नहीं किया जाएगा।"
+"यदि सक्षम किया गया है, तो इसके गंतव्य विशेषता पर खाली मान वाले SAMLResponses"
+" को इस तथ्य के लिए अस्वीकार नहीं किया जाएगा।"
 
 #: src/Config/ConfigItem.php:737
 msgid "RELAX DEST VALIDATION"
@@ -589,15 +600,13 @@ msgstr "रिलैक्स डेस्ट वैलिडेशन"
 
 #: src/Config/ConfigItem.php:749
 msgid ""
-""
-"ADFS URL-Encodes SAML data as lowercase, and the OneLogin PHPSAML toolkit by "
-"default uses uppercase. Enable this setting for ADFS compatibility on "
+"ADFS URL-Encodes SAML data as lowercase, and the OneLogin PHPSAML toolkit by"
+" default uses uppercase. Enable this setting for ADFS compatibility on "
 "signature verification"
 msgstr ""
-""
-"ADFS URL-SAML डेटा को लोअरकेस के रूप में एनकोड करता है, और OneLogin PHPSAML टूलकिट "
-"डिफ़ॉल्ट रूप से अपरकेस का उपयोग करता है। हस्ताक्षर सत्यापन पर एडीएफएस संगतता के लिए इस "
-"सेटिंग को सक्षम करें"
+"ADFS URL-SAML डेटा को लोअरकेस के रूप में एनकोड करता है, और OneLogin PHPSAML "
+"टूलकिट डिफ़ॉल्ट रूप से अपरकेस का उपयोग करता है। हस्ताक्षर सत्यापन पर एडीएफएस"
+" संगतता के लिए इस सेटिंग को सक्षम करें"
 
 #: src/Config/ConfigItem.php:750
 msgid "LOWER CASE ENCODING"
@@ -605,17 +614,19 @@ msgstr "लोअर केस एनकोडिंग"
 
 #: src/Config/ConfigItem.php:813
 msgid ""
-""
 "⚠️ Warning, do not use the 'withlove.from.donuts.nl' example certificates. "
 "They offer no additional protection."
-msgstr "⚠️ चेतावनी, 'withlove.from.donuts.nl' उदाहरण प्रमाणपत्रों का उपयोग न करें। वे कोई अतिरिक्त सुरक्षा प्रदान नहीं करते."
+msgstr ""
+"⚠️ चेतावनी, 'withlove.from.donuts.nl' उदाहरण प्रमाणपत्रों का उपयोग न करें। "
+"वे कोई अतिरिक्त सुरक्षा प्रदान नहीं करते."
 
 #: src/Config/ConfigItem.php:823
 msgid ""
-""
-"⭕ Certificate must be wrapped in valid BEGIN CERTIFICATE and END "
-"CERTIFICATE tags"
-msgstr "⭕ प्रमाणपत्र को वैध आरंभ प्रमाणपत्र और अंत प्रमाणपत्र टैग में लपेटा जाना चाहिए"
+"⭕ Certificate must be wrapped in valid BEGIN CERTIFICATE and END CERTIFICATE"
+" tags"
+msgstr ""
+"⭕ प्रमाणपत्र को वैध आरंभ प्रमाणपत्र और अंत प्रमाणपत्र टैग में लपेटा जाना "
+"चाहिए"
 
 #: src/Config/ConfigItem.php:829
 msgid "⭕ Certificate should not contain \"carriage returns\" [<CR>]"
@@ -627,7 +638,8 @@ msgstr "⭕ कोई वैध X509 प्रमाणपत्र नहीं
 
 #: src/Config/ConfigItem.php:836
 msgid "⚠️ OpenSSL is not available, GLPI cant validate your certificate"
-msgstr "⚠️ ओपनएसएसएल उपलब्ध नहीं है, जीएलपीआई आपके प्रमाणपत्र को मान्य नहीं कर सकता"
+msgstr ""
+"⚠️ ओपनएसएसएल उपलब्ध नहीं है, जीएलपीआई आपके प्रमाणपत्र को मान्य नहीं कर सकता"
 
 #: src/Config/ConfigItem.php:853
 msgid "⭕ Request timeout must be a positive integer (minutes)"
@@ -635,7 +647,6 @@ msgstr "⭕ अनुरोध टाइमआउट एक सकारात�
 
 #: src/Config/ConfigItem.php:857
 msgid ""
-""
 "The duration in minutes before an uncompleted SAML request is considered "
 "expired."
 msgstr "अपूर्ण SAML अनुरोध से पहले मिनटों में अवधि समाप्त मानी जाती है।"
@@ -650,13 +661,11 @@ msgstr "⭕ निष्क्रियता समय समाप्ति �
 
 #: src/Config/ConfigItem.php:887
 msgid ""
-""
 "The duration in minutes of inactivity before a session is forcefully logged "
 "out (0 to disable)."
 msgstr ""
-""
-"किसी सत्र से पहले निष्क्रियता के मिनटों में अवधि को जबरदस्ती लॉग आउट किया जाता है (अक्षम "
-"करने के लिए 0)।"
+"किसी सत्र से पहले निष्क्रियता के मिनटों में अवधि को जबरदस्ती लॉग आउट किया "
+"जाता है (अक्षम करने के लिए 0)।"
 
 #: src/Config/ConfigItem.php:888
 msgid "INACTIVITY TIMEOUT (MINUTES)"
@@ -707,27 +716,27 @@ msgstr "HTTP या HTTPS"
 
 #: src/Config/ConfigItem.php:972
 msgid ""
-""
-"⚠️ Conflict: Secure cookie is enabled but PHP is running in a non-secure HTTP "
-"context. Cookies will be rejected by the browser!"
-msgstr "⚠️ विरोध: सुरक्षित कुकी सक्षम है लेकिन PHP एक गैर-सुरक्षित HTTP संदर्भ में चल रही है। कुकीज़ ब्राउज़र द्वारा अस्वीकार कर दी जाएंगी!"
+"⚠️ Conflict: Secure cookie is enabled but PHP is running in a non-secure "
+"HTTP context. Cookies will be rejected by the browser!"
+msgstr ""
+"⚠️ विरोध: सुरक्षित कुकी सक्षम है लेकिन PHP एक गैर-सुरक्षित HTTP संदर्भ में "
+"चल रही है। कुकीज़ ब्राउज़र द्वारा अस्वीकार कर दी जाएंगी!"
 
 #: src/Config/ConfigItem.php:975
 msgid ""
-""
-"⚠️ Security Warning: HTTPS is detected but session.cookie_secure is disabled. "
-"Cookies are not protected!"
-msgstr "⚠️ सुरक्षा चेतावनी: HTTPS का पता चला है लेकिन session.cookie_secure अक्षम है। कुकीज़ सुरक्षित नहीं हैं!"
+"⚠️ Security Warning: HTTPS is detected but session.cookie_secure is "
+"disabled. Cookies are not protected!"
+msgstr ""
+"⚠️ सुरक्षा चेतावनी: HTTPS का पता चला है लेकिन session.cookie_secure अक्षम "
+"है। कुकीज़ सुरक्षित नहीं हैं!"
 
 #: src/Config/ConfigItem.php:977
 msgid ""
-""
 "Unsatisfied conditions might break the authentication flow in proxied or "
 "containerized environments depending on your setup and naming schemes."
 msgstr ""
-""
-"असंतुष्ट स्थितियाँ आपके सेटअप और नामकरण योजनाओं के आधार पर प्रॉक्सी या कंटेनरीकृत वातावरण "
-"में प्रमाणीकरण प्रवाह को तोड़ सकती हैं।"
+"असंतुष्ट स्थितियाँ आपके सेटअप और नामकरण योजनाओं के आधार पर प्रॉक्सी या "
+"कंटेनरीकृत वातावरण में प्रमाणीकरण प्रवाह को तोड़ सकती हैं।"
 
 #: src/Config/ConfigItem.php:1037
 msgid "Current Time"
@@ -735,34 +744,32 @@ msgstr "वर्तमान समय"
 
 #: src/Config/ConfigItem.php:1044
 msgid ""
-""
 "✅ Timezone Alignment: PHP and Database connection clocks are synchronized. "
 "(Shown because Debug mode is enabled)"
 msgstr ""
-""
-"✅ समयक्षेत्र संरेखण: PHP और डेटाबेस कनेक्शन घड़ियां सिंक्रनाइज़ हैं। (दिखाया गया क्योंकि डीबग "
-"मोड सक्षम है)"
+"✅ समयक्षेत्र संरेखण: PHP और डेटाबेस कनेक्शन घड़ियां सिंक्रनाइज़ हैं। (दिखाया"
+" गया क्योंकि डीबग मोड सक्षम है)"
 
 #: src/Config/ConfigItem.php:1052
 #, php-format
 msgid ""
-""
 "⚠️ Timezone Mismatch: PHP and Database connection clocks differ by %s hours "
 "(%s seconds). This will cause authentication requests to time out "
 "prematurely or linger too long."
-msgstr "⚠️ समयक्षेत्र बेमेल: PHP और डेटाबेस कनेक्शन घड़ियों में %s घंटे (%s सेकंड) का अंतर होता है। इससे प्रमाणीकरण अनुरोधों का समय समय से पहले समाप्त हो जाएगा या बहुत देर तक रुका रहेगा।"
+msgstr ""
+"⚠️ समयक्षेत्र बेमेल: PHP और डेटाबेस कनेक्शन घड़ियों में %s घंटे (%s सेकंड) "
+"का अंतर होता है। इससे प्रमाणीकरण अनुरोधों का समय समय से पहले समाप्त हो जाएगा"
+" या बहुत देर तक रुका रहेगा।"
 
 #: src/Config/ConfigItem.php:1053
 msgid ""
-""
-"Ensure GLPI's timezone usage configuration is enabled (under Setup > General "
-"> System), MySQL timezone tables are loaded, or PHP's date.timezone matches "
-"the database timezone."
+"Ensure GLPI's timezone usage configuration is enabled (under Setup > General"
+" > System), MySQL timezone tables are loaded, or PHP's date.timezone matches"
+" the database timezone."
 msgstr ""
-""
-"सुनिश्चित करें कि GLPI का टाइमज़ोन उपयोग कॉन्फ़िगरेशन सक्षम है (सेटअप > सामान्य > सिस्टम "
-"के अंतर्गत), MySQL टाइमज़ोन तालिकाएँ लोड की गई हैं, या PHP का date.timezone डेटाबेस "
-"टाइमज़ोन से मेल खाता है।"
+"सुनिश्चित करें कि GLPI का टाइमज़ोन उपयोग कॉन्फ़िगरेशन सक्षम है (सेटअप > "
+"सामान्य > सिस्टम के अंतर्गत), MySQL टाइमज़ोन तालिकाएँ लोड की गई हैं, या PHP "
+"का date.timezone डेटाबेस टाइमज़ोन से मेल खाता है।"
 
 #: src/Config/ClaimMapEntity.php:300
 msgid "Username mapping is required and cannot be removed."
@@ -791,35 +798,31 @@ msgstr "SAMLResponse में NameId विशेषता गायब है"
 
 #: src/Config/ClaimMapEntity.php:489
 msgid ""
-""
 "Detected a default guest user in samlResponse, this is not supported by "
 "glpiSAML."
 msgstr ""
-""
-"SamlResponse में एक डिफ़ॉल्ट अतिथि उपयोगकर्ता का पता चला, यह glpiSAML द्वारा "
-"समर्थित नहीं है।"
+"SamlResponse में एक डिफ़ॉल्ट अतिथि उपयोगकर्ता का पता चला, यह glpiSAML द्वारा"
+" समर्थित नहीं है।"
 
 #: src/Config/ClaimMapEntity.php:545
 msgid "invalid values where used to identify the user during auth"
 msgstr ""
-""
-"अमान्य मान जहां प्रमाणीकरण के दौरान उपयोगकर्ता की पहचान करने के लिए उपयोग किया जाता "
-"है"
+"अमान्य मान जहां प्रमाणीकरण के दौरान उपयोगकर्ता की पहचान करने के लिए उपयोग "
+"किया जाता है"
 
 #: src/Config/ClaimMapEntity.php:561
 msgid ""
-""
-"Warning: SAML NameId format was requested as email but observed value is not "
-"a valid email. Falling back to configured email field."
+"Warning: SAML NameId format was requested as email but observed value is not"
+" a valid email. Falling back to configured email field."
 msgstr ""
-""
-"चेतावनी: SAML NameId प्रारूप का अनुरोध ईमेल के रूप में किया गया था लेकिन देखा गया मान "
-"वैध ईमेल नहीं है। कॉन्फ़िगर किए गए ईमेल फ़ील्ड पर वापस लौटना।"
+"चेतावनी: SAML NameId प्रारूप का अनुरोध ईमेल के रूप में किया गया था लेकिन "
+"देखा गया मान वैध ईमेल नहीं है। कॉन्फ़िगर किए गए ईमेल फ़ील्ड पर वापस लौटना।"
 
 #: src/Config/ClaimMapEntity.php:632
 #, php-format
 msgid "Required user field \"%s\" is missing or invalid in SAML response"
-msgstr "आवश्यक उपयोगकर्ता फ़ील्ड \"%s\" SAML प्रतिक्रिया में अनुपलब्ध या अमान्य है"
+msgstr ""
+"आवश्यक उपयोगकर्ता फ़ील्ड \"%s\" SAML प्रतिक्रिया में अनुपलब्ध या अमान्य है"
 
 #: src/Config/ClaimMapEntity.php:674
 msgid "Required rule field \"groups\" is missing in SAML response"
@@ -869,7 +872,9 @@ msgstr "प्रविष्टि %d (%s) को डेटाबेस मे�
 #: src/Config/ConfigForm.php:424
 #, php-format
 msgid "Config %s restored but claim mappings had validation errors."
-msgstr "कॉन्फ़िगरेशन %s पुनर्स्थापित किया गया लेकिन दावा मैपिंग में सत्यापन त्रुटियाँ थीं।"
+msgstr ""
+"कॉन्फ़िगरेशन %s पुनर्स्थापित किया गया लेकिन दावा मैपिंग में सत्यापन "
+"त्रुटियाँ थीं।"
 
 #: src/Config/ConfigForm.php:442
 msgid "You do not have permission to perform this action."
@@ -889,7 +894,9 @@ msgstr "नया samlSSO कॉन्फ़िगरेशन सफलता�
 
 #: src/Config/ConfigForm.php:555
 msgid "Unable to add new samlSSO configuration, please review error logging"
-msgstr "नया samlSSO कॉन्फ़िगरेशन जोड़ने में असमर्थ, कृपया त्रुटि लॉगिंग की समीक्षा करें"
+msgstr ""
+"नया samlSSO कॉन्फ़िगरेशन जोड़ने में असमर्थ, कृपया त्रुटि लॉगिंग की समीक्षा "
+"करें"
 
 #: src/Config/ConfigForm.php:560 src/Config/ConfigForm.php:605
 msgid "Configuration invalid, please correct all ⭕ errors first"
@@ -901,7 +908,9 @@ msgstr "कॉन्फ़िगरेशन सफलतापूर्वक �
 
 #: src/Config/ConfigForm.php:600 src/LoginFlow/LoginFlowForm.php:111
 msgid "Configuration update failed, check your update rights or error logging"
-msgstr "कॉन्फ़िगरेशन अद्यतन विफल रहा, अपने अद्यतन अधिकार या त्रुटि लॉगिंग की जाँच करें"
+msgstr ""
+"कॉन्फ़िगरेशन अद्यतन विफल रहा, अपने अद्यतन अधिकार या त्रुटि लॉगिंग की जाँच "
+"करें"
 
 #: src/Config/ConfigForm.php:625
 msgid "Configuration deleted successfully"
@@ -989,27 +998,32 @@ msgstr "दाखिल करना"
 
 #: src/Config/ConfigEntity.php:367
 msgid ""
-""
 "⚠️ SP private key does not seem to match provided SP certificates modulus."
-msgstr "⚠️ एसपी निजी कुंजी प्रदान किए गए एसपी प्रमाणपत्र मापांक से मेल नहीं खाती है।"
+msgstr ""
+"⚠️ एसपी निजी कुंजी प्रदान किए गए एसपी प्रमाणपत्र मापांक से मेल नहीं खाती है।"
 
 #: src/Config/ConfigEntity.php:373
 msgid ""
-""
 "⚠️ Will be defaulted to \"No\" because the provided SP certificate does not "
 "look valid!"
-msgstr "⚠️ डिफ़ॉल्ट रूप से \"नहीं\" हो जाएगा क्योंकि प्रदान किया गया एसपी प्रमाणपत्र वैध नहीं लगता है!"
+msgstr ""
+"⚠️ डिफ़ॉल्ट रूप से \"नहीं\" हो जाएगा क्योंकि प्रदान किया गया एसपी प्रमाणपत्र"
+" वैध नहीं लगता है!"
 
 #: src/Config/ConfigEntity.php:403
 msgid ""
-""
 "⚠️ These fields are only enforced when strict mode is enabled. Your "
 "environment is at risk without strict mode."
-msgstr "⚠️ ये फ़ील्ड केवल तभी लागू होते हैं जब सख्त मोड सक्षम होता है। सख्त व्यवस्था के बिना आपका पर्यावरण खतरे में है।"
+msgstr ""
+"⚠️ ये फ़ील्ड केवल तभी लागू होते हैं जब सख्त मोड सक्षम होता है। सख्त व्यवस्था"
+" के बिना आपका पर्यावरण खतरे में है।"
 
 #: src/Config/ConfigEntity.php:443
-msgid "⚠️ IDPs cannot be enforced if more than one is present in the IDP list."
-msgstr "⚠️ यदि आईडीपी सूची में एक से अधिक मौजूद हैं तो आईडीपी लागू नहीं किया जा सकता है।"
+msgid ""
+"⚠️ IDPs cannot be enforced if more than one is present in the IDP list."
+msgstr ""
+"⚠️ यदि आईडीपी सूची में एक से अधिक मौजूद हैं तो आईडीपी लागू नहीं किया जा सकता"
+" है।"
 
 #: src/Config/ClaimMapItem.php:120
 msgid "IDP configuration ID must be a positive integer"
@@ -1054,9 +1068,9 @@ msgstr "निष्क्रियता के कारण आपके स�
 #: src/LoginFlow.php:523
 #, php-format
 msgid ""
-""
 "Could not update the loginState and therefor stopped the loginFlow for: %s"
-msgstr "लॉगिनस्टेट को अपडेट नहीं किया जा सका और इसलिए लॉगिनफ्लो बंद कर दिया गया:"
+msgstr ""
+"लॉगिनस्टेट को अपडेट नहीं किया जा सका और इसलिए लॉगिनफ्लो बंद कर दिया गया:"
 
 #: src/LoginFlow.php:631
 msgid "Continue with local logout"
@@ -1069,25 +1083,36 @@ msgstr "हर जगह लॉग आउट करें"
 #: src/LoginFlow.php:636
 #, php-format
 msgid ""
-""
-"You have been authenticated using the SAML2 identity provider: <b>%1$s</b>."
-"<br><br>Because SAML authentication is enforced, logging out of GLPI locally "
-"will automatically log you back in immediately.<br><br>To sign out "
-"completely, please select <b>'%2$s'</b>. Note that this will also terminate "
-"your active sessions in all other applications connected to this Identity "
-"Provider.<br><br>If you want to leave GLPI, just close this browser tab."
-msgstr "आपको SAML2 पहचान प्रदाता का उपयोग करके प्रमाणित किया गया है: <b>%1$s</b>.<br><br>क्योंकि SAML प्रमाणीकरण लागू है, स्थानीय रूप से GLPI से लॉग आउट करने पर आप स्वचालित रूप से तुरंत वापस लॉग इन हो जाएंगे। <br><br> पूरी तरह से साइन आउट करने के लिए, कृपया <b>'हर जगह लॉग आउट करें'</b> चुनें। ध्यान दें कि इससे इस पहचान प्रदाता से जुड़े अन्य सभी एप्लिकेशन में आपके सक्रिय सत्र भी समाप्त हो जाएंगे।<br><br>यदि आप GLPI छोड़ना चाहते हैं, तो बस इस ब्राउज़र टैब को बंद कर दें।"
+"You have been authenticated using the SAML2 identity provider: "
+"<b>%1$s</b>.<br><br>Because SAML authentication is enforced, logging out of "
+"GLPI locally will automatically log you back in immediately.<br><br>To sign "
+"out completely, please select <b>'%2$s'</b>. Note that this will also "
+"terminate your active sessions in all other applications connected to this "
+"Identity Provider.<br><br>If you want to leave GLPI, just close this browser"
+" tab."
+msgstr ""
+"आपको SAML2 पहचान प्रदाता का उपयोग करके प्रमाणित किया गया है: "
+"<b>%1$s</b>.<br><br>क्योंकि SAML प्रमाणीकरण लागू है, स्थानीय रूप से GLPI से "
+"लॉग आउट करने पर आप स्वचालित रूप से तुरंत वापस लॉग इन हो जाएंगे। <br><br> "
+"पूरी तरह से साइन आउट करने के लिए, कृपया <b>'हर जगह लॉग आउट करें'</b> चुनें। "
+"ध्यान दें कि इससे इस पहचान प्रदाता से जुड़े अन्य सभी एप्लिकेशन में आपके "
+"सक्रिय सत्र भी समाप्त हो जाएंगे।<br><br>यदि आप GLPI छोड़ना चाहते हैं, तो बस "
+"इस ब्राउज़र टैब को बंद कर दें।"
 
 #: src/LoginFlow.php:642
 #, php-format
 msgid ""
-""
-"You have been authenticated using the SAML2 identity provider: <b>%1$s</b>."
-"<br><br>You can log out permanently by also logging out with the IDP by "
-"pressing <b>'%2$s'</b> (which terminates active sessions in all other "
-"applications depending on it), or perform a local logout from GLPI only by "
-"pressing <b>'%3$s'</b>."
-msgstr "आपको SAML2 पहचान प्रदाता का उपयोग करके प्रमाणित किया गया है: <b>%1$s</b>.<br><br>आप <b>'हर जगह लॉग आउट करें'</b> (जो इसके आधार पर अन्य सभी अनुप्रयोगों में सक्रिय सत्र को समाप्त करता है) दबाकर आईडीपी के साथ लॉग आउट करके स्थायी रूप से लॉग आउट कर सकते हैं, या केवल <b> 'जारी रखें GLPI लॉगआउट'</b> दबाकर जीएलपीआई से स्थानीय लॉगआउट कर सकते हैं।"
+"You have been authenticated using the SAML2 identity provider: "
+"<b>%1$s</b>.<br><br>You can log out permanently by also logging out with the"
+" IDP by pressing <b>'%2$s'</b> (which terminates active sessions in all "
+"other applications depending on it), or perform a local logout from GLPI "
+"only by pressing <b>'%3$s'</b>."
+msgstr ""
+"आपको SAML2 पहचान प्रदाता का उपयोग करके प्रमाणित किया गया है: "
+"<b>%1$s</b>.<br><br>आप <b>'हर जगह लॉग आउट करें'</b> (जो इसके आधार पर अन्य "
+"सभी अनुप्रयोगों में सक्रिय सत्र को समाप्त करता है) दबाकर आईडीपी के साथ लॉग "
+"आउट करके स्थायी रूप से लॉग आउट कर सकते हैं, या केवल <b> 'जारी रखें GLPI "
+"लॉगआउट'</b> दबाकर जीएलपीआई से स्थानीय लॉगआउट कर सकते हैं।"
 
 #: src/LoginFlow.php:651
 msgid "🤔 How would you like to proceed?"
@@ -1103,14 +1128,12 @@ msgstr "बाहरी प्रदाता के साथ लॉगिन �
 
 #: src/LoginFlow.php:770 src/LoginFlow.php:837
 msgid ""
-""
 "Something went wrong during authentication assertion and prevents you from "
 "logging in. Please contact your GLPI administrator for more information and "
 "support."
 msgstr ""
-""
-"प्रमाणीकरण दावे के दौरान कुछ गलत हो गया और आपको लॉग इन करने से रोक दिया गया। कृपया "
-"अधिक जानकारी और समर्थन के लिए अपने GLPI व्यवस्थापक से संपर्क करें।"
+"प्रमाणीकरण दावे के दौरान कुछ गलत हो गया और आपको लॉग इन करने से रोक दिया गया।"
+" कृपया अधिक जानकारी और समर्थन के लिए अपने GLPI व्यवस्थापक से संपर्क करें।"
 
 #: src/LoginFlow.php:773
 msgid "⚠️ Sorry we are unable to log you in"
@@ -1152,13 +1175,12 @@ msgstr "सैमल्सो->acs->init->FetchConfig"
 #: src/LoginFlow/Acs.php:156
 #, php-format
 msgid ""
-""
 "The received idp response did not contain the required samlResponse POST "
 "body or idpId to authenticate the user, see: %s for more information"
 msgstr ""
-""
-"प्राप्त आईडीपी प्रतिक्रिया में उपयोगकर्ता को प्रमाणित करने के लिए आवश्यक samlResponse "
-"POST बॉडी या आईडीपीआईडी ​​शामिल नहीं थी, अधिक जानकारी के लिए देखें: %s"
+"प्राप्त आईडीपी प्रतिक्रिया में उपयोगकर्ता को प्रमाणित करने के लिए आवश्यक "
+"samlResponse POST बॉडी या आईडीपीआईडी ​​शामिल नहीं थी, अधिक जानकारी के लिए "
+"देखें: %s"
 
 #: src/LoginFlow/Acs.php:157
 msgid "Samlsso->acs->init->NoSamlResponse"
@@ -1170,17 +1192,20 @@ msgstr "सैमल्सो->acs->init->phpsaml->Utils->setProxyVars"
 
 #: src/LoginFlow/Acs.php:198
 msgid ""
-""
 "PHP-SAML could not initialize the settings object using the configEntity."
-msgstr "PHP-SAML configEntity का उपयोग करके सेटिंग ऑब्जेक्ट को प्रारंभ नहीं कर सका।"
+msgstr ""
+"PHP-SAML configEntity का उपयोग करके सेटिंग ऑब्जेक्ट को प्रारंभ नहीं कर सका।"
 
 #: src/LoginFlow/Acs.php:199
 msgid "Samlsso->acs->init->phpsaml->initializeSettings"
 msgstr "सैमल्सो->acs->init->phpsaml->initializeSettings"
 
 #: src/LoginFlow/Acs.php:207
-msgid "PHP-SAML library could not process samlResponse and reported the error:"
-msgstr "PHP-SAML लाइब्रेरी samlResponse को संसाधित नहीं कर सकी और त्रुटि की सूचना दी:"
+msgid ""
+"PHP-SAML library could not process samlResponse and reported the error:"
+msgstr ""
+"PHP-SAML लाइब्रेरी samlResponse को संसाधित नहीं कर सकी और त्रुटि की सूचना "
+"दी:"
 
 #: src/LoginFlow/Acs.php:208
 msgid "Samlsso->acs->init->phpsaml->initializeResponse"
@@ -1189,13 +1214,11 @@ msgstr "सैमल्सो->acs->init->phpsaml->initializeResponse"
 #: src/LoginFlow/Acs.php:228
 #, php-format
 msgid ""
-""
 "Could not fetch loginState from database with error: <br><br>%s<br><br>See: "
 "%s for more information."
 msgstr ""
-""
-"त्रुटि के साथ डेटाबेस से लॉगिनस्टेट नहीं लाया जा सका: <br><br>%s<br><br>S अधिक "
-"जानकारी के लिए देखें: %s।"
+"त्रुटि के साथ डेटाबेस से लॉगिनस्टेट नहीं लाया जा सका: <br><br>%s<br><br>S "
+"अधिक जानकारी के लिए देखें: %s।"
 
 #: src/LoginFlow/Acs.php:229
 msgid "Samlsso->acs->init->LoginState::construct"
@@ -1203,35 +1226,35 @@ msgstr "सैमल्सो->acs->init->LoginState::construct"
 
 #: src/LoginFlow/Acs.php:255
 msgid ""
-""
 " (Suggestion: check 'Want Assertions Encrypted' under Inbound Security in "
 "the Security tab)"
-msgstr "(सुझाव: सुरक्षा टैब में इनबाउंड सुरक्षा के अंतर्गत 'क्या दावे एन्क्रिप्टेड हैं' की जांच करें)"
+msgstr ""
+"(सुझाव: सुरक्षा टैब में इनबाउंड सुरक्षा के अंतर्गत 'क्या दावे एन्क्रिप्टेड "
+"हैं' की जांच करें)"
 
 #: src/LoginFlow/Acs.php:257
 msgid ""
-""
 " (Suggestion: check 'Want Messages Signed' under Inbound Security in the "
 "Security tab)"
-msgstr "(सुझाव: सुरक्षा टैब में इनबाउंड सुरक्षा के अंतर्गत 'हस्ताक्षरित संदेश चाहते हैं' को जांचें)"
+msgstr ""
+"(सुझाव: सुरक्षा टैब में इनबाउंड सुरक्षा के अंतर्गत 'हस्ताक्षरित संदेश चाहते "
+"हैं' को जांचें)"
 
 #: src/LoginFlow/Acs.php:259
 msgid ""
-""
 " (Suggestion: check 'Want Assertions Signed' under Inbound Security in the "
 "Security tab)"
 msgstr ""
-""
-"(सुझाव: सुरक्षा टैब में इनबाउंड सुरक्षा के अंतर्गत 'हस्ताक्षरित दावे चाहते हैं' की जांच करें)"
+"(सुझाव: सुरक्षा टैब में इनबाउंड सुरक्षा के अंतर्गत 'हस्ताक्षरित दावे चाहते "
+"हैं' की जांच करें)"
 
 #: src/LoginFlow/Acs.php:261
 msgid ""
-""
 " (Suggestion: check 'Want NameID Signed' under Inbound Security in the "
 "Security tab)"
 msgstr ""
-""
-"(सुझाव: सुरक्षा टैब में इनबाउंड सुरक्षा के अंतर्गत 'वांट नेमआईडी हस्ताक्षरित' की जांच करें)"
+"(सुझाव: सुरक्षा टैब में इनबाउंड सुरक्षा के अंतर्गत 'वांट नेमआईडी "
+"हस्ताक्षरित' की जांच करें)"
 
 #: src/LoginFlow/Acs.php:263 src/LoginFlow/Acs.php:279
 msgid " (Suggestion: verify the Identity Provider Certificates configuration)"
@@ -1239,18 +1262,17 @@ msgstr "(सुझाव: पहचान प्रदाता प्रमा�
 
 #: src/LoginFlow/Acs.php:265
 msgid ""
-""
-" (Suggestion: check proxy settings or ensure request timeout has not expired)"
+" (Suggestion: check proxy settings or ensure request timeout has not "
+"expired)"
 msgstr ""
-""
-"(सुझाव: प्रॉक्सी सेटिंग्स की जांच करें या सुनिश्चित करें कि अनुरोध का समय समाप्त नहीं हुआ है)"
+"(सुझाव: प्रॉक्सी सेटिंग्स की जांच करें या सुनिश्चित करें कि अनुरोध का समय "
+"समाप्त नहीं हुआ है)"
 
 #: src/LoginFlow/Acs.php:269
 msgid "Validation of the samlResponse document failed"
 msgstr ""
-""
-"SAMLResponse दस्तावेज़ का सत्यापन विफल रहा। अधिक विवरण के लिए नमूना लॉग की समीक्षा "
-"करें"
+"SAMLResponse दस्तावेज़ का सत्यापन विफल रहा। अधिक विवरण के लिए नमूना लॉग की "
+"समीक्षा करें"
 
 #: src/LoginFlow/Acs.php:270 src/LoginFlow/Acs.php:284
 msgid "Samlsso->acs->assertSaml->SamlResponse::isValid"
@@ -1259,17 +1281,15 @@ msgstr "सैमल्सो->एसीएस->एसर्टसैम्ल->
 #: src/LoginFlow/Acs.php:283
 msgid "Validation of the samlResponse document failed with a critical error"
 msgstr ""
-""
-"एक गंभीर त्रुटि के कारण samlResponse दस्तावेज़ का सत्यापन विफल हो गया। अधिक विवरण के "
-"लिए नमूना लॉग की समीक्षा करें"
+"एक गंभीर त्रुटि के कारण samlResponse दस्तावेज़ का सत्यापन विफल हो गया। अधिक "
+"विवरण के लिए नमूना लॉग की समीक्षा करें"
 
 #: src/LoginFlow/Acs.php:291
 msgid ""
-""
 "Your SAML authentication request timed out. Please try logging in again."
 msgstr ""
-""
-"आपके SAML प्रमाणीकरण अनुरोध का समय समाप्त हो गया। फिर से लॉग इन करने का प्रयास करें।"
+"आपके SAML प्रमाणीकरण अनुरोध का समय समाप्त हो गया। फिर से लॉग इन करने का "
+"प्रयास करें।"
 
 #: src/LoginFlow/Acs.php:292
 msgid "Samlsso->acs->assertSaml->Timeout"
@@ -1278,28 +1298,17 @@ msgstr "सैमल्ससो->एसीएस->एसर्टसैम्�
 #: src/LoginFlow/Acs.php:311
 #, php-format
 msgid ""
-""
-"It looks like this samlResponse has already been used to authenticate a "
-"different user.\n"
-"                    Maybe an error occurred and you pressed F5 and "
-"accidently resend the samlResponse that is\n"
-"                    already registered as processed. For security reasons we "
-"can not allow processed samlResponses\n"
-"                    to be processed again. Please login again to generate a "
-"new samlResponse. Sorry for any inconvenience.\n"
-"                    If the problem presists, then please contact your "
-"administrator.\n"
+"It looks like this samlResponse has already been used to authenticate a different user.\n"
+"                    Maybe an error occurred and you pressed F5 and accidently resend the samlResponse that is\n"
+"                    already registered as processed. For security reasons we can not allow processed samlResponses\n"
+"                    to be processed again. Please login again to generate a new samlResponse. Sorry for any inconvenience.\n"
+"                    If the problem presists, then please contact your administrator.\n"
 "                    See: %s for more information"
 msgstr ""
-""
-"ऐसा लगता है कि इस samlResponse का उपयोग पहले से ही किसी भिन्न उपयोगकर्ता को "
-"प्रमाणित करने के लिए किया जा चुका है।\n"
-"                    हो सकता है कि कोई त्रुटि हुई हो और आपने F5 दबाया हो और गलती से "
-"samlResponse दोबारा भेज दिया हो\n"
-"                    पहले से ही संसाधित के रूप में पंजीकृत है। सुरक्षा कारणों से हम संसाधित "
-"samlResponses की अनुमति नहीं दे सकते\n"
-"                    पुनः संसाधित किया जाना है. नया samlResponse जनरेट करने के लिए "
-"कृपया दोबारा लॉगिन करें। किसी भी असुविधा के लिए खेद है।\n"
+"ऐसा लगता है कि इस samlResponse का उपयोग पहले से ही किसी भिन्न उपयोगकर्ता को प्रमाणित करने के लिए किया जा चुका है।\n"
+"                    हो सकता है कि कोई त्रुटि हुई हो और आपने F5 दबाया हो और गलती से samlResponse दोबारा भेज दिया हो\n"
+"                    पहले से ही संसाधित के रूप में पंजीकृत है। सुरक्षा कारणों से हम संसाधित samlResponses की अनुमति नहीं दे सकते\n"
+"                    पुनः संसाधित किया जाना है. नया samlResponse जनरेट करने के लिए कृपया दोबारा लॉगिन करें। किसी भी असुविधा के लिए खेद है।\n"
 "                    यदि समस्या बनी रहती है, तो कृपया अपने व्यवस्थापक से संपर्क करें.\n"
 "                    अधिक जानकारी के लिए देखें: %s"
 
@@ -1309,13 +1318,11 @@ msgstr "सैमल्सो->acs->assertSaml->LoginState::checkResponseIdUniqu
 
 #: src/LoginFlow/Acs.php:338
 msgid ""
-""
 "An error occured while trying to update the samlResponseId into the "
 "LoginState database. Review the saml log for more details"
 msgstr ""
-""
-"LoginState डेटाबेस में samlResponseId को अद्यतन करने का प्रयास करते समय एक त्रुटि "
-"उत्पन्न हुई। अधिक विवरण के लिए नमूना लॉग की समीक्षा करें"
+"LoginState डेटाबेस में samlResponseId को अद्यतन करने का प्रयास करते समय एक "
+"त्रुटि उत्पन्न हुई। अधिक विवरण के लिए नमूना लॉग की समीक्षा करें"
 
 #: src/LoginFlow/Acs.php:339
 msgid "Samlsso->acs->assertSaml->LoginState::setSamlResponseId"
@@ -1324,19 +1331,13 @@ msgstr "सैमल्सो->acs->assertSaml->LoginState::setSamlResponseId"
 #: src/LoginFlow/Acs.php:352
 #, php-format
 msgid ""
-""
-"GLPI did not expect an assertion from this Idp. The most likely reason is a "
-"race condition\n"
-"                    causing an inconsistant loginState in the database or "
-"software bug. Please login again via the\n"
+"GLPI did not expect an assertion from this Idp. The most likely reason is a race condition\n"
+"                    causing an inconsistant loginState in the database or software bug. Please login again via the\n"
 "                    GLPI-interface. Sorry for the inconvenience. See: %s\n"
 "                    for more information"
 msgstr ""
-""
-"जीएलपीआई को इस आईडीपी से किसी दावे की उम्मीद नहीं थी। सबसे संभावित कारण दौड़ की "
-"स्थिति है\n"
-"                    डेटाबेस या सॉफ़्टवेयर बग में असंगत लॉगिनस्टेट उत्पन्न करना। कृपया के "
-"माध्यम से पुनः लॉगिन करें\n"
+"जीएलपीआई को इस आईडीपी से किसी दावे की उम्मीद नहीं थी। सबसे संभावित कारण दौड़ की स्थिति है\n"
+"                    डेटाबेस या सॉफ़्टवेयर बग में असंगत लॉगिनस्टेट उत्पन्न करना। कृपया के माध्यम से पुनः लॉगिन करें\n"
 "                    जीएलपीआई-इंटरफ़ेस। असुविधा के लिए खेद है। देखें: %s\n"
 "                    अधिक जानकारी के लिए"
 
@@ -1346,14 +1347,10 @@ msgstr "सैमल्ससो->एसीएस->एसर्टसैम्�
 
 #: src/LoginFlow/Acs.php:370
 msgid ""
-""
-"An error occured while trying to update the login phase to LoginState::"
-"PHASE_SAML_AUTH  into the LoginState database.\n"
+"An error occured while trying to update the login phase to LoginState::PHASE_SAML_AUTH  into the LoginState database.\n"
 "                                  Review the saml log for more details"
 msgstr ""
-""
-"LoginState डेटाबेस में LoginState::PHASE_SAML_AUTH पर लॉगिन चरण को अद्यतन करने का "
-"प्रयास करते समय एक त्रुटि उत्पन्न हुई।\n"
+"LoginState डेटाबेस में LoginState::PHASE_SAML_AUTH पर लॉगिन चरण को अद्यतन करने का प्रयास करते समय एक त्रुटि उत्पन्न हुई।\n"
 "                                  अधिक विवरण के लिए नमूना लॉग की समीक्षा करें"
 
 #: src/LoginFlow/Acs.php:371
@@ -1378,13 +1375,11 @@ msgstr "डिबग सक्षम किया गया?"
 
 #: src/LoginFlow/LoginFlowItem.php:161
 msgid ""
-""
 "Should SAML SSO be enforced. This option can be bypassed by the bypass var "
 "and value"
 msgstr ""
-""
-"क्या एसएएमएल एसएसओ लागू किया जाना चाहिए. इस विकल्प को बायपास वर् और वैल्यू द्वारा "
-"बायपास किया जा सकता है"
+"क्या एसएएमएल एसएसओ लागू किया जाना चाहिए. इस विकल्प को बायपास वर् और वैल्यू "
+"द्वारा बायपास किया जा सकता है"
 
 #: src/LoginFlow/LoginFlowItem.php:162
 msgid "ENFORCE SSO"
@@ -1392,7 +1387,8 @@ msgstr "एसएसओ लागू करें"
 
 #: src/LoginFlow/LoginFlowItem.php:178
 msgid "Try to match domain in username for IDP selection"
-msgstr "आईडीपी चयन के लिए उपयोगकर्ता नाम में डोमेन से मिलान करने का प्रयास करें"
+msgstr ""
+"आईडीपी चयन के लिए उपयोगकर्ता नाम में डोमेन से मिलान करने का प्रयास करें"
 
 #: src/LoginFlow/LoginFlowItem.php:179
 msgid "ENABLE DOMAIN BASED SSO"
@@ -1400,7 +1396,8 @@ msgstr "डोमेन आधारित एसएसओ सक्षम क�
 
 #: src/LoginFlow/LoginFlowItem.php:195
 msgid "Allow the ?idpId=[val] URI to pre select IDP from URLs"
-msgstr "?idpId=[val] यूआरआई को यूआरएल से आईडीपी का पूर्व चयन करने की अनुमति दें"
+msgstr ""
+"?idpId=[val] यूआरआई को यूआरएल से आईडीपी का पूर्व चयन करने की अनुमति दें"
 
 #: src/LoginFlow/LoginFlowItem.php:196
 msgid "Enable getter login"
@@ -1408,13 +1405,11 @@ msgstr "गेटर लॉगिन सक्षम करें"
 
 #: src/LoginFlow/LoginFlowItem.php:212
 msgid ""
-""
 "Hide the default GLPI login options. This option can be bypassed using the "
 "bypass var and value."
 msgstr ""
-""
-"डिफ़ॉल्ट GLPI लॉगिन विकल्प छिपाएँ। इस विकल्प को बायपास संस्करण और मान का उपयोग करके "
-"बायपास किया जा सकता है।"
+"डिफ़ॉल्ट GLPI लॉगिन विकल्प छिपाएँ। इस विकल्प को बायपास संस्करण और मान का "
+"उपयोग करके बायपास किया जा सकता है।"
 
 #: src/LoginFlow/LoginFlowItem.php:213
 msgid "HIDE GLPI LOGIN"
@@ -1422,12 +1417,11 @@ msgstr "GLPI लॉगिन छिपाएँ"
 
 #: src/LoginFlow/LoginFlowItem.php:229
 msgid ""
-""
 "Hides Saml Buttons. This option cannot be used together with the Hide GLPI "
 "login."
 msgstr ""
-""
-"सैमल बटन छुपाता है। इस विकल्प का उपयोग Hide GLPI लॉगिन के साथ नहीं किया जा सकता है।"
+"सैमल बटन छुपाता है। इस विकल्प का उपयोग Hide GLPI लॉगिन के साथ नहीं किया जा "
+"सकता है।"
 
 #: src/LoginFlow/LoginFlowItem.php:230
 msgid "Hide Saml Buttons"
@@ -1435,7 +1429,8 @@ msgstr "सैमल बटन छिपाएँ"
 
 #: src/LoginFlow/LoginFlowItem.php:246
 msgid "Hide the GLPI password field. To be used with Enable Domain Login."
-msgstr "GLPI पासवर्ड फ़ील्ड छिपाएँ. डोमेन लॉगिन सक्षम करने के साथ उपयोग किया जाएगा।"
+msgstr ""
+"GLPI पासवर्ड फ़ील्ड छिपाएँ. डोमेन लॉगिन सक्षम करने के साथ उपयोग किया जाएगा।"
 
 #: src/LoginFlow/LoginFlowItem.php:247
 msgid "HIDE PASSWORD FIELD"
@@ -1443,7 +1438,9 @@ msgstr "पासवर्ड फ़ील्ड छिपाएँ"
 
 #: src/LoginFlow/LoginFlowItem.php:263
 msgid "Forces samlSSO to (re)apply the rules on each succesfull auth."
-msgstr "samlSSO को प्रत्येक सफल लेख पर नियमों को (पुनः) लागू करने के लिए बाध्य करता है।"
+msgstr ""
+"samlSSO को प्रत्येक सफल लेख पर नियमों को (पुनः) लागू करने के लिए बाध्य करता "
+"है।"
 
 #: src/LoginFlow/LoginFlowItem.php:264
 msgid "APPLY RULES ON AUTH"
@@ -1464,98 +1461,78 @@ msgstr "कॉन्फ़िगरेशन लाने में त्रु
 #: src/LoginFlow/User.php:170
 #, php-format
 msgid ""
-""
 "User with GlpiUserid: %s is marked deleted but still exists in the GLPI "
 "database. Because of this we cannot log you in as this would violate GLPI "
 "its security policies. Please contact the GLPI administrator to restore the "
-"user with provided ID or purge the user to allow the Just in Time (JIT) user "
-"creation to create a new user with the idp provided claims."
+"user with provided ID or purge the user to allow the Just in Time (JIT) user"
+" creation to create a new user with the idp provided claims."
 msgstr ""
-""
-"GlpiUserid वाला उपयोगकर्ता: %s को हटा दिया गया चिह्नित किया गया है लेकिन अभी भी "
-"GLPI डेटाबेस में मौजूद है। इस वजह से हम आपको लॉग इन नहीं कर सकते क्योंकि यह GLPI की "
-"सुरक्षा नीतियों का उल्लंघन होगा। कृपया प्रदान की गई आईडी वाले उपयोगकर्ता को पुनर्स्थापित "
-"करने के लिए जीएलपीआई व्यवस्थापक से संपर्क करें या आईडीपी प्रदान किए गए दावों के साथ एक "
-"नया उपयोगकर्ता बनाने के लिए जस्ट इन टाइम (जेआईटी) उपयोगकर्ता निर्माण की अनुमति देने के "
-"लिए उपयोगकर्ता को शुद्ध करें।"
+"GlpiUserid वाला उपयोगकर्ता: %s को हटा दिया गया चिह्नित किया गया है लेकिन अभी"
+" भी GLPI डेटाबेस में मौजूद है। इस वजह से हम आपको लॉग इन नहीं कर सकते क्योंकि"
+" यह GLPI की सुरक्षा नीतियों का उल्लंघन होगा। कृपया प्रदान की गई आईडी वाले "
+"उपयोगकर्ता को पुनर्स्थापित करने के लिए जीएलपीआई व्यवस्थापक से संपर्क करें या"
+" आईडीपी प्रदान किए गए दावों के साथ एक नया उपयोगकर्ता बनाने के लिए जस्ट इन "
+"टाइम (जेआईटी) उपयोगकर्ता निर्माण की अनुमति देने के लिए उपयोगकर्ता को शुद्ध "
+"करें।"
 
 #: src/LoginFlow/User.php:175
 #, php-format
 msgid ""
-""
-"User with GlpiUserid: %s is disabled. Please contact your GLPI administrator "
-"and request him to reactivate your account."
+"User with GlpiUserid: %s is disabled. Please contact your GLPI administrator"
+" and request him to reactivate your account."
 msgstr ""
-""
-"GlpiUserid वाला उपयोगकर्ता: %s अक्षम है। कृपया अपने GLPI व्यवस्थापक से संपर्क करें और "
-"उससे अपना खाता पुनः सक्रिय करने का अनुरोध करें।"
+"GlpiUserid वाला उपयोगकर्ता: %s अक्षम है। कृपया अपने GLPI व्यवस्थापक से "
+"संपर्क करें और उससे अपना खाता पुनः सक्रिय करने का अनुरोध करें।"
 
 #: src/LoginFlow/User.php:187
 msgid ""
-""
 "Your SSO login was successful but no GLPI profile was assigned to your "
 "account. Please contact your GLPI administrator to assign a profile to your "
 "account."
 msgstr ""
-""
-"आपका एसएसओ लॉगिन सफल रहा लेकिन आपके खाते को कोई जीएलपीआई प्रोफ़ाइल नहीं सौंपी गई। "
-"कृपया अपने खाते में प्रोफ़ाइल निर्दिष्ट करने के लिए अपने GLPI व्यवस्थापक से संपर्क करें।"
+"आपका एसएसओ लॉगिन सफल रहा लेकिन आपके खाते को कोई जीएलपीआई प्रोफ़ाइल नहीं "
+"सौंपी गई। कृपया अपने खाते में प्रोफ़ाइल निर्दिष्ट करने के लिए अपने GLPI "
+"व्यवस्थापक से संपर्क करें।"
 
 #: src/LoginFlow/User.php:212
 msgid ""
-""
 "Your SSO login was successful but the identity provider configuration is "
 "invalid or disabled."
-msgstr "आपका एसएसओ लॉगिन सफल रहा लेकिन पहचान प्रदाता कॉन्फ़िगरेशन अमान्य या अक्षम है।"
+msgstr ""
+"आपका एसएसओ लॉगिन सफल रहा लेकिन पहचान प्रदाता कॉन्फ़िगरेशन अमान्य या अक्षम "
+"है।"
 
 #: src/LoginFlow/User.php:221
 msgid ""
-""
-"Your SSO login was successful but there is no matching GLPI user account "
-"and\n"
-"                                                we failed to create one "
-"dynamically using Just In Time user creation. Please\n"
-"                                                request a GLPI administrator "
-"to review the logs and correct the problem or\n"
-"                                                request the administrator to "
-"create a GLPI user manually."
+"Your SSO login was successful but there is no matching GLPI user account and\n"
+"                                                we failed to create one dynamically using Just In Time user creation. Please\n"
+"                                                request a GLPI administrator to review the logs and correct the problem or\n"
+"                                                request the administrator to create a GLPI user manually."
 msgstr ""
-""
 "आपका एसएसओ लॉगिन सफल रहा लेकिन कोई मेल खाता जीएलपीआई उपयोगकर्ता खाता नहीं है\n"
-"                                                हम जस्ट इन टाइम उपयोगकर्ता "
-"निर्माण का उपयोग करके गतिशील रूप से एक बनाने में विफल रहे। कृपया\n"
-"                                                लॉग की समीक्षा करने और समस्या "
-"को ठीक करने के लिए GLPI व्यवस्थापक से अनुरोध करें या\n"
-"                                                व्यवस्थापक से मैन्युअल रूप से GLPI "
-"उपयोगकर्ता बनाने का अनुरोध करें।"
+"                                                हम जस्ट इन टाइम उपयोगकर्ता निर्माण का उपयोग करके गतिशील रूप से एक बनाने में विफल रहे। कृपया\n"
+"                                                लॉग की समीक्षा करने और समस्या को ठीक करने के लिए GLPI व्यवस्थापक से अनुरोध करें या\n"
+"                                                व्यवस्थापक से मैन्युअल रूप से GLPI उपयोगकर्ता बनाने का अनुरोध करें।"
 
 #: src/LoginFlow/User.php:234
 msgid ""
-""
-"Your SSO login was successful but no GLPI profile was assigned to your "
-"account and\n"
-"                                                    we failed to assign one "
-"dynamically using Just In Time user creation. Please\n"
-"                                                    request a GLPI "
-"administrator to review the logs and correct the problem or\n"
-"                                                    request the "
-"administrator to assign a GLPI profile manually."
+"Your SSO login was successful but no GLPI profile was assigned to your account and\n"
+"                                                    we failed to assign one dynamically using Just In Time user creation. Please\n"
+"                                                    request a GLPI administrator to review the logs and correct the problem or\n"
+"                                                    request the administrator to assign a GLPI profile manually."
 msgstr ""
-""
 "आपका एसएसओ लॉगिन सफल रहा लेकिन आपके खाते में कोई जीएलपीआई प्रोफ़ाइल नहीं सौंपी गई थी\n"
-"                                                    हम जस्ट इन टाइम उपयोगकर्ता "
-"निर्माण का उपयोग करके गतिशील रूप से एक असाइन करने में विफल रहे। कृपया\n"
-"                                                    लॉग की समीक्षा करने और "
-"समस्या को ठीक करने के लिए GLPI व्यवस्थापक से अनुरोध करें या\n"
-"                                                    व्यवस्थापक से मैन्युअल रूप से "
-"GLPI प्रोफ़ाइल असाइन करने का अनुरोध करें।"
+"                                                    हम जस्ट इन टाइम उपयोगकर्ता निर्माण का उपयोग करके गतिशील रूप से एक असाइन करने में विफल रहे। कृपया\n"
+"                                                    लॉग की समीक्षा करने और समस्या को ठीक करने के लिए GLPI व्यवस्थापक से अनुरोध करें या\n"
+"                                                    व्यवस्थापक से मैन्युअल रूप से GLPI प्रोफ़ाइल असाइन करने का अनुरोध करें।"
 
 #: src/LoginFlow/User.php:242
 msgid ""
-""
 "Critical error: samlSSO was unable to fetch newly created user from the "
 "database!"
-msgstr "गंभीर त्रुटि: samlSSO डेटाबेस से नव निर्मित उपयोगकर्ता को लाने में असमर्थ था!"
+msgstr ""
+"गंभीर त्रुटि: samlSSO डेटाबेस से नव निर्मित उपयोगकर्ता को लाने में असमर्थ "
+"था!"
 
 #: src/LoginFlow/User.php:264
 msgid "JIT was called with params:"
@@ -1587,13 +1564,11 @@ msgstr "प्रोफ़ाइल असाइनमेंट के लिए
 
 #: src/LoginFlow/User.php:540
 msgid ""
-""
 "JIT didnt find a profile for entity assignment. Profile asignment might not "
 "work."
 msgstr ""
-""
-"JIT को इकाई असाइनमेंट के लिए कोई प्रोफ़ाइल नहीं मिली। प्रोफ़ाइल असाइनमेंट काम नहीं कर "
-"सकता."
+"JIT को इकाई असाइनमेंट के लिए कोई प्रोफ़ाइल नहीं मिली। प्रोफ़ाइल असाइनमेंट "
+"काम नहीं कर सकता."
 
 #: src/LoginFlow/User.php:546
 msgid "JIT found to be assigned profile(s) to be recursive."
@@ -1625,7 +1600,8 @@ msgstr "JIT को डिफ़ॉल्ट ग्रुपआईडी मि�
 
 #: src/LoginFlow/User.php:624
 msgid "Jit didnt find a default GroupID to assign, skipping\n"
-msgstr "जीट को असाइन करने के लिए कोई डिफ़ॉल्ट ग्रुपआईडी नहीं मिला, छोड़ दिया गया\n"
+msgstr ""
+"जीट को असाइन करने के लिए कोई डिफ़ॉल्ट ग्रुपआईडी नहीं मिला, छोड़ दिया गया\n"
 
 #: src/LoginFlow/User.php:629
 msgid "JIT found default entityID:"
@@ -1633,7 +1609,8 @@ msgstr "JIT को डिफ़ॉल्ट इकाई आईडी मिल�
 
 #: src/LoginFlow/User.php:631
 msgid "Jit didnt find a default EntityId to assign, skipping\n"
-msgstr "जीट को असाइन करने के लिए कोई डिफ़ॉल्ट EntityId नहीं मिला, छोड़ दिया गया\n"
+msgstr ""
+"जीट को असाइन करने के लिए कोई डिफ़ॉल्ट EntityId नहीं मिला, छोड़ दिया गया\n"
 
 #: src/LoginFlow/User.php:636
 msgid "JIT found default profileID:"
@@ -1642,8 +1619,8 @@ msgstr "JIT को डिफ़ॉल्ट प्रोफ़ाइलID मि
 #: src/LoginFlow/User.php:638
 msgid "Jit didnt find a default ProfileId to assign, skipping\n"
 msgstr ""
-""
-"जीट को असाइन करने के लिए कोई डिफ़ॉल्ट प्रोफ़ाइल आईडी नहीं मिली, छोड़ दिया गया\n"
+"जीट को असाइन करने के लिए कोई डिफ़ॉल्ट प्रोफ़ाइल आईडी नहीं मिली, छोड़ दिया "
+"गया\n"
 
 #: src/LoginFlow/User.php:643
 msgid "JIT found timezone:"
@@ -1719,13 +1696,12 @@ msgstr "सफलतापूर्वक लॉग आउट हो गया"
 
 #: templates/loggedOut.html.twig:12
 msgid ""
-""
 "You have been successfully logged out of your session. You can now safely "
 "close this browser window/tab, or log in again using the button below."
 msgstr ""
-""
-"आप अपने सत्र से सफलतापूर्वक लॉग आउट हो गए हैं। अब आप इस ब्राउज़र विंडो/टैब को सुरक्षित रूप "
-"से बंद कर सकते हैं, या नीचे दिए गए बटन का उपयोग करके फिर से लॉग इन कर सकते हैं।"
+"आप अपने सत्र से सफलतापूर्वक लॉग आउट हो गए हैं। अब आप इस ब्राउज़र विंडो/टैब "
+"को सुरक्षित रूप से बंद कर सकते हैं, या नीचे दिए गए बटन का उपयोग करके फिर से "
+"लॉग इन कर सकते हैं।"
 
 #: templates/loggedOut.html.twig:17
 msgid "Log in again"
@@ -1745,13 +1721,11 @@ msgstr "उपयोगकर्ता प्रावधान"
 
 #: templates/configForm/security.html.twig:136
 msgid ""
-""
 "Enabling this field might cause data leak incidents because samlSSO will "
 "apply configuration mistakes made at the IDP directly into GLPI."
 msgstr ""
-""
-"इस फ़ील्ड को सक्षम करने से डेटा लीक की घटनाएं हो सकती हैं क्योंकि samlSSO IDP में की गई "
-"कॉन्फ़िगरेशन गलतियों को सीधे GLPI में लागू करेगा।"
+"इस फ़ील्ड को सक्षम करने से डेटा लीक की घटनाएं हो सकती हैं क्योंकि samlSSO "
+"IDP में की गई कॉन्फ़िगरेशन गलतियों को सीधे GLPI में लागू करेगा।"
 
 #: templates/configForm/security.html.twig:161
 msgid "Inbound Security (IdP)"
@@ -1799,15 +1773,13 @@ msgstr "आईडीपी इकाई आईडी"
 
 #: templates/configForm/provider.html.twig:21
 msgid ""
-""
 "You need to configure the Entity ID at the identity provider. This value is "
 "crosschecked by the identity provider to make sure the sign-in request is "
 "originating from the correct service provider."
 msgstr ""
-""
-"आपको पहचान प्रदाता पर इकाई आईडी कॉन्फ़िगर करने की आवश्यकता है। यह मान पहचान प्रदाता "
-"द्वारा क्रॉसचेक किया जाता है ताकि यह सुनिश्चित किया जा सके कि साइन-इन अनुरोध सही सेवा "
-"प्रदाता से उत्पन्न हो रहा है।"
+"आपको पहचान प्रदाता पर इकाई आईडी कॉन्फ़िगर करने की आवश्यकता है। यह मान पहचान "
+"प्रदाता द्वारा क्रॉसचेक किया जाता है ताकि यह सुनिश्चित किया जा सके कि साइन-"
+"इन अनुरोध सही सेवा प्रदाता से उत्पन्न हो रहा है।"
 
 #: templates/configForm/provider.html.twig:49
 msgid "MetaUrl"
@@ -1815,17 +1787,15 @@ msgstr "मेटायूआरएल"
 
 #: templates/configForm/provider.html.twig:51
 msgid ""
-""
 "The location of the metadata provider for this service provider (GLPI). The "
 "meta location can be used by the identity provider to collect important "
 "information from this service provider like what public certificate to use "
 "for signing and encrypting the SamlResponse."
 msgstr ""
-""
-"इस सेवा प्रदाता (जीएलपीआई) के लिए मेटाडेटा प्रदाता का स्थान। मेटा लोकेशन का उपयोग "
-"पहचान प्रदाता द्वारा इस सेवा प्रदाता से महत्वपूर्ण जानकारी एकत्र करने के लिए किया जा "
-"सकता है जैसे कि सैमलरिस्पॉन्स पर हस्ताक्षर करने और एन्क्रिप्ट करने के लिए किस सार्वजनिक "
-"प्रमाणपत्र का उपयोग करना है।"
+"इस सेवा प्रदाता (जीएलपीआई) के लिए मेटाडेटा प्रदाता का स्थान। मेटा लोकेशन का "
+"उपयोग पहचान प्रदाता द्वारा इस सेवा प्रदाता से महत्वपूर्ण जानकारी एकत्र करने "
+"के लिए किया जा सकता है जैसे कि सैमलरिस्पॉन्स पर हस्ताक्षर करने और एन्क्रिप्ट"
+" करने के लिए किस सार्वजनिक प्रमाणपत्र का उपयोग करना है।"
 
 #: templates/configForm/provider.html.twig:61
 msgid "AcsUrl"
@@ -1833,14 +1803,12 @@ msgstr "AcsUrl"
 
 #: templates/configForm/provider.html.twig:66
 msgid ""
-""
 "The location of the Assertion Consumer Service (ACS) for this service "
 "provider (GLPI). This url is called by the identity provider after "
 "succesfull login."
 msgstr ""
-""
-"इस सेवा प्रदाता (जीएलपीआई) के लिए अभिकथन उपभोक्ता सेवा (एसीएस) का स्थान। सफल लॉगिन "
-"के बाद पहचान प्रदाता द्वारा इस यूआरएल को कॉल किया जाता है।"
+"इस सेवा प्रदाता (जीएलपीआई) के लिए अभिकथन उपभोक्ता सेवा (एसीएस) का स्थान। सफल"
+" लॉगिन के बाद पहचान प्रदाता द्वारा इस यूआरएल को कॉल किया जाता है।"
 
 #: templates/configForm/provider.html.twig:76
 msgid "SloUrl"
@@ -1848,10 +1816,10 @@ msgstr "स्लोयूआरएल"
 
 #: templates/configForm/provider.html.twig:81
 msgid ""
-""
 "The location where logout requests should be send back to from the Identity "
 "Provider."
-msgstr "वह स्थान जहां लॉगआउट अनुरोधों को पहचान प्रदाता से वापस भेजा जाना चाहिए।"
+msgstr ""
+"वह स्थान जहां लॉगआउट अनुरोधों को पहचान प्रदाता से वापस भेजा जाना चाहिए।"
 
 #: templates/configForm/provider.html.twig:89
 msgid "Name ID Policy"
@@ -1867,12 +1835,11 @@ msgstr "SAML SSO प्रमाणीकरण लॉग"
 
 #: templates/configForm/logging.html.twig:12
 msgid ""
-""
 "Track login phases, active sessions, assertion validations, and flow "
 "outcomes for troubleshooting."
 msgstr ""
-""
-"समस्या निवारण के लिए लॉगिन चरण, सक्रिय सत्र, दावा सत्यापन और प्रवाह परिणाम ट्रैक करें।"
+"समस्या निवारण के लिए लॉगिन चरण, सक्रिय सत्र, दावा सत्यापन और प्रवाह परिणाम "
+"ट्रैक करें।"
 
 #: templates/configForm/logging.html.twig:32
 msgid "Search"
@@ -1986,10 +1953,11 @@ msgstr "राज्य और ब्रांडिंग"
 #: templates/configForm/general.html.twig:19
 #: templates/configForm/general.html.twig:83
 msgid ""
-""
 "⚠️ Userdomain is configured. The login button will be hidden from the "
 "loginscreen. Clear the Userdomain to make the button visible again."
-msgstr "⚠️ यूजरडोमेन कॉन्फ़िगर किया गया है। लॉगिन बटन लॉगिनस्क्रीन से छिपा दिया जाएगा। बटन को फिर से दृश्यमान बनाने के लिए यूजरडोमेन साफ़ करें।"
+msgstr ""
+"⚠️ यूजरडोमेन कॉन्फ़िगर किया गया है। लॉगिन बटन लॉगिनस्क्रीन से छिपा दिया "
+"जाएगा। बटन को फिर से दृश्यमान बनाने के लिए यूजरडोमेन साफ़ करें।"
 
 #: templates/configForm/general.html.twig:73
 msgid "Domain & Button Configurations"
@@ -1998,12 +1966,16 @@ msgstr "डोमेन और बटन कॉन्फ़िगरेशन"
 #: templates/configForm/general.html.twig:312
 #, python-brace-format
 msgid ""
-""
 "🔒 Userdomain is configured. Users can trigger a Saml Login by providing "
 "their {username}@{userdomain} in the glpi username field and pressing the "
-"login button. The password field is ignored and can be left blank. This is a "
-"more secure option that wont expose configured IDPs."
-msgstr "🔒 यूजरडोमेन कॉन्फ़िगर किया गया है. उपयोगकर्ता glpi उपयोगकर्ता नाम फ़ील्ड में अपना {username}@{userdomain} प्रदान करके और लॉगिन बटन दबाकर एक सैमल लॉगिन ट्रिगर कर सकते हैं। पासवर्ड फ़ील्ड को अनदेखा कर दिया गया है और उसे खाली छोड़ा जा सकता है. यह एक अधिक सुरक्षित विकल्प है जो कॉन्फ़िगर किए गए आईडीपी को उजागर नहीं करेगा।"
+"login button. The password field is ignored and can be left blank. This is a"
+" more secure option that wont expose configured IDPs."
+msgstr ""
+"🔒 यूजरडोमेन कॉन्फ़िगर किया गया है. उपयोगकर्ता glpi उपयोगकर्ता नाम फ़ील्ड में"
+" अपना {username}@{userdomain} प्रदान करके और लॉगिन बटन दबाकर एक सैमल लॉगिन "
+"ट्रिगर कर सकते हैं। पासवर्ड फ़ील्ड को अनदेखा कर दिया गया है और उसे खाली "
+"छोड़ा जा सकता है. यह एक अधिक सुरक्षित विकल्प है जो कॉन्फ़िगर किए गए आईडीपी "
+"को उजागर नहीं करेगा।"
 
 #: templates/configForm/general.html.twig:333
 msgid "Comments"
@@ -2023,14 +1995,13 @@ msgstr "मानचित्रण सहायक"
 
 #: templates/configForm/claim_mapping.html.twig:15
 msgid ""
-""
 "Map SAML response claim keys dynamically either directly to user profile "
-"fields or as JIT Rule criteria. Configure defaults and required verification "
-"checks."
+"fields or as JIT Rule criteria. Configure defaults and required verification"
+" checks."
 msgstr ""
-""
-"एसएएमएल प्रतिक्रिया दावा कुंजियों को गतिशील रूप से या तो सीधे उपयोगकर्ता प्रोफ़ाइल फ़ील्ड "
-"में या जेआईटी नियम मानदंड के रूप में मैप करें। डिफ़ॉल्ट और आवश्यक सत्यापन जांच कॉन्फ़िगर करें।"
+"एसएएमएल प्रतिक्रिया दावा कुंजियों को गतिशील रूप से या तो सीधे उपयोगकर्ता "
+"प्रोफ़ाइल फ़ील्ड में या जेआईटी नियम मानदंड के रूप में मैप करें। डिफ़ॉल्ट और "
+"आवश्यक सत्यापन जांच कॉन्फ़िगर करें।"
 
 #: templates/configForm/claim_mapping.html.twig:22
 msgid "Apply Preset"
@@ -2050,23 +2021,19 @@ msgstr "स्वच्छीकृत एसएएमएल प्रतिक�
 
 #: templates/configForm/claim_mapping.html.twig:46
 msgid ""
-""
 "This shows the structure of the last received SAML Response. Cryptographic "
 "keys, signatures, digests, and PII text node values have been stripped."
 msgstr ""
-""
-"यह अंतिम प्राप्त SAML प्रतिक्रिया की संरचना को दर्शाता है। क्रिप्टोग्राफ़िक कुंजियाँ, "
-"हस्ताक्षर, डाइजेस्ट और PII टेक्स्ट नोड मान हटा दिए गए हैं।"
+"यह अंतिम प्राप्त SAML प्रतिक्रिया की संरचना को दर्शाता है। क्रिप्टोग्राफ़िक "
+"कुंजियाँ, हस्ताक्षर, डाइजेस्ट और PII टेक्स्ट नोड मान हटा दिए गए हैं।"
 
 #: templates/configForm/claim_mapping.html.twig:50
 msgid ""
-""
 "No SAML response has been recorded yet. Perform a successful login to "
 "populate this view."
 msgstr ""
-""
-"अभी तक कोई SAML प्रतिक्रिया दर्ज नहीं की गई है. इस दृश्य को पॉप्युलेट करने के लिए एक सफल "
-"लॉगिन करें।"
+"अभी तक कोई SAML प्रतिक्रिया दर्ज नहीं की गई है. इस दृश्य को पॉप्युलेट करने "
+"के लिए एक सफल लॉगिन करें।"
 
 #: templates/configForm/claim_mapping.html.twig:68
 msgid "Claim Mapping Validation Errors"
@@ -2163,7 +2130,43 @@ msgstr "बचाना"
 
 #: templates/configForm.html.twig:785
 msgid ""
-""
 "⚠️ Warning SP metadata exposed! - ROWID: %1$s | CREATED DATE: %2$s | LAST "
 "UPDATED: %3$s"
-msgstr "⚠️ चेतावनी एसपी मेटाडेटा उजागर! - रोविड: %1$s | निर्मित तिथि: %2$s | अंतिम अद्यतन: %3$s"
+msgstr ""
+"⚠️ चेतावनी एसपी मेटाडेटा उजागर! - रोविड: %1$s | निर्मित तिथि: %2$s | अंतिम "
+"अद्यतन: %3$s"
+
+#. %s is the remote address that sent the unexpected SAML assertion.
+#: src/LoginFlow/Acs.php:376
+#, php-format
+msgid ""
+"Unexpected assertion triggered while session was in a different phase then expected (2). This error was triggered by external source\n"
+"                        with address:%s. Possible causes include race-conditions or parallel calls using the same samlResponse.\n"
+msgstr ""
+"जब सत्र अपेक्षित चरण (2) के बजाय किसी अन्य चरण में था, तब एक अप्रत्याशित "
+"SAML अभिकथन प्राप्त हुआ। यह त्रुटि %s पते वाले बाहरी स्रोत से उत्पन्न हुई। "
+"संभावित कारणों में रेस कंडीशन या एक ही SAML प्रतिक्रिया का उपयोग करने वाले "
+"समानांतर अनुरोध शामिल हैं।\n"
+
+#. %1$s is the identity provider name; %2$s is the received email claim.
+#: src/LoginFlow/User.php:313
+#, php-format
+msgid ""
+"Your SSO login was successful but there is no matching GLPI user account. In addition the Just-in-time user creation\n"
+"                                          is disabled for: %1$s. Please contact your GLPI administrator and request an account to be created matching the\n"
+"                                          provided email claim: %2$s or login using a local user account."
+msgstr ""
+"आपका SSO साइन-इन सफल रहा, लेकिन उससे मेल खाने वाला कोई GLPI उपयोगकर्ता खाता "
+"नहीं है। इसके अतिरिक्त, %1$s के लिए Just-in-Time उपयोगकर्ता निर्माण अक्षम "
+"है। अपने GLPI व्यवस्थापक से संपर्क करके प्राप्त ईमेल क्लेम %2$s से मेल खाने "
+"वाला खाता बनाने का अनुरोध करें, या किसी स्थानीय उपयोगकर्ता खाते से साइन इन "
+"करें।"
+
+#. %s is the installed samlSSO version.
+#: hook.php:159
+#, php-format
+msgid "🆗 Installing version:%s"
+msgstr "🆗 संस्करण स्थापित करना:%s"
+
+#~ msgid "🆗 Installing version:"
+#~ msgstr "🆗 संस्करण स्थापित करना:"

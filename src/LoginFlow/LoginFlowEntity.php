@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+
 /**
  *  ------------------------------------------------------------------------
  *  samlSSO
@@ -42,71 +42,90 @@ declare(strict_types=1);
  *  @since      1.0.0
  * ------------------------------------------------------------------------
  **/
+
+declare(strict_types=1);
+
 namespace GlpiPlugin\Samlsso\LoginFlow;
 
 use ReflectionClass;
 use GlpiPlugin\Samlsso\Config as SamlConfig;
 use GlpiPlugin\Samlsso\Config\ConfigItem;
 
-/*
+/**
  * Class ConfigEntity's job is to populate, evaluate, test, normalize and
  * make sure we always return a consistent, valid, and usable instance of
  * a samlConfiguration thats either based on a template or based on an
  * existing database row
  */
+
 class LoginFlowEntity extends LoginFlowItem
 {
-    // Be aware, this class is being reflected, so dont store 'private' constants
-    // in this class as they will be included in the reflection!
-    public const ID              = 'id';                                    // Database ID
-    public const DEBUG           = 'debug';                                 // Enable debugging
-    public const ENFORCED        = 'enforced';                              // Enable enforced SSO
-    public const ENFORCEDIDP     = 'forcedIdp';                             // Enforce specific IDP configuration
-    public const ENABLEDOMAIN    = 'enableDomainLogin';                     // Enable domain based Login using domain in username
-    public const ENABLEIDPGETTER = 'enableGetterLogin';                     // Enable getter based Login remote SP initiated login
-    public const HIDEGLPILOGIN   = 'hideGlpiLogin';                         // hide default Glpi Login fields
-    public const HIDEBUTTONS     = 'hideSamlButtons';                       // hide Saml Buttons
-    public const HIDEPASSWORD    = 'hidePassword';                          // hide GLPI PasswordField
-    public const RULESONAUTH     = 'applyRulesOnAuth';                      // (re)Apply rules on each succesfull auth
-    public const RULESONJIT      = 'applyRulesOnJit';                       // Apply rules on JIT
-    public const ALLOWUNSOLICITED= 'allowUnsolicited';                      // Allow unsolicited responses
-    public const ENABLEREDIRECT  = 'processRedirects';                      // Store and process redirects
-    public const BYPASSSTR       = 'byPassString';                          // What value to verify to allow enforced bypass
-    public const BYPASSVAR       = 'byPassVar';                             // What property to use for {bypass var}={bypass string}
-    public const ENABLEIDPLOGOUT = 'enableIdpLogout';                       // Also log user out with IDP if user logs out of GLPI
-    public const ENFORCEIDLE     = 'enforceReAuthAfterIdle';                // Always perform 'reauth' after designated timeout period
-    public const BLOCKLOGIN      = 'blockAfterEnfocedLogout';               // future use, not sure yet how to best implement this.
+    /**
+     * Be aware, this class is being reflected, so dont store 'private' constants in this class as they will be
+     * included in the reflection!
+     */
+    /** Database ID */
+    public const ID              = 'id';
+    /** Enable debugging */
+    public const DEBUG           = 'debug';
+    /** Enable enforced SSO */
+    public const ENFORCED        = 'enforced';
+    /** Enforce specific IDP configuration */
+    public const ENFORCEDIDP     = 'forcedIdp';
+    /** Enable domain based Login using domain in username */
+    public const ENABLEDOMAIN    = 'enableDomainLogin';
+    /** Enable getter based Login remote SP initiated login */
+    public const ENABLEIDPGETTER = 'enableGetterLogin';
+    /** hide default Glpi Login fields */
+    public const HIDEGLPILOGIN   = 'hideGlpiLogin';
+    /** hide Saml Buttons */
+    public const HIDEBUTTONS     = 'hideSamlButtons';
+    /** hide GLPI PasswordField */
+    public const HIDEPASSWORD    = 'hidePassword';
+    /** (re)Apply rules on each succesfull auth */
+    public const RULESONAUTH     = 'applyRulesOnAuth';
+    /** Apply rules on JIT */
+    public const RULESONJIT      = 'applyRulesOnJit';
+    /** Allow unsolicited responses */
+    public const ALLOWUNSOLICITED = 'allowUnsolicited';
+    /** Store and process redirects */
+    public const ENABLEREDIRECT  = 'processRedirects';
+    /** What value to verify to allow enforced bypass */
+    public const BYPASSSTR       = 'byPassString';
+    /** What property to use for {bypass var}={bypass string} */
+    public const BYPASSVAR       = 'byPassVar';
+    /** Also log user out with IDP if user logs out of GLPI */
+    public const ENABLEIDPLOGOUT = 'enableIdpLogout';
+    /** Always perform 'reauth' after designated timeout period */
+    public const ENFORCEIDLE     = 'enforceReAuthAfterIdle';
+    /** future use, not sure yet how to best implement this. */
+    public const BLOCKLOGIN      = 'blockAfterEnfocedLogout';
     public const IS_DELETED      = 'is_deleted';
     public const CREATE_DATE     = 'date_creation';
     public const MOD_DATE        = 'date_mod';
-    
 
     /**
      * True, if an configuration issue is found its set to false.
      */
     private $isValid            = true;
 
-
-     /**
+    /**
      * Contains all field values of a certain configuration
      */
     private $fields             = [];
-
 
     /**
      * Contains all validation error messages generated during validation
      */
     private $invalidMessages    = [];
 
-
     /**
      * The LoginFlowEntity class constructor
      *
-     * @param  int      $id             - LoginFlow configuration ID to fetch, always 1
+     * @param int $id Login flow configuration identifier.
      */
     public function __construct(int $id = 1)
     {
-        // Fetch the configuration from the database;
         $this->validateAndPopulateDBEntity($id);
     }
 
@@ -118,18 +137,19 @@ class LoginFlowEntity extends LoginFlowItem
      */
     private function validateAndPopulateDBEntity($id): void
     {
-        // Get configuration from database;
+        /** Get configuration from database; */
         $config = new SamlConfig();
-        if($config->getFromDB($id)) {
-            // Iterate through fetched fields
-            foreach($config->fields as $field => $value) {
-                // Do validations on all provided fields. All fields need to be
-                // verified by GlpiPlugin\Glpisaml\Config\ConfigItem per default.
+        if ($config->getFromDB($id)) {
+            /** Iterate through fetched fields */
+            foreach ($config->fields as $field => $value) {
+                /**
+                 * Do validations on all provided fields. All fields need to be verified by
+                 * GlpiPlugin\Glpisaml\Config\ConfigItem per default.
+                 */
                 $this->evaluateItem((string) $field, $value);
             }
         }
     }
-
 
     /**
      * Validates and normalizes configuration fields using checks defined
@@ -145,23 +165,29 @@ class LoginFlowEntity extends LoginFlowItem
      */
     private function evaluateItem(string $field, mixed $value, $invalidate = false): array
     {
-        // Verify we have a method to evaluate the given field.
-        $evaluatedItem = (method_exists(get_parent_class($this), $field)) ? $this->$field($value) : $this->noMethod($field, $value);
+        /** Verify we have a method to evaluate the given field. */
+        $evaluatedItem = (method_exists(
+            get_parent_class($this),
+            $field
+        )) ? $this->$field($value) : $this->noMethod($field, $value);
 
-        if(isset($evaluatedItem[ConfigItem::EVAL])      &&
-           $evaluatedItem[ConfigItem::EVAL] == 'valid'  ){
+        if (
+            isset($evaluatedItem[ConfigItem::EVAL])      &&
+            $evaluatedItem[ConfigItem::EVAL] == 'valid'
+        ) {
             $this->fields[$field] = $evaluatedItem[ConfigItem::VALUE];
-        }else{
-            // Pass or invalidate
+        } else {
+            /** Pass or invalidate */
             $this->fields[$field] = ($invalidate) ? '' : $value;
-            // Add errormessage
-            $this->invalidMessages[$field] = (isset($evaluatedItem[ConfigItem::ERRORS])) ? $evaluatedItem[ConfigItem::ERRORS] : 'UNDEFINED';
-            // Mark entity invalid
+            /** Add errormessage */
+            $this->invalidMessages[$field] = (isset($evaluatedItem[ConfigItem::ERRORS]))
+                ? $evaluatedItem[ConfigItem::ERRORS]
+                : 'UNDEFINED';
+            /** Mark entity invalid */
             $this->isValid = false;
         }
         return $evaluatedItem;
     }
-
 
     /**
      * This static function will return the configuration constants
@@ -175,9 +201,8 @@ class LoginFlowEntity extends LoginFlowItem
     public static function getConstants(): array
     {
         $reflectedObj = new ReflectionClass(__CLASS__);
-        return $reflectedObj->getConstants();                  //NOSONAR - ignore S3011 all constants in this object are intended to be public!
+        return $reflectedObj->getConstants(); /** NOSONAR: public constants only. */
     }
-
 
     /**
      * This function will return contextual and actual information about the handled
@@ -188,34 +213,42 @@ class LoginFlowEntity extends LoginFlowItem
      *
      * @return array            - ConfigEntity field information
      */
-    public function getFields(): array        //NOSONAR - Maybe reduce complexity reduce calls to validateConfigFields?;
+    public function getFields(): array /** NOSONAR: existing flow contract. */
     {
         global $DB;
         $fields = [];
-        // Fetch config item constants;
+        /** Fetch config item constants; */
         $classConstants = LoginFlowEntity::getConstants();
-        // Fetch database columns;
-        $sql = 'SHOW COLUMNS FROM '.SamlConfig::getTable();
+        /** Fetch database columns; */
+        $sql = 'SHOW COLUMNS FROM ' . SamlConfig::getTable();
         $result = $DB->doQuery($sql);
         if ($result) {
-            while ($data = $result->fetch_assoc()) {
+            for ($data = $result->fetch_assoc(); $data; $data = $result->fetch_assoc()) {
                 $key = array_search($data['Field'], $classConstants);
                 $fields[$data['Field']] = [
                     ConfigItem::FIELD       => $data['Field'],
                     ConfigItem::TYPE        => $data['Type'],
                     ConfigItem::NULL        => $data['Null'],
                     ConfigItem::CONSTANT    => $key ? "ConfigEntity::$key" : 'UNDEFINED',
-                    ConfigItem::VALUE       => (isset($this->fields[$data['Field']])) ? $this->fields[$data['Field']] : null,
+                    ConfigItem::VALUE       => (isset($this->fields[$data['Field']]))
+                        ? $this->fields[$data['Field']]
+                        : null,
+
                 ];
-                // Evaluate and merge results.
-                $fields[$data['Field']] = array_merge($fields[$data['Field']], $this->evaluateItem($data['Field'], (isset($this->fields[$data['Field']])) ? $this->fields[$data['Field']] : ''));
+                /** Evaluate and merge results. */
+                $fields[$data['Field']] = array_merge(
+                    $fields[$data['Field']],
+                    $this->evaluateItem(
+                        $data['Field'],
+                        (isset($this->fields[$data['Field']])) ? $this->fields[$data['Field']] : ''
+                    )
+                );
             }
         }
-        // Validate spcert and key if provided
+        /** Validate spcert and key if provided */
         $fields = $this->validateAdvancedConfig($fields);
         return $fields;
     }
-
 
     /**
      * Returns the validated and normalized fields in the ConfigEntity
@@ -228,14 +261,13 @@ class LoginFlowEntity extends LoginFlowItem
     public function getDBFields($ignoreFields = []): array
     {
         $fields = [];
-        foreach($this->getFields() as $key => $value){
-            if(is_array($ignoreFields) && !in_array($key, $ignoreFields)){
+        foreach ($this->getFields() as $key => $value) {
+            if (is_array($ignoreFields) && !in_array($key, $ignoreFields)) {
                 $fields[$key] = $value[ConfigItem::VALUE];
             }
         }
         return $fields;
     }
-
 
     /**
      * Validate advanced configuration options and correct params if not supported by provided setup.
@@ -245,12 +277,12 @@ class LoginFlowEntity extends LoginFlowItem
      */
     private function validateAdvancedConfig(array $fields): array
     {
-        // Allows for additional manipulation of configuration fields
-        // before passing them back to the form, for instance
-        // illegal combinations of configuration options or cross object validations
+        /**
+         * Allows for additional manipulation of configuration fields before passing them back to the form, for
+         * instance illegal combinations of configuration options or cross object validations
+         */
         return $fields;
     }
-
 
     /**
      * This function will return specific config field if it exists
@@ -260,16 +292,17 @@ class LoginFlowEntity extends LoginFlowItem
      */
     public function getField(string $fieldName): string|bool
     {
-        if(key_exists($fieldName, $this->fields) &&
-           is_int($this->fields[$fieldName])     ){
+        if (
+            key_exists($fieldName, $this->fields) &&
+            is_int($this->fields[$fieldName])
+        ) {
             return (bool) $this->fields[$fieldName];
-        }elseif (key_exists($fieldName, $this->fields)){
+        } elseif (key_exists($fieldName, $this->fields)) {
             return (string) $this->fields[$fieldName];
-        }else{
+        } else {
             return false;
         }
     }
-
 
     /**
      * This function will return all registered error messages
@@ -278,9 +311,8 @@ class LoginFlowEntity extends LoginFlowItem
      */
     public function getErrorMessages(): array
     {
-            return (count($this->invalidMessages) > 0) ? $this->invalidMessages : [];
+        return (count($this->invalidMessages) > 0) ? $this->invalidMessages : [];
     }
-
 
     /**
      * Returns the validity state of the currently loaded ConfigEntity
@@ -291,4 +323,3 @@ class LoginFlowEntity extends LoginFlowItem
         return (bool) $this->isValid;
     }
 }
-

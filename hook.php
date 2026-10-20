@@ -1,5 +1,7 @@
 <?php
 
+/* phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols -- Native entry point combines bootstrap and plugin declarations. */
+
 /**
  *  ------------------------------------------------------------------------
  *  samlSSO
@@ -44,6 +46,7 @@
  **/
 
 /** This file is included in the GLPI\Plugins\Hooks context. */
+
 use GlpiPlugin\Samlsso\Exclude;
 use GlpiPlugin\Samlsso\RuleSaml;
 use GlpiPlugin\Samlsso\LoginFlow;
@@ -61,7 +64,7 @@ use GlpiPlugin\Samlsso\LoginFlow\User;
  */
 include_once __DIR__ . '/vendor/autoload.php';
 
-// METHODS
+/** METHODS */
 
 /**
  * This function is hooked by rule engine if an user import rule matches configured criteria.
@@ -83,18 +86,16 @@ function updateUser(array $params): void
      * would pass unrelated rule parameters to our handler.
      */
     if ($params['sub_type'] == RuleSaml::class) {
-        (new User)->updateUserRights($params);
+        (new User())->updateUserRights($params);
     }
 }
-
 
 /**
  * Add Excludes to setup dropdown menu.
  *
- * @param void
  * @return array [ClassName => __('Menu label') ]
  */
-function plugin_samlsso_getDropdown(): array                                      // NOSONAR - Default GLPI naming
+function plugin_samlsso_getDropdown(): array /** NOSONAR: GLPI API. */
 {
     /**
      * Return a class-to-label map that instructs GLPI to surface the Exclude
@@ -104,15 +105,13 @@ function plugin_samlsso_getDropdown(): array                                    
     return [Exclude::class => __("samlSSO exclusions", PLUGIN_NAME)];
 }
 
-
 /**
  * This function is hooked by Hooks::POST_INIT to trigger our loginFlow logic.
  * This hook is registered by setup.php
  *
- * @param void
  * @return void
  */
-function plugin_samlsso_evalAuth(): void                                          // NOSONAR - Default GLPI naming
+function plugin_samlsso_evalAuth(): void /** NOSONAR: GLPI API. */
 {
     /**
      * Delegate to LoginFlow::doAuth() which evaluates whether the current
@@ -122,15 +121,13 @@ function plugin_samlsso_evalAuth(): void                                        
     (new LoginFlow())->doAuth();
 }
 
-
 /**
  * This function is hooked by Hooks::DISPLAY_LOGIN to show our custom login form.
  * This hook is registered by setup.php
  *
- * @param void
  * @return void
  */
-function plugin_samlsso_displaylogin(): void                                      // NOSONAR - Default GLPI naming
+function plugin_samlsso_displaylogin(): void /** NOSONAR: GLPI API. */
 {
     /**
      * Delegate to LoginFlow::showLoginScreen() which injects the plugin's IdP
@@ -138,7 +135,6 @@ function plugin_samlsso_displaylogin(): void                                    
      */
     (new LoginFlow())->showLoginScreen();
 }
-
 
 /**
  * Install the samlSSO plugin.
@@ -150,7 +146,7 @@ function plugin_samlsso_displaylogin(): void                                    
  * @return bool  True on success (GLPI expects a bool return value).
  * @see    setup.php  PLUGIN_SAMLSSO_CLASSES for the ordered class registry.
  */
-function plugin_samlsso_install(): bool                                           // NOSONAR - Default GLPI naming
+function plugin_samlsso_install(): bool /** NOSONAR: GLPI API. */
 {
     /**
      * Initialise the GLPI Migration object scoped to the current plugin version.
@@ -160,7 +156,7 @@ function plugin_samlsso_install(): bool                                         
     $version   = plugin_version_samlsso();
     $migration = new Migration($version['version']);
 
-    Session::addMessageAfterRedirect(__('🆗 Installing version:' . PLUGIN_SAMLSSO_VERSION, PLUGIN_NAME));
+    Session::addMessageAfterRedirect(sprintf(__('🆗 Installing version:%s', PLUGIN_NAME), PLUGIN_SAMLSSO_VERSION));
 
     /**
      * Warn if PHP memory_limit is below 512 MB. The OneLogin SAML library
@@ -174,17 +170,20 @@ function plugin_samlsso_install(): bool                                         
         if ($value !== '') {
             $last = strtolower($value[strlen($value) - 1]);
             $bytes = (int)$value;
-            switch ($last) {
-                case 'g':
-                    $bytes *= 1024;
-                case 'm':
-                    $bytes *= 1024;
-                case 'k':
-                    $bytes *= 1024;
-            }
+            $multipliers = ['g' => 1073741824, 'm' => 1048576, 'k' => 1024];
+            $bytes *= $multipliers[$last] ?? 1;
 
             if ($bytes < 536870912) {
-                Session::addMessageAfterRedirect(__('⚠️ PHP memory_limit is less than 512M. This may cause crashes during SAML Login. See: ', PLUGIN_NAME) . ' <a href="https://github.com/DonutsNL/samlsso/wiki/Container-crashes-during-SAML-Login" target="_blank">Wiki</a>', false, WARNING);
+                Session::addMessageAfterRedirect(
+                    __(
+                        '⚠️ PHP memory_limit is less than 512M. This may cause crashes during SAML Login. See: ',
+                        PLUGIN_NAME
+                    )
+                         /* phpcs:ignore Generic.Files.LineLength.TooLong -- Preserve literal output and translation keys. */
+                         . ' <a href="https://github.com/DonutsNL/samlsso/wiki/Container-crashes-during-SAML-Login" target="_blank">Wiki</a>',
+                    false,
+                    WARNING
+                );
             }
         }
     }
@@ -195,7 +194,10 @@ function plugin_samlsso_install(): bool                                         
      * without it. Emit a warning so the administrator is aware of the gap.
      */
     if (!function_exists('openssl_x509_parse')) {
-        Session::addMessageAfterRedirect(__('⚠️ OpenSSL not available, cant verify provided certificates', PLUGIN_NAME));
+        Session::addMessageAfterRedirect(__(
+            '⚠️ OpenSSL not available, cant verify provided certificates',
+            PLUGIN_NAME
+        ));
     } else {
         Session::addMessageAfterRedirect(__('🆗 OpenSSL found!', PLUGIN_NAME));
     }
@@ -223,7 +225,6 @@ function plugin_samlsso_install(): bool                                         
     return true;
 }
 
-
 /**
  * Performs uninstall of plugin classes.
  *
@@ -244,7 +245,7 @@ function plugin_samlsso_install(): bool                                         
  * @return bool  True on success (GLPI expects a bool return value).
  * @see    setup.php  PLUGIN_SAMLSSO_CLASSES for the ordered class registry.
  */
-function plugin_samlsso_uninstall(): bool                                         // NOSONAR - Default GLPI naming
+function plugin_samlsso_uninstall(): bool /** NOSONAR: GLPI API. */
 {
     /**
      * Initialise the GLPI Migration object scoped to the current plugin version.
@@ -266,4 +267,3 @@ function plugin_samlsso_uninstall(): bool                                       
     }
     return true;
 }
-

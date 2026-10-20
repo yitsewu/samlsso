@@ -97,24 +97,21 @@ namespace GlpiPlugin\Samlsso\Compat {
          *
          * @return bool True on GLPI >= 12.0.0.
          */
-        function samlsso_glpi12(): bool
+        function samlsso_glpi12(): bool /** NOSONAR: GLPI API. */
         {
             return defined('GLPI_VERSION') && version_compare((string) GLPI_VERSION, '12.0.0', '>=');
         }
     }
 
     if (samlsso_glpi12()) {
-        // ------------------------------------------------------------
-        // GLPI >= 12 : parents are typed. Intermediates repeat the parent's
-        // exact type (invariance); defaults may differ from the parent.
-        // Verified against GLPI 12.0.0:
-        //   CommonGLPI     :: public static string $rightname = '';
-        //   CommonDBTM     :: public bool $dohistory = false;   (via CommonGLPI)
-        //   CommonDropdown :: public static string $rightname = 'dropdown';
-        //   Rule           :: public static string $rightname = 'config';
-        //   RuleCollection :: public static string $rightname = 'config';
-        //   RuleCollection :: public string $menu_option = "";
-        // ------------------------------------------------------------
+
+        /**
+         * GLPI >= 12 : parents are typed. Intermediates repeat the parent's exact type (invariance); defaults may
+         * differ from the parent. Verified against GLPI 12.0.0: CommonGLPI     :: public static string $rightname =
+         * ''; CommonDBTM     :: public bool $dohistory = false;   (via CommonGLPI) CommonDropdown :: public static
+         * string $rightname = 'dropdown'; Rule           :: public static string $rightname = 'config'; RuleCollection
+         * :: public static string $rightname = 'config'; NOSONAR - RuleCollection :: public string $menu_option = "";
+         */
 
         /**
          * Config intermediate: 'config' rights + history on, GLPI 12 typing.
@@ -128,6 +125,7 @@ namespace GlpiPlugin\Samlsso\Compat {
         /**
          * LoginFlow intermediate: 'config' rights + history on, GLPI 12 typing.
          */
+        /* phpcs:ignore PSR1.Classes.ClassDeclaration.MultipleClasses -- Version-gated native property types. */
         abstract class LoginFlowCompat extends CommonDBTM
         {
             public bool $dohistory = true;
@@ -139,6 +137,7 @@ namespace GlpiPlugin\Samlsso\Compat {
          * $dohistory repeats the CommonDropdown default (same type, same value) so
          * the behaviour also holds against untyped test doubles of the parent.
          */
+        /* phpcs:ignore PSR1.Classes.ClassDeclaration.MultipleClasses -- Version-gated native property types. */
         abstract class ExcludeCompat extends CommonDropdown
         {
             public bool $dohistory = true;
@@ -148,6 +147,7 @@ namespace GlpiPlugin\Samlsso\Compat {
         /**
          * RuleSaml intermediate: import-classified rule, GLPI 12 typing.
          */
+        /* phpcs:ignore PSR1.Classes.ClassDeclaration.MultipleClasses -- Version-gated native property types. */
         abstract class RuleSamlCompat extends Rule
         {
             public static string $rightname = 'rule_import';
@@ -159,29 +159,28 @@ namespace GlpiPlugin\Samlsso\Compat {
          * Guarded on the parent: unit-test doubles omit RuleCollection.
          */
         if (class_exists('RuleCollection')) {
+            /* phpcs:ignore PSR1.Classes.ClassDeclaration.MultipleClasses -- Version-gated native property types. */
             abstract class RuleSamlCollectionCompat extends RuleCollection
             {
                 public static string $rightname = 'rule_import';
-                public string $menu_option = "Saml";
+                public string $menu_option = "Saml"; /** NOSONAR: GLPI API. */
             }
         }
     } else {
-        // ------------------------------------------------------------
-        // GLPI < 12 (and the untyped unit-test shims): parents are untyped.
-        // Intermediates repeat that untyped shape, since PHP forbids ADDING a
-        // type over an untyped parent property.
-        // Verified against GLPI 11.0.x:
-        //   CommonGLPI     :: public static $rightname = '';
-        //   CommonDBTM     :: public $dohistory = false;         (via CommonGLPI)
-        //   CommonDropdown :: public static $rightname = 'dropdown';
-        //   Rule           :: public static $rightname = 'config';
-        //   RuleCollection :: public static $rightname = 'config';
-        //   RuleCollection :: public $menu_option = "";
-        // ------------------------------------------------------------
+
+        /**
+         * GLPI < 12 (and the untyped unit-test shims): parents are untyped. Intermediates repeat that untyped shape,
+         * since PHP forbids ADDING a type over an untyped parent property. Verified against GLPI 11.0.x: CommonGLPI
+         * :: public static $rightname = ''; CommonDBTM     :: public $dohistory = false;         (via CommonGLPI)
+         * CommonDropdown :: public static $rightname = 'dropdown'; Rule           :: public static $rightname =
+         * 'config'; RuleCollection :: public static $rightname = 'config'; NOSONAR - RuleCollection :: public
+         * $menu_option = "";
+         */
 
         /**
          * Config intermediate: 'config' rights + history on, GLPI 11 shape.
          */
+        /* phpcs:ignore PSR1.Classes.ClassDeclaration.MultipleClasses -- Version-gated native property types. */
         abstract class ConfigCompat extends CommonDBTM
         {
             public $dohistory = true;
@@ -191,6 +190,7 @@ namespace GlpiPlugin\Samlsso\Compat {
         /**
          * LoginFlow intermediate: 'config' rights + history on, GLPI 11 shape.
          */
+        /* phpcs:ignore PSR1.Classes.ClassDeclaration.MultipleClasses -- Version-gated native property types. */
         abstract class LoginFlowCompat extends CommonDBTM
         {
             public $dohistory = true;
@@ -202,6 +202,7 @@ namespace GlpiPlugin\Samlsso\Compat {
          * $dohistory repeats the CommonDropdown default so the behaviour also
          * holds against test doubles of the parent.
          */
+        /* phpcs:ignore PSR1.Classes.ClassDeclaration.MultipleClasses -- Version-gated native property types. */
         abstract class ExcludeCompat extends CommonDropdown
         {
             public $dohistory = true;
@@ -211,6 +212,7 @@ namespace GlpiPlugin\Samlsso\Compat {
         /**
          * RuleSaml intermediate: import-classified rule, GLPI 11 shape.
          */
+        /* phpcs:ignore PSR1.Classes.ClassDeclaration.MultipleClasses -- Version-gated native property types. */
         abstract class RuleSamlCompat extends Rule
         {
             public static $rightname = 'rule_import';
@@ -222,13 +224,12 @@ namespace GlpiPlugin\Samlsso\Compat {
          * Guarded on the parent: unit-test doubles omit RuleCollection.
          */
         if (class_exists('RuleCollection')) {
+            /* phpcs:ignore PSR1.Classes.ClassDeclaration.MultipleClasses -- Version-gated native property types. */
             abstract class RuleSamlCollectionCompat extends RuleCollection
             {
                 public static $rightname = 'rule_import';
-                public $menu_option = "Saml";
+                public $menu_option = "Saml"; /** NOSONAR: GLPI API. */
             }
         }
-
     }
-
 }

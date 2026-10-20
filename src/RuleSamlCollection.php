@@ -1,5 +1,7 @@
 <?php
-declare(strict_types=1);
+
+/* phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols -- Native bootstrap must precede these declarations. */
+
 /**
  *  ------------------------------------------------------------------------
  *  samlSSO
@@ -43,12 +45,16 @@ declare(strict_types=1);
  * ------------------------------------------------------------------------
  **/
 
+declare(strict_types=1);
+
 namespace GlpiPlugin\Samlsso;
 
 use GlpiPlugin\Samlsso\Compat\RuleSamlCollectionCompat;
 
-// Version-selected compatibility layer (GLPI 11 untyped / GLPI 12 typed core
-// properties). Must be required before the class below extends the compat one.
+/**
+ * Version-selected compatibility layer (GLPI 11 untyped / GLPI 12 typed core properties). Must be required before the
+ * class below extends the compat one.
+ */
 require_once __DIR__ . '/compat.php';
 
 /**
@@ -59,7 +65,6 @@ require_once __DIR__ . '/compat.php';
  **/
 class RuleSamlCollection extends RuleSamlCollectionCompat
 {
-
     /**
      * @see Rule::getCriterias()
      **/
@@ -84,5 +89,4 @@ class RuleSamlCollection extends RuleSamlCollectionCompat
     {
         return '/front/rulesengine.test.php';
     }
-
 }

@@ -1,4 +1,7 @@
 <?php
+
+/* phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols -- Native entry point combines bootstrap and plugin declarations. */
+
 /**
  *  ------------------------------------------------------------------------
  *  samlSSO
@@ -44,29 +47,34 @@
 
 declare(strict_types=1);
 
+use GlpiPlugin\Samlsso\Exception\PluginMaintenanceException;
+
+/** Report bootstrap failures before GLPI has registered the plugin autoloader. */
+require_once dirname(__DIR__) . '/src/Exception/PluginMaintenanceException.php';
+
 if (php_sapi_name() !== 'cli') {
-    throw new \Exception("This script must be run from the command line.");
+    throw new PluginMaintenanceException("This script must be run from the command line.");
 }
 
 $glpi_root = realpath(dirname(__DIR__, 3));
 $autoload_path = $glpi_root . '/vendor/autoload.php';
 if (!file_exists($autoload_path)) {
-    throw new \Exception("Error: GLPI vendor autoloader not found at: $autoload_path");
+    throw new PluginMaintenanceException("Error: GLPI vendor autoloader not found at: $autoload_path");
 }
 
-// Override GLPI log directory to a writable folder in the plugin directory to avoid permission issues
+/** Override GLPI log directory to a writable folder in the plugin directory to avoid permission issues */
 $plugin_log_dir = dirname(__DIR__) . '/tests/logs';
 if (!is_dir($plugin_log_dir)) {
     mkdir($plugin_log_dir, 0777, true);
 }
 define('GLPI_LOG_DIR', $plugin_log_dir);
 
-// Bootstrap GLPI Kernel
+/** Bootstrap GLPI Kernel */
 require_once $autoload_path;
 $kernel = new \Glpi\Kernel\Kernel();
 $kernel->boot();
 
-// Now require plugin scripts
+/** Now require plugin scripts */
 require_once dirname(__DIR__) . '/setup.php';
 require_once dirname(__DIR__) . '/hook.php';
 
@@ -75,7 +83,7 @@ echo " GLPI SAMLSSO - Database Reinstall & Validator\n";
 echo "================================================\n\n";
 
 if (!defined('PLUGIN_SAMLSSO_CLASSES') || !is_array(PLUGIN_SAMLSSO_CLASSES)) {
-    throw new \Exception("Error: PLUGIN_SAMLSSO_CLASSES is not defined or is not an array.");
+    throw new \UnexpectedValueException("Error: PLUGIN_SAMLSSO_CLASSES is not defined or is not an array.");
 }
 
 global $DB;
@@ -93,7 +101,12 @@ foreach (array_reverse(PLUGIN_SAMLSSO_CLASSES) as $class) {
             try {
                 $class::uninstall($migration);
             } catch (\Throwable $e) {
-                if (strpos($e->getMessage(), 'Unknown table') !== false || strpos($e->getMessage(), "doesn't exist") !== false) {
+                if (
+                    strpos($e->getMessage(), 'Unknown table') !== false || strpos(
+                        $e->getMessage(),
+                        "doesn't exist"
+                    ) !== false
+                ) {
                     echo "   - Note: Table already dropped or renamed during backup: " . $e->getMessage() . "\n";
                 } else {
                     throw $e;
@@ -130,9 +143,10 @@ foreach (PLUGIN_SAMLSSO_CLASSES as $class) {
     }
     echo "✅ Table $table exists.\n";
 
-    // Validate expected columns
+    /** Validate expected columns */
     if ($class === \GlpiPlugin\Samlsso\ClaimMap::class) {
-        $expected_cols = ['id', 'configs_id', 'target_type', 'glpi_field', 'saml_claim', 'default_value', 'is_required'];
+        $expected_cols = ['id', 'configs_id', 'target_type', 'glpi_field', 'saml_claim',
+             'default_value', 'is_required'];
         foreach ($expected_cols as $col) {
             if (!$DB->fieldExists($table, $col)) {
                 echo "❌ Failure: Table $table is missing expected column: $col\n";
@@ -159,5 +173,5 @@ if ($all_valid) {
     echo "Overall Status: REINSTALLATION SUCCESSFUL & VALID! 🚀\n";
 } else {
     echo "Overall Status: VALIDATION DETECTED INTEGRITY ERRORS! 🛑\n";
-    throw new \Exception("VALIDATION DETECTED INTEGRITY ERRORS!");
+    throw new PluginMaintenanceException("VALIDATION DETECTED INTEGRITY ERRORS!");
 }
